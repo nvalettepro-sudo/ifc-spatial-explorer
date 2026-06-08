@@ -537,6 +537,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 /* Conteneur enfants — indentation strictement vers la droite */
 .hier-children{display:none;border-left:1.5px solid var(--border);margin-left:1.1rem}
+.hier-spacer-arrow{display:inline-block;width:10px;flex-shrink:0}
+.hier-spacer-dot{display:inline-block;width:7px;flex-shrink:0}
 .hier-group.open > .hier-children{display:block}
 .aside-pane::-webkit-scrollbar{width:4px}
 .aside-pane::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -6473,7 +6475,7 @@ function showAbstractDetail(name){
 function buildHierTree(){
   const root = {};
   function ensure(parent, name){
-    if(!parent[name]) parent[name] = {children:{}, key:null};
+    if(!parent[name]) parent[name] = {children:{}, key:null, leafCount:0};
     return parent[name];
   }
   Object.entries(E).forEach(([key, en]) => {
@@ -6484,69 +6486,90 @@ function buildHierTree(){
       cur = node.children;
     });
   });
+  // Mémoïser le nombre de feuilles une seule fois
+  function memoLeaves(node){
+    node.leafCount = node.key ? 1 : 0;
+    Object.values(node.children).forEach(c => { node.leafCount += memoLeaves(c); });
+    return node.leafCount;
+  }
+  Object.values(root).forEach(memoLeaves);
   return root;
 }
 
-function countLeaves(node){
-  let n = node.key ? 1 : 0;
-  Object.values(node.children).forEach(c => { n += countLeaves(c); });
-  return n;
-}
-
-function hierRowHtml(name, node, isOpen, extraOnClick){
+function hierRowHtml(name, node){
   const en = node.key ? E[node.key] : null;
   const ac = ABSTRACT_CLASSES[name];
   const hasChildren = Object.keys(node.children).length > 0;
-  const isAbstract = !en;
-  const leaves = hasChildren ? countLeaves(node) : 0;
   const clickHandler = en
     ? `showDetail('${node.key}')`
     : (ac ? `showAbstractDetail('${name}')` : null);
 
   const arrow = hasChildren
     ? `<span class="hier-arrow">›</span>`
-    : `<span style="display:inline-block;width:10px;flex-shrink:0"></span>`;
+    : `<span class="hier-spacer-arrow"></span>`;
 
   const dot = en
     ? `<span class="hier-dot" style="background:${getCatColor(en.cat)}"></span>`
-    : `<span style="display:inline-block;width:7px;flex-shrink:0"></span>`;
+    : `<span class="hier-spacer-dot"></span>`;
 
   const frPart = (en || ac)
     ? `<span class="hier-fr">${en ? en.fr : ac.fr}</span>`
     : '';
 
   const badge = hasChildren
-    ? `<span class="hier-badge">${leaves}</span>`
+    ? `<span class="hier-badge">${node.leafCount}</span>`
     : '';
 
-  const rowClick = extraOnClick || (hasChildren
+  const rowClick = hasChildren
     ? `this.closest('.hier-group').classList.toggle('open')${clickHandler ? `;${clickHandler}` : ''}`
-    : (clickHandler || ''));
+    : (clickHandler || '');
 
-  return `<div class="hier-row${isAbstract?' abstract':''}" onclick="${rowClick}">
+  return `<div class="hier-row${en?'':' abstract'}" onclick="${rowClick}">
     ${arrow}${dot}${frPart}
     <span class="hier-ifc">${name}</span>
     ${badge}
   </div>`;
 }
 
-function renderHierNode(name, node){
+function hierMatchNode(node, name, val){
+  const en = node.key ? E[node.key] : null;
+  const ac = ABSTRACT_CLASSES[name];
+  if(name.toLowerCase().includes(val)) return true;
+  if(en && (en.fr.toLowerCase().includes(val) || en.ifc.toLowerCase().includes(val))) return true;
+  if(ac && ac.fr.toLowerCase().includes(val)) return true;
+  return Object.entries(node.children).some(([n,c]) => hierMatchNode(c, n, val));
+}
+
+// Rendu d'un nœud, optionnellement filtré (val défini = mode filtre)
+function renderHierNode(name, node, val){
   const hasChildren = Object.keys(node.children).length > 0;
+  const en = node.key ? E[node.key] : null;
+  const ac = ABSTRACT_CLASSES[name];
+  const filtering = val !== undefined;
 
   if(!hasChildren){
-    const en = node.key ? E[node.key] : null;
-    const ac = ABSTRACT_CLASSES[name];
     if(!en && !ac) return '';
-    return `<div class="hier-group">${hierRowHtml(name, node, false, null)}</div>`;
+    if(filtering){
+      const selfMatch = hierMatchNode(node, name, val);
+      if(!selfMatch) return '';
+    }
+    return `<div class="hier-group">${hierRowHtml(name, node)}</div>`;
   }
 
-  const childrenHtml = Object.entries(node.children)
-    .sort(([a],[b]) => a.localeCompare(b))
-    .map(([n,c]) => renderHierNode(n, c))
-    .join('');
+  let children = Object.entries(node.children).sort(([a],[b]) => a.localeCompare(b));
+  if(filtering){
+    const selfMatch = name.toLowerCase().includes(val) ||
+      (en && (en.fr.toLowerCase().includes(val) || en.ifc.toLowerCase().includes(val))) ||
+      (ac && ac.fr.toLowerCase().includes(val));
+    children = children.filter(([n,c]) => hierMatchNode(c, n, val));
+    if(!selfMatch && !children.length) return '';
+  }
 
-  return `<div class="hier-group">
-    ${hierRowHtml(name, node, false, null)}
+  const childrenHtml = children.map(([n,c]) => renderHierNode(n, c, val)).join('');
+  const openClass = filtering ? ' open' : '';
+
+  return `<div class="hier-group${openClass}">
+    ${hierRowHtml(name, node)}
     <div class="hier-children">${childrenHtml}</div>
   </div>`;
 }
@@ -6564,51 +6587,13 @@ function renderHierTree(){
 }
 
 function filterHierTree(q){
-  const val = q.trim().toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const val = q.trim().toLowerCase();
   if(!val){ renderHierTree(); return; }
   if(!_hierTree) _hierTree = buildHierTree();
-
-  function matchNode(node, name){
-    const en = node.key ? E[node.key] : null;
-    const ac = ABSTRACT_CLASSES[name];
-    if(name.toLowerCase().includes(val)) return true;
-    if(en && (en.fr.toLowerCase().includes(val) || en.ifc.toLowerCase().includes(val))) return true;
-    if(ac && ac.fr.toLowerCase().includes(val)) return true;
-    return Object.entries(node.children).some(([n,c]) => matchNode(c, n));
-  }
-
-  function renderFiltered(name, node){
-    const hasChildren = Object.keys(node.children).length > 0;
-    const en = node.key ? E[node.key] : null;
-    const ac = ABSTRACT_CLASSES[name];
-    const selfMatch = name.toLowerCase().includes(val) ||
-      (en && (en.fr.toLowerCase().includes(val) || en.ifc.toLowerCase().includes(val))) ||
-      (ac && ac.fr.toLowerCase().includes(val));
-
-    if(!hasChildren){
-      if(!selfMatch) return '';
-      if(!en && !ac) return '';
-      return `<div class="hier-group">${hierRowHtml(name, node, false, null)}</div>`;
-    }
-
-    const matchingChildren = Object.entries(node.children)
-      .filter(([n,c]) => matchNode(c, n))
-      .sort(([a],[b]) => a.localeCompare(b))
-      .map(([n,c]) => renderFiltered(n, c))
-      .join('');
-
-    if(!selfMatch && !matchingChildren) return '';
-
-    return `<div class="hier-group open">
-      ${hierRowHtml(name, node, true, null)}
-      <div class="hier-children">${matchingChildren}</div>
-    </div>`;
-  }
-
   const html = Object.entries(_hierTree)
-    .filter(([n,c]) => matchNode(c, n))
+    .filter(([n,c]) => hierMatchNode(c, n, val))
     .sort(([a],[b]) => a.localeCompare(b))
-    .map(([n,c]) => renderFiltered(n, c))
+    .map(([n,c]) => renderHierNode(n, c, val))
     .join('');
   document.getElementById('hier-tree').innerHTML = html || '<div class="hier-empty">Aucun résultat</div>';
 }
