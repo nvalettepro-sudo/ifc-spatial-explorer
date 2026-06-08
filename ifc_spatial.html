@@ -7733,13 +7733,18 @@ function showDetail(id){
     </tr>`;
   }
 
+  const sectionLabel = (txt, count) =>
+    `<tr><td colspan="2" style="padding:.5rem 0 .25rem;font-size:.56rem;font-weight:700;
+      text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+      border-top:1px solid var(--border)">${txt}<span style="font-weight:400;margin-left:.4rem;opacity:.7">(${count})</span></td></tr>`;
+
   let attrsHtml = '';
   if(ownAttrs.length){
+    attrsHtml += sectionLabel('Attributs propres', ownAttrs.length);
     attrsHtml += ownAttrs.map(renderAttrRow).join('');
   }
   if(inherited.length){
-    attrsHtml += `<tr><td colspan="2" style="padding:.4rem 0 .2rem;font-size:.56rem;font-weight:700;
-      text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Hérités</td></tr>`;
+    attrsHtml += sectionLabel('Attributs hérités', inherited.length);
     attrsHtml += inherited.map(renderAttrRow).join('');
   }
   const attrsTable = `<table style="width:100%;border-collapse:collapse">${attrsHtml}</table>`;
