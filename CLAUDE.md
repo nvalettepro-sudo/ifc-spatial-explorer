@@ -11,7 +11,7 @@ Tu travailles sur un **outil pédagogique HTML standalone** pour explorer le sch
 L'utilisateur est **Nico Valette** — architecte DPLG, BIM Manager, non-développeur.  
 Il décrit ce qu'il veut en français. Tu codes à sa place et tu livres du fonctionnel immédiatement.
 
-**Fichier principal** : `ifc_spatial.html` (~610 KB, ~7960 lignes, vanilla HTML/CSS/JS, zéro framework)
+**Fichier principal** : `ifc_spatial.html` (~670 KB, ~8170 lignes, vanilla HTML/CSS/JS, zéro framework)
 
 ---
 
@@ -30,7 +30,7 @@ Il décrit ce qu'il veut en français. Tu codes à sa place et tu livres du fonc
 ```
 .app (display:flex)
 ├── .aside (panneau GAUCHE, width:50vw par défaut, redimensionnable)
-│   ├── .aside-tabs → [Données] [Arborescence] [Résultats (caché)]
+│   ├── .aside-tabs → [Données] [Arborescence] [Hiérarchie] [Résultats (caché)]
 │   ├── #pane-data → onglet Données (actif par défaut)
 │   │   ├── Navigation rapide (.nav-pill)
 │   │   ├── #ds-catalogue → Catalogue complet (en premier)
@@ -40,14 +40,17 @@ Il décrit ce qu'il veut en français. Tu codes à sa place et tu livres du fonc
 │   │   ├── #ds-enums → Énumérations
 │   │   ├── #ds-types → Bibliothèques de types IFC
 │   │   └── #ds-legend → Légende des couleurs
-│   ├── #pane-arbo → onglet Arborescence
+│   ├── #pane-arbo → onglet Arborescence spatiale
 │   │   ├── Boutons + Ajouter / - Supprimer / ↺ Réinitialiser
 │   │   └── .spatial-view → Projet → Terrain → Bâtiment → Niveaux
+│   ├── #pane-hier → onglet Hiérarchie IFC (NOUVEAU)
+│   │   ├── input#hier-search → filtre texte
+│   │   └── #hier-tree → arbre dépliable généré par renderHierTree()
 │   └── #pane-search → Résultats de recherche (affiché si recherche active)
 ├── .resizer (poignée drag, min 220px, max 88vw, dblclic = 50%)
 └── .fiche-panel (panneau DROIT, toujours visible)
     ├── .fiche-panel-header → "FICHE DÉTAILLÉE"
-    └── .fiche-panel-body → #detail (rempli par showDetail())
+    └── .fiche-panel-body → #detail (rempli par showDetail() ou showAbstractDetail())
 ```
 
 ---
@@ -75,6 +78,8 @@ const ATTR_DICT   = { /* attributs traduits + définitions */ };
 const ATTRS_BY_ENTITY = { /* attributs complets par entité */ };
 const ENUMS       = { /* énumérations IFC2x3 */ };
 const STOREY_TEMPLATES = [ /* 5 niveaux */ ];
+const ABSTRACT_CLASSES = { /* 36 classes abstraites IFC avec fr, desc, subtypes[] */ };
+const INHERITED_ORDER  = ['Name','ObjectType','Description','GlobalId','OwnerHistory','ObjectPlacement','Representation','Tag'];
 ```
 
 ---
@@ -115,14 +120,21 @@ const STOREY_TEMPLATES = [ /* 5 niveaux */ ];
 ## Fonctions JS clés
 
 ```javascript
-showDetail(key)        // Affiche la fiche d'une entité dans #detail
-switchTab(tab)         // 'arbo' | 'data' | 'search' — panneau gauche uniquement
-renderStoreys()        // Génère le RDC avec tous les éléments par section
-renderCatalogue()      // Génère le catalogue complet dans #ds-catalogue
-toggleDataSection(id)  // Ouvre/ferme un ds-block
-toggleTheme()          // Bascule dark/light, sauvegarde localStorage
-getCatColor(cat)       // Retourne la couleur selon le thème actuel
-getGrpColors()         // Retourne GRP_COLORS_LIGHT ou DARK selon thème
+showDetail(key)            // Affiche la fiche d'une entité E dans #detail
+showAbstractDetail(name)   // Affiche la fiche d'une classe abstraite dans #detail
+switchTab(tab)             // 'arbo' | 'data' | 'search' | 'hier' — panneau gauche
+renderStoreys()            // Génère le RDC avec tous les éléments par section
+renderCatalogue()          // Génère le catalogue complet dans #ds-catalogue
+renderHierTree()           // Génère l'arbre hiérarchique IFC dans #hier-tree
+filterHierTree(q)          // Filtre l'arbre par texte (appel depuis input#hier-search)
+hierMatchNode(node,name,v) // Teste si un nœud ou ses enfants matchent la valeur v
+renderHierNode(name,node,v)// Rendu récursif d'un nœud (v=undefined = pas de filtre)
+hierRowHtml(name,node)     // Génère le HTML d'une ligne de l'arbre
+buildHierTree()            // Construit l'arbre depuis heritage[] de E (avec leafCount mémoïsé)
+toggleDataSection(id)      // Ouvre/ferme un ds-block
+toggleTheme()              // Bascule dark/light, sauvegarde localStorage
+getCatColor(cat)           // Retourne la couleur selon le thème actuel
+getGrpColors()             // Retourne GRP_COLORS_LIGHT ou DARK selon thème
 ```
 
 ---
@@ -144,6 +156,16 @@ Pour valider : extraire le JS du HTML et lancer `node --check fichier.js`
 
 ---
 
+## Préférences visuelles de Nico
+
+- **Arborescences** : progression strictement vers la droite, pas de retour en arrière. Chaque niveau = indentation supplémentaire. Pas de blocs colorés qui créent du "bruit" visuel.
+- **Hiérarchie IFC** : nœuds abstraits discrets (texte gris, petite taille), feuilles concrètes avec pastille couleur de catégorie — pas de fond coloré plein.
+- **Overlay / modales** : ne jamais s'ouvrir automatiquement au démarrage. Uniquement au clic explicite.
+- **Sections attributs** : toujours séparer "Attributs propres" et "Attributs hérités" avec titres clairs.
+- **Ordre attributs hérités** : Nom → Type d'objet → Description → GUID → reste (voir `INHERITED_ORDER`).
+
+---
+
 ## Pièges techniques connus
 
 | Problème | Solution |
@@ -154,6 +176,8 @@ Pour valider : extraire le JS du HTML et lancer `node --check fichier.js`
 | Spécificité CSS dark mode pour cat-chip | Utiliser `[data-theme="dark"] .cat-chip.e-xxx` (2 classes) |
 | Style inline `display:none` | Override la classe `.active` — ne pas mélanger |
 | Newlines dans strings de données | Sanitiser avant injection |
+| `node --check` sur .html échoue | Extraire JS avec `sed -n 'DEBUT,FINp'` vers /tmp/check.js |
+| Validation JS : trouver les bonnes lignes | `grep -n "<script>\|</script>"` pour bornes exactes |
 
 ---
 
@@ -162,8 +186,11 @@ Pour valider : extraire le JS du HTML et lancer `node --check fichier.js`
 1. **Lire la demande** de Nico en français
 2. **Localiser** la zone à modifier avec `grep -n`
 3. **Implémenter** la modification
-4. **Valider** le JS : extraire + `node --check`
-5. **Livrer** le fichier complet
+4. **Valider** le JS : `sed -n 'DEBUT,FINp' ifc_spatial.html > /tmp/check.js && node --check /tmp/check.js`
+5. **Commiter et pousser** sur `main` directement (pas de PR nécessaire)
+6. Nico rafraîchit : `https://nvalettepro-sudo.github.io/ifc-spatial-explorer/ifc_spatial.html`
+
+**Pas de navigateur disponible** dans l'environnement remote — les vérifications visuelles se font via le lien GitHub Pages.
 
 ---
 
@@ -173,6 +200,8 @@ Pour valider : extraire le JS du HTML et lancer `node --check fichier.js`
 - Export PDF d'une fiche
 - Mode comparaison IFC2x3 vs IFC4
 - Liens vers la documentation buildingSMART officielle
+- Améliorer l'onglet Hiérarchie : sous-types cliquables dans les fiches abstraites (ouvrent la fiche de l'entité)
+- Passer `/simplify` sur le CSS dark mode (doublons `.e-sp` / `.e-space`)
 
 ---
 
