@@ -6376,6 +6376,74 @@ function clearSearch(){
 /* ═══════════════════════════════════════
    ARBRE HIÉRARCHIQUE IFC
 ═══════════════════════════════════════ */
+const ABSTRACT_CLASSES = {
+  IfcRoot:{fr:"Racine IFC",desc:"Classe racine absolue de toutes les entités IFC pouvant exister dans un fichier. Toute entité que l'on peut identifier, nommer ou historiser hérite d'IfcRoot. Elle garantit l'unicité globale via le GUID et trace la création et les modifications via l'historique propriétaire.",subtypes:["IfcObjectDefinition","IfcPropertyDefinition","IfcRelationship"]},
+  IfcObjectDefinition:{fr:"Définition d'objet",desc:"Classe abstraite regroupant tout ce qui peut être défini comme un objet concret (IfcObject) ou un type réutilisable (IfcTypeObject). Permet d'attacher des assignations de rôles, des relations de décomposition et des associations à des ressources externes.",subtypes:["IfcObject","IfcTypeObject"]},
+  IfcObject:{fr:"Objet",desc:"Classe mère de tous les objets concrets ou conceptuels d'un projet IFC : acteurs, contrôles, groupes, processus, produits, projet lui-même et ressources. Porte l'attribut ObjectType qui permet de spécialiser l'objet sans créer un nouveau type formel.",subtypes:["IfcActor","IfcControl","IfcGroup","IfcProcess","IfcProduct","IfcProject","IfcResource"]},
+  IfcProduct:{fr:"Produit",desc:"Tout objet physique ou virtuel ayant une position dans l'espace 3D. Ancêtre de tous les éléments de bâtiment, espaces et éléments de structure spatiale. Porte le placement (ObjectPlacement) définissant sa position locale et la représentation géométrique 3D.",subtypes:["IfcElement","IfcSpatialStructureElement","IfcAnnotation","IfcGrid"]},
+  IfcElement:{fr:"Élément",desc:"Tout composant physique discret du bâtiment, identifiable et localisable. Ancêtre de tous les éléments architecturaux, structuraux, MEP et spéciaux. Porte l'étiquette (Tag) visible dans les nomenclatures et plans.",subtypes:["IfcBuildingElement","IfcDistributionElement","IfcElementAssembly","IfcElementComponent","IfcFeatureElement"]},
+  IfcControl:{fr:"Contrôle",desc:"Objets de prescription, de contrôle et de planification : coûts, calendriers, performances, normes. Sans géométrie propre, ils s'associent à d'autres objets via des relations pour exprimer des exigences ou des contraintes.",subtypes:["IfcCostItem","IfcCostSchedule","IfcPerformanceHistory","IfcProjectOrder","IfcScheduleTimeControl","IfcWorkControl"]},
+  IfcProcess:{fr:"Processus",desc:"Processus et activités temporelles dans un projet : tâches de planning (IfcTask) et procédures d'exécution (IfcProcedure). Base de la gestion de planning IFC, avec relations de succession et d'opération sur d'autres objets.",subtypes:["IfcTask","IfcProcedure"]},
+  IfcResource:{fr:"Ressource",desc:"Ressources de construction mobilisées pour réaliser un processus : main-d'œuvre, matériaux, équipements. Classe de base pour la gestion des ressources dans les projets, liée aux processus via des relations d'assignation.",subtypes:["IfcConstructionResource"]},
+  IfcGroup:{fr:"Groupe",desc:"Regroupement arbitraire d'objets IFC sans contrainte spatiale ou hiérarchique. Permet de créer des ensembles fonctionnels comme des systèmes, des zones ou des inventaires. Un objet peut appartenir à plusieurs groupes simultanément.",subtypes:["IfcSystem","IfcZone","IfcAsset","IfcInventory"]},
+  IfcSystem:{fr:"Système",desc:"Regroupement fonctionnel d'éléments formant un système technique : ventilation, plomberie, électricité, détection incendie... Spécialisation d'IfcGroup dédiée aux systèmes MEP. Permet de lier tous les composants d'un même réseau.",subtypes:["IfcElectricalCircuit"]},
+  IfcSpatialStructureElement:{fr:"Élément de structure spatiale",desc:"Éléments définissant la hiérarchie spatiale d'un projet IFC : Terrain, Bâtiment, Niveau, Espace. La colonne vertébrale de tout fichier IFC — chaque élément physique est rattaché à un de ces niveaux via des relations de contenance.",subtypes:["IfcSite","IfcBuilding","IfcBuildingStorey","IfcSpace"]},
+  IfcPropertyDefinition:{fr:"Définition de propriété",desc:"Classe abstraite pour tout ce qui définit des propriétés dans IFC : ensembles de propriétés (PropertySet) et propriétés individuelles. Permet d'enrichir n'importe quel objet IFC avec des données non géométriques standardisées ou personnalisées.",subtypes:["IfcPropertySetDefinition","IfcPropertySet"]},
+  IfcPropertySetDefinition:{fr:"Définition d'ensemble de propriétés",desc:"Classe mère des ensembles de propriétés (Psets) standards buildingSMART et personnalisés. Un Pset regroupe des propriétés thématiques cohérentes (acoustique, thermique, structure...) attachées à un ou plusieurs types d'objets.",subtypes:["IfcPropertySet","IfcDoorLiningProperties","IfcWindowLiningProperties"]},
+  IfcProperty:{fr:"Propriété",desc:"Propriété individuelle dans un ensemble de propriétés (Pset). Classe mère de toutes les formes de propriétés IFC : valeur simple, énumérée, en tableau, en liste ou liée à une table de référence.",subtypes:["IfcSimpleProperty","IfcComplexProperty"]},
+  IfcSimpleProperty:{fr:"Propriété simple",desc:"Propriété portant une valeur directe sans structure complexe. Recouvre six formes : valeur unique (SingleValue), plage de valeurs (BoundedValue), énumération (EnumeratedValue), liste (ListValue), tableau (TableValue) ou référence à une table (ReferenceValue).",subtypes:["IfcPropertySingleValue","IfcPropertyBoundedValue","IfcPropertyEnumeratedValue"]},
+  IfcRelationship:{fr:"Relation",desc:"Classe mère de toutes les relations entre objets IFC. Les relations sont des entités à part entière, pas de simples pointeurs, ce qui permet d'historiser et d'enrichir chaque lien. Cinq grandes familles : assignations, associations, connexions, décompositions, définitions.",subtypes:["IfcRelAssigns","IfcRelAssociates","IfcRelConnects","IfcRelDecomposes","IfcRelDefines"]},
+  IfcRelAssociates:{fr:"Association",desc:"Relations liant un objet à une ressource externe ou un concept : matériau (IfcRelAssociatesMaterial), document (IfcRelAssociatesDocument), classification (IfcRelAssociatesClassification), contrainte ou approbation.",subtypes:["IfcRelAssociatesMaterial","IfcRelAssociatesDocument","IfcRelAssociatesClassification"]},
+  IfcRelConnects:{fr:"Connexion",desc:"Relations de connexion physique ou logique entre éléments : connexion entre éléments (IfcRelConnectsElements), entre ports MEP (IfcRelConnectsPorts), trajet (IfcRelConnectsPathElements), liaison structurelle...",subtypes:["IfcRelConnectsElements","IfcRelConnectsPorts","IfcRelConnectsPathElements"]},
+  IfcRelDefines:{fr:"Définition par relation",desc:"Relations qui qualifient ou spécialisent un objet : IfcRelDefinesByType lie une instance à son type (ex : ce mur est de type 'Mur porteur BA 20cm'), IfcRelDefinesByProperties attache un PropertySet à un objet.",subtypes:["IfcRelDefinesByType","IfcRelDefinesByProperties"]},
+  IfcElementType:{fr:"Type d'élément",desc:"Type paramétrique d'un élément physique : regroupe la géométrie commune et les propriétés partagées par toutes les instances d'un même type. Évite la redondance — on définit une fois, on instancie autant que nécessaire.",subtypes:["IfcBuildingElementType","IfcDistributionElementType","IfcFurnishingElementType"]},
+  IfcDistributionControlElementType:{fr:"Type d'élément de contrôle MEP",desc:"Type d'élément de contrôle et de régulation pour les réseaux MEP : capteurs, actionneurs, détecteurs, régulateurs. Classe mère des types d'instruments de mesure et de commande dans les installations techniques.",subtypes:["IfcActuatorType","IfcSensorType","IfcControllerType"]},
+  IfcDistributionFlowElementType:{fr:"Type d'élément de flux MEP",desc:"Type d'élément assurant le transport de fluides, d'énergie ou de données dans un réseau MEP. Classe mère de tous les types de composants de réseaux : conduites, gaines, câbles, raccords, appareils...",subtypes:["IfcFlowSegmentType","IfcFlowFittingType","IfcFlowTerminalType"]},
+  IfcFlowFittingType:{fr:"Type de raccord de réseau",desc:"Type de raccord assurant la jonction ou la déviation dans un réseau de fluides, d'air ou de câbles : coudes, tés, réducteurs, croisements. Commun aux réseaux de plomberie, ventilation et électricité.",subtypes:["IfcDuctFittingType","IfcPipeFittingType","IfcCableCarrierFittingType"]},
+  IfcFlowSegmentType:{fr:"Type de segment de réseau",desc:"Type de tronçon droit d'un réseau de distribution : segment de gaine, tronçon de tuyau, câble, chemin de câbles. Élément linéaire de base de tout réseau MEP.",subtypes:["IfcDuctSegmentType","IfcPipeSegmentType","IfcCableSegmentType"]},
+  IfcFurnishingElementType:{fr:"Type d'élément de mobilier",desc:"Type d'élément de mobilier ou d'équipement fixe non structurel : table, chaise, lit, armoire, équipement sanitaire... Définit la géométrie et les propriétés communes à un modèle de meuble ou d'équipement.",subtypes:["IfcFurnitureType","IfcSystemFurnitureElementType"]},
+  IfcRepresentationItem:{fr:"Élément de représentation",desc:"Unité de base de toute représentation géométrique ou topologique IFC. Tous les éléments géométriques (points, courbes, surfaces, solides, maillages) héritent de cette classe.",subtypes:["IfcGeometricRepresentationItem","IfcTopologicalRepresentationItem","IfcStyledItem"]},
+  IfcRepresentation:{fr:"Représentation",desc:"Ensemble de formes géométriques décrivant un produit dans un contexte donné : vue en plan, modèle 3D, empreinte au sol, silhouette... Un produit peut avoir plusieurs représentations simultanées selon le niveau de détail et l'usage.",subtypes:["IfcShapeModel","IfcShapeRepresentation"]},
+  IfcShapeModel:{fr:"Modèle de forme",desc:"Représentation géométrique d'un produit (ShapeRepresentation) ou d'une ressource géométrique (TopologyRepresentation). Contient les éléments géométriques concrets décrivant la forme 3D dans un espace de coordonnées donné.",subtypes:["IfcShapeRepresentation","IfcTopologyRepresentation"]},
+  IfcGeometricRepresentationItem:{fr:"Primitive géométrique",desc:"Classe mère de toutes les primitives géométriques IFC : points, vecteurs, courbes, surfaces, solides, extrusions, géométries Brep... Toute forme 3D dans IFC est construite à partir de ces primitives.",subtypes:["IfcSweptAreaSolid","IfcBoundingBox","IfcCurve","IfcSurface"]},
+  IfcSweptAreaSolid:{fr:"Solide par balayage de profil",desc:"Solide obtenu en balayant un profil 2D (IfcProfileDef) le long d'un chemin ou par révolution autour d'un axe. Forme paramétrique de base pour les éléments linéaires : murs, poutres, dalles, poteaux, tuyaux.",subtypes:["IfcExtrudedAreaSolid","IfcRevolvedAreaSolid","IfcSurfaceCurveSweptAreaSolid"]},
+  IfcParameterizedProfileDef:{fr:"Profil paramétrique",desc:"Profil 2D défini par des paramètres géométriques normalisés : rectangle, cercle, ellipse, profilé en I, en L, en T, en U, en Z... Utilisé comme section transversale pour les éléments linéaires (poutres, poteaux, tuyaux).",subtypes:["IfcRectangleProfileDef","IfcCircleProfileDef","IfcIShapeProfileDef","IfcLShapeProfileDef"]},
+  IfcPlacement:{fr:"Placement",desc:"Position et orientation d'un objet dans l'espace : un point d'origine et deux axes définissant un repère local. Classe mère du placement 2D (IfcAxis2Placement2D) et 3D (IfcAxis2Placement3D).",subtypes:["IfcAxis1Placement","IfcAxis2Placement2D","IfcAxis2Placement3D"]},
+  IfcPoint:{fr:"Point géométrique",desc:"Point dans l'espace géométrique IFC. Classe mère du point cartésien (IfcCartesianPoint, le plus courant), du point sur une courbe et du point sur une surface.",subtypes:["IfcCartesianPoint","IfcPointOnCurve","IfcPointOnSurface"]},
+  IfcNamedUnit:{fr:"Unité de mesure nommée",desc:"Unité de mesure identifiée par un nom et un type de grandeur physique : longueur, surface, volume, angle plan, angle solide, masse, temps, température... Base du système d'unités déclaré dans IfcProject.",subtypes:["IfcSIUnit","IfcConversionBasedUnit","IfcContextDependentUnit"]},
+  IfcExternalReference:{fr:"Référence externe",desc:"Référence à une ressource externe au fichier IFC : système de classification (Uniclass, OmniClass, NF047...), bibliothèque de matériaux, document de référence ou URL. Permet de lier les objets IFC à des bases de données tierces.",subtypes:["IfcClassificationReference","IfcDocumentReference","IfcLibraryReference"]},
+  IfcProductRepresentation:{fr:"Représentation de produit",desc:"Conteneur regroupant toutes les représentations d'un produit : plan, modèle 3D, symbolique 2D, empreinte au sol... Chaque représentation correspond à un usage différent (affichage, analyse, fabrication).",subtypes:["IfcMaterialLayerSetUsage","IfcShapeRepresentation"]},
+  IfcAppliedValue:{fr:"Valeur appliquée",desc:"Valeur utilisée dans un calcul économique ou de coût : montant fixe, pourcentage, formule ou référence à une table de prix. Base des objets IfcCostValue pour la gestion financière dans IFC.",subtypes:["IfcCostValue","IfcEnvironmentalImpactValue"]},
+  IfcEnergyProperties:{fr:"Propriétés énergétiques",desc:"Propriétés caractérisant le comportement énergétique d'un élément de conversion d'énergie (chaudière, échangeur, PAC...) : puissance nominale, rendement, pertes. Attaché aux éléments MEP via un PropertySet.",subtypes:[]},
+  IfcStructuralConnection:{fr:"Connexion structurelle",desc:"Connexion entre membres structuraux dans le modèle d'analyse structurelle IFC : point d'articulation, ligne d'appui, surface de contact. Définit le type de liaison mécanique (encastrement, rotule, appui simple).",subtypes:["IfcStructuralPointConnection","IfcStructuralCurveConnection","IfcStructuralSurfaceConnection"]},
+  IfcStructuralMember:{fr:"Membre structurel",desc:"Élément porteur dans le modèle d'analyse structurelle IFC : barre, poutre-colonne, câble, surface. Complémentaire des éléments physiques (IfcBeam, IfcColumn) — le membre structurel représente l'idéalisation pour le calcul.",subtypes:["IfcStructuralCurveMember","IfcStructuralSurfaceMember"]}
+};
+
+function showAbstractDetail(name){
+  const ac = ABSTRACT_CLASSES[name];
+  if(!ac) return;
+  selected = null;
+  document.getElementById('aside-badge').classList.add('on');
+  const subtypesHtml = ac.subtypes.length
+    ? ac.subtypes.map(s => `<span style="font-family:'DM Mono',monospace;font-size:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:.15rem .4rem;display:inline-block;margin:.1rem .2rem .1rem 0">${s}</span>`).join('')
+    : '<span style="color:var(--muted);font-size:.65rem">Aucun sous-type documenté</span>';
+  document.getElementById('detail').innerHTML = `
+    <div class="detail-fr">${ac.fr}</div>
+    <div class="detail-ifc" style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);margin-bottom:.35rem">${name}</div>
+    <div style="display:inline-flex;align-items:center;gap:.35rem;background:var(--ac-bg);border:1px solid var(--ac-bd);border-radius:6px;padding:.2rem .6rem;font-size:.58rem;font-weight:700;color:var(--ac);margin-bottom:.65rem;text-transform:uppercase;letter-spacing:.06em">CLASSE ABSTRAITE</div>
+    <div class="detail-section-title" style="margin-top:.3rem">Description</div>
+    <div class="detail-desc">${ac.desc}</div>
+    <div style="margin-top:.75rem">
+      <div class="toggle-section open">
+        <div class="toggle-hd" onclick="this.closest('.toggle-section').classList.toggle('open')">
+          <span class="toggle-hd-title">Sous-types directs dans IFC2x3</span>
+          <span class="toggle-hd-meta">${ac.subtypes.length} classes</span>
+          <span class="toggle-arrow">›</span>
+        </div>
+        <div class="toggle-body" style="padding-top:.4rem">${subtypesHtml}</div>
+      </div>
+    </div>`;
+}
 function buildHierTree(){
   const root = {};
   function ensure(parent, name){
@@ -6402,6 +6470,7 @@ function countLeaves(node){
 function renderHierNode(name, node){
   const hasChildren = Object.keys(node.children).length > 0;
   const en = node.key ? E[node.key] : null;
+  const ac = ABSTRACT_CLASSES[name];
 
   if(!hasChildren){
     if(en){
@@ -6410,12 +6479,26 @@ function renderHierNode(name, node){
         <span class="hier-leaf-ifc">${en.ifc}</span>
       </div>`;
     }
+    if(ac){
+      return `<div class="hier-leaf e-gen" onclick="showAbstractDetail('${name}')">
+        <span class="hier-leaf-fr">${ac.fr}</span>
+        <span class="hier-leaf-ifc">${name}</span>
+      </div>`;
+    }
     return '';
   }
 
-  const entityPart = en
-    ? `<span class="hier-node-fr" onclick="showDetail('${node.key}');event.stopPropagation()">${en.fr}</span>`
+  const frLabel = en ? en.fr : (ac ? ac.fr : '');
+  const clickFr = en
+    ? `onclick="showDetail('${node.key}');event.stopPropagation()"`
+    : (ac ? `onclick="showAbstractDetail('${name}');event.stopPropagation()"` : '');
+  const entityPart = frLabel
+    ? `<span class="hier-node-fr" ${clickFr}>${frLabel}</span>`
     : '';
+  const clsClick = (en || ac)
+    ? `onclick="(${en ? `showDetail('${node.key}')` : `showAbstractDetail('${name}')`});"`
+    : `onclick="this.closest('.hier-group').classList.toggle('open')"`;
+
   const leaves = countLeaves(node);
   const childrenHtml = Object.entries(node.children)
     .sort(([a],[b]) => a.localeCompare(b))
@@ -6425,7 +6508,7 @@ function renderHierNode(name, node){
   return `<div class="hier-group">
     <div class="hier-node" onclick="this.closest('.hier-group').classList.toggle('open')">
       <span class="hier-arrow">›</span>
-      <span class="hier-cls">${name}</span>
+      <span class="hier-cls" style="${ac||en?'cursor:pointer;text-decoration:underline;text-decoration-style:dotted':''}" ${clsClick}>${name}</span>
       ${entityPart}
       <span class="hier-badge">${leaves}</span>
     </div>
@@ -6478,15 +6561,20 @@ function filterHierTree(q){
 
     if(!selfMatch && !matchingChildren) return '';
 
-    const entityPart = en
-      ? `<span class="hier-node-fr" onclick="showDetail('${node.key}');event.stopPropagation()">${en.fr}</span>`
+    const acF = ABSTRACT_CLASSES[name];
+    const frLabelF = en ? en.fr : (acF ? acF.fr : '');
+    const clickFrF = en
+      ? `onclick="showDetail('${node.key}');event.stopPropagation()"`
+      : (acF ? `onclick="showAbstractDetail('${name}');event.stopPropagation()"` : '');
+    const entityPartF = frLabelF
+      ? `<span class="hier-node-fr" ${clickFrF}>${frLabelF}</span>`
       : '';
 
     return `<div class="hier-group open">
       <div class="hier-node" onclick="this.closest('.hier-group').classList.toggle('open')">
         <span class="hier-arrow">›</span>
         <span class="hier-cls">${name}</span>
-        ${entityPart}
+        ${entityPartF}
       </div>
       <div class="hier-children">${matchingChildren}</div>
     </div>`;
