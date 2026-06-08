@@ -7718,7 +7718,17 @@ function showDetail(id){
   // Attrs complets depuis ATTRS_BY_ENTITY
   const fullAttrs = ATTRS_BY_ENTITY[id] || [];
   const ownAttrs = fullAttrs.filter(a => a.f === en.ifc);
-  const inherited = fullAttrs.filter(a => a.f !== en.ifc);
+  const INHERITED_ORDER = ['Name','ObjectType','Description','GlobalId','OwnerHistory','ObjectPlacement','Representation','Tag'];
+  const inherited = fullAttrs
+    .filter(a => a.f !== en.ifc)
+    .sort((a, b) => {
+      const ia = INHERITED_ORDER.indexOf(a.n);
+      const ib = INHERITED_ORDER.indexOf(b.n);
+      if(ia === -1 && ib === -1) return 0;
+      if(ia === -1) return 1;
+      if(ib === -1) return -1;
+      return ia - ib;
+    });
 
   function renderAttrRow(a){
     const info = ATTR_DICT[a.n] || {fr: a.n, def: ''};
