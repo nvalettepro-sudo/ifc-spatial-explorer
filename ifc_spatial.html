@@ -6564,7 +6564,7 @@ function renderHierTree(){
 }
 
 function filterHierTree(q){
-  const val = q.trim().toLowerCase();
+  const val = q.trim().toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   if(!val){ renderHierTree(); return; }
   if(!_hierTree) _hierTree = buildHierTree();
 
@@ -7965,6 +7965,8 @@ function renderPsets(id){
   return psetHtml;
 }
 
+const INHERITED_ORDER = ['Name','ObjectType','Description','GlobalId','OwnerHistory','ObjectPlacement','Representation','Tag'];
+
 function showDetail(id){
   selected = id;
   // Basculer vers l'onglet Fiche
@@ -7986,7 +7988,6 @@ function showDetail(id){
   // Attrs complets depuis ATTRS_BY_ENTITY
   const fullAttrs = ATTRS_BY_ENTITY[id] || [];
   const ownAttrs = fullAttrs.filter(a => a.f === en.ifc);
-  const INHERITED_ORDER = ['Name','ObjectType','Description','GlobalId','OwnerHistory','ObjectPlacement','Representation','Tag'];
   const inherited = fullAttrs
     .filter(a => a.f !== en.ifc)
     .sort((a, b) => {
