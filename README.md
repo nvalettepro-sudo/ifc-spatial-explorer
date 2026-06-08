@@ -3,6 +3,7 @@
 Outil pédagogique standalone pour explorer le schéma IFC2x3 en français.  
 Fichier unique HTML/CSS/JS — zéro dépendance, zéro build, 100% offline.
 
+https://nvalettepro-sudo.github.io/ifc-spatial-explorer/ifc_spatial.html
 ---
 
 ## Démarrage rapide
