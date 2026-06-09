@@ -568,8 +568,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .heritage{display:flex;flex-wrap:wrap;gap:.2rem;align-items:center}
 .her-item{font-family:'DM Mono',monospace;font-size:.58rem;padding:.18rem .5rem;border-radius:99px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:background .15s,color .15s,border-color .15s}
 .her-item:hover{background:var(--sp-bg);border-color:var(--sp-bd);color:var(--sp)}
-.her-item.current{background:var(--text);color:var(--card);border-color:var(--text);cursor:default}
-.her-item.current:hover{background:var(--text);color:var(--card);border-color:var(--text)}
+.her-item.current{background:var(--text);color:var(--card);border-color:var(--text);cursor:default;pointer-events:none}
 .her-arrow{color:var(--muted);font-size:.65rem}
 .hier-highlight{animation:hier-flash .7s ease 2}
 .attrs{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.1rem}
@@ -748,7 +747,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-02</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-03</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -6206,6 +6205,14 @@ function scoreMatch(text, q){
   return 0;
 }
 
+// Calcule le score de base pour les 3 boucles (fr +20, ifc/name +15, desc/def sans bonus)
+function scoreFields(frText, ifcText, descText, sq){
+  let s = 0;
+  const frS = scoreMatch(frText, sq);   if(frS)  s = Math.max(s, frS  + 20);
+  const ifcS = scoreMatch(ifcText, sq); if(ifcS) s = Math.max(s, ifcS + 15);
+  return Math.max(s, scoreMatch(descText, sq));
+}
+
 function onSearch(val){
   const q = val.trim();
   const clearBtn = document.getElementById('search-clear');
@@ -6238,10 +6245,7 @@ function runSearch(q){
 
   // Recherche dans les entités (E)
   for(const [id, en] of Object.entries(E)){
-    let score = 0;
-    const frS = scoreMatch(en.fr, sq);   if(frS)  score = Math.max(score, frS  + 20);
-    const ifcS = scoreMatch(en.ifc, sq); if(ifcS) score = Math.max(score, ifcS + 15);
-    score = Math.max(score, scoreMatch(en.desc, sq));
+    let score = scoreFields(en.fr, en.ifc, en.desc, sq);
 
     // Chercher dans les exemples
     const exMatch = en.ex && en.ex.some(e => e.toLowerCase().includes(sq));
@@ -6260,10 +6264,7 @@ function runSearch(q){
 
   // Recherche dans les énumérations (ENUMS)
   for(const [id, en] of Object.entries(ENUMS)){
-    let score = 0;
-    const eFrS = scoreMatch(en.fr, sq);   if(eFrS)  score = Math.max(score, eFrS  + 20);
-    const eIfcS = scoreMatch(en.ifc, sq); if(eIfcS) score = Math.max(score, eIfcS + 15);
-    score = Math.max(score, scoreMatch(en.desc, sq));
+    let score = scoreFields(en.fr, en.ifc, en.desc, sq);
 
     // Chercher dans les valeurs
     let valMatch = null;
@@ -6283,10 +6284,7 @@ function runSearch(q){
 
   // Recherche dans les attributs (ATTR_DICT)
   for(const [name, info] of Object.entries(ATTR_DICT)){
-    let score = 0;
-    const aNameS = scoreMatch(name, sq);    if(aNameS) score = Math.max(score, aNameS + 15);
-    const aFrS   = scoreMatch(info.fr, sq); if(aFrS)   score = Math.max(score, aFrS   + 20);
-    score = Math.max(score, scoreMatch(info.def, sq));
+    let score = scoreFields(info.fr, name, info.def, sq);
     if(score > 0) attrResults.push({name, info, score});
   }
   attrResults.sort((a,b) => b.score - a.score);
@@ -6581,21 +6579,20 @@ function renderHierNode(name, node, val){
 
 function navigateToHier(name){
   switchTab('hier');
-  // S'assurer que l'arbre est rendu
   if(!_hierTree) renderHierTree();
   const container = document.getElementById('hier-tree');
   const row = container.querySelector(`.hier-row[data-ifc="${name}"]`);
   if(!row) return;
-  // Ouvrir tous les .hier-group ancêtres
   let el = row.parentElement;
   while(el && el !== container){
     if(el.classList.contains('hier-group')) el.classList.add('open');
     el = el.parentElement;
   }
-  // Scroll + flash de mise en évidence
-  row.scrollIntoView({behavior:'smooth', block:'center'});
-  row.classList.add('hier-highlight');
-  setTimeout(() => row.classList.remove('hier-highlight'), 1400);
+  requestAnimationFrame(() => {
+    row.scrollIntoView({behavior:'smooth', block:'center'});
+    row.classList.add('hier-highlight');
+    setTimeout(() => row.classList.remove('hier-highlight'), 1400);
+  });
 }
 
 let _hierTree = null;
@@ -7992,7 +7989,7 @@ function showDetail(id){
   const heritage = en.heritage.map((h,i)=>{
     const isLast = i===en.heritage.length-1;
     const click = isLast ? '' : ` onclick="navigateToHier('${h}')"`;
-    return `<span class="her-item${isLast?' current':''}"${click}>${h}</span>${i<en.heritage.length-1?'<span class="her-arrow">→</span>':''}`;
+    return `<span class="her-item${isLast?' current':''}"${click}>${h}</span>${isLast?'':`<span class="her-arrow">→</span>`}`;
   }).join('');
 
   // Attrs complets depuis ATTRS_BY_ENTITY
