@@ -6234,8 +6234,8 @@ function runSearch(q){
   // Recherche dans les entités (E)
   for(const [id, en] of Object.entries(E)){
     let score = 0;
-    score = Math.max(score, scoreMatch(en.fr, sq) + 20);  // +20 priorité FR
-    score = Math.max(score, scoreMatch(en.ifc, sq) + 15); // +15 priorité IFC
+    const frS = scoreMatch(en.fr, sq);   if(frS)  score = Math.max(score, frS  + 20);
+    const ifcS = scoreMatch(en.ifc, sq); if(ifcS) score = Math.max(score, ifcS + 15);
     score = Math.max(score, scoreMatch(en.desc, sq));
 
     // Chercher dans les exemples
@@ -6256,8 +6256,8 @@ function runSearch(q){
   // Recherche dans les énumérations (ENUMS)
   for(const [id, en] of Object.entries(ENUMS)){
     let score = 0;
-    score = Math.max(score, scoreMatch(en.fr, sq) + 20);
-    score = Math.max(score, scoreMatch(en.ifc, sq) + 15);
+    const eFrS = scoreMatch(en.fr, sq);   if(eFrS)  score = Math.max(score, eFrS  + 20);
+    const eIfcS = scoreMatch(en.ifc, sq); if(eIfcS) score = Math.max(score, eIfcS + 15);
     score = Math.max(score, scoreMatch(en.desc, sq));
 
     // Chercher dans les valeurs
@@ -6279,8 +6279,8 @@ function runSearch(q){
   // Recherche dans les attributs (ATTR_DICT)
   for(const [name, info] of Object.entries(ATTR_DICT)){
     let score = 0;
-    score = Math.max(score, scoreMatch(name, sq) + 15);
-    score = Math.max(score, scoreMatch(info.fr, sq) + 20);
+    const aNameS = scoreMatch(name, sq);    if(aNameS) score = Math.max(score, aNameS + 15);
+    const aFrS   = scoreMatch(info.fr, sq); if(aFrS)   score = Math.max(score, aFrS   + 20);
     score = Math.max(score, scoreMatch(info.def, sq));
     if(score > 0) attrResults.push({name, info, score});
   }
