@@ -501,7 +501,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 /* Chaque ligne de l'arbre = même structure, indentation via padding-left */
 .hier-row{
-  display:flex;align-items:center;gap:.4rem;
+  display:flex;align-items:center;gap:.35rem;
   padding:.2rem .3rem;border-radius:5px;
   cursor:pointer;user-select:none;
   transition:background .1s;
@@ -509,11 +509,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 }
 .hier-row:hover{background:var(--bg)}
 
-/* Flèche dépliante */
+/* Flèche dépliante — à droite, indique l'état ouvert/fermé */
 .hier-arrow{
-  font-size:.6rem;color:var(--muted);font-weight:700;
+  font-size:.55rem;color:var(--muted);font-weight:700;
   transition:transform .15s;display:inline-block;
-  flex-shrink:0;width:10px;text-align:center;
+  flex-shrink:0;margin-left:auto;padding-left:.35rem;opacity:.6;
 }
 .hier-group.open > .hier-row .hier-arrow{transform:rotate(90deg)}
 
@@ -536,11 +536,31 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 /* Badge enfants */
 .hier-badge{font-size:.48rem;border:1px solid var(--border);border-radius:99px;padding:.03rem .3rem;color:var(--muted);flex-shrink:0;background:transparent}
 
-/* Conteneur enfants — indentation strictement vers la droite */
-.hier-children{display:none;border-left:1.5px solid var(--border);margin-left:1.1rem}
-.hier-spacer-arrow{display:inline-block;width:10px;flex-shrink:0}
-.hier-spacer-dot{display:inline-block;width:7px;flex-shrink:0}
+/* Conteneur enfants — sans indentation propre, chaque groupe enfant porte ses connecteurs */
+.hier-children{display:none}
 .hier-group.open > .hier-children{display:block}
+.hier-spacer-dot{display:inline-block;width:7px;flex-shrink:0}
+
+/* ── Connecteurs arbre ──────────────────────────────────────────────────── */
+/* Chaque groupe enfant porte sa propre ligne verticale + bras horizontal */
+.hier-children > .hier-group{position:relative;padding-left:1.5rem}
+
+/* Ligne verticale : pleine hauteur pour non-dernier, demi-ligne pour dernier */
+.hier-children > .hier-group::before{
+  content:'';position:absolute;left:.5rem;top:0;bottom:0;
+  width:1px;background:var(--border);
+}
+.hier-children > .hier-group:last-child::before{
+  bottom:auto;height:.7rem; /* s'arrête au milieu de la ligne (≈ demi-hauteur de row) */
+}
+
+/* Bras horizontal reliant la ligne verticale à la row */
+.hier-children > .hier-group::after{
+  content:'';position:absolute;
+  left:.5rem;top:.7rem;
+  width:.9rem;height:1px;
+  background:var(--border);
+}
 .aside-pane::-webkit-scrollbar{width:4px}
 .aside-pane::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
@@ -747,7 +767,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-04</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-05</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -6523,9 +6543,7 @@ function hierRowHtml(name, node){
     ? `showDetail('${node.key}')`
     : (ac ? `showAbstractDetail('${name}')` : null);
 
-  const arrow = hasChildren
-    ? `<span class="hier-arrow">›</span>`
-    : `<span class="hier-spacer-arrow"></span>`;
+  const toggle = hasChildren ? `<span class="hier-arrow">›</span>` : '';
 
   const dot = en
     ? `<span class="hier-dot" style="background:${getCatColor(en.cat)}"></span>`
@@ -6544,9 +6562,8 @@ function hierRowHtml(name, node){
     : (clickHandler || '');
 
   return `<div class="hier-row${en?'':' abstract'}" data-ifc="${name}" onclick="${rowClick}">
-    ${arrow}${dot}${frPart}
-    <span class="hier-ifc">${name}</span>
-    ${badge}
+    ${dot}${frPart}<span class="hier-ifc">${name}</span>
+    ${badge}${toggle}
   </div>`;
 }
 
