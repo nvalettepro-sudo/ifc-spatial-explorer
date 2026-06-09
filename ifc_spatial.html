@@ -747,7 +747,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-03</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-04</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -6458,6 +6458,21 @@ function showAbstractDetail(name){
   const subtypesHtml = ac.subtypes.length
     ? ac.subtypes.map(s => `<span style="font-family:'DM Mono',monospace;font-size:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:.15rem .4rem;display:inline-block;margin:.1rem .2rem .1rem 0">${s}</span>`).join('')
     : '<span style="color:var(--muted);font-size:.65rem">Aucun sous-type documenté</span>';
+  const firstSubtype = ac.subtypes.length ? ac.subtypes[0] : '…';
+  const otherSubtypes = ac.subtypes.length > 1 ? ac.subtypes.slice(1).join(', ') : '';
+  const analogyHtml = `
+    <div style="margin-top:.75rem">
+      <div class="toggle-section open">
+        <div class="toggle-hd" onclick="this.closest('.toggle-section').classList.toggle('open')">
+          <span class="toggle-hd-title">Pourquoi cette classe est abstraite</span>
+          <span class="toggle-arrow">›</span>
+        </div>
+        <div class="toggle-body" style="padding-top:.5rem;font-size:.72rem;color:var(--text);line-height:1.7">
+          <p style="margin:0 0 .5rem"><code style="font-family:'DM Mono',monospace;font-size:.65rem;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:.1rem .35rem">${name}</code> est un <strong>concept organisateur</strong> : il ne peut pas exister seul dans un fichier IFC. Il définit les attributs et les règles communs à tous ses sous-types, qui eux sont instanciables dans un projet réel.</p>
+          <p style="margin:0;color:var(--muted);font-size:.68rem">Comme le terme <em>"Menuiserie"</em> en architecture — on ne commande jamais une "menuiserie" à un fournisseur, mais toujours une porte, une fenêtre ou un volet. De la même façon, dans un fichier IFC réel on ne trouvera jamais <code style="font-family:'DM Mono',monospace;font-size:.62rem">${name}</code>, mais uniquement ses sous-types concrets comme <code style="font-family:'DM Mono',monospace;font-size:.62rem">${firstSubtype}</code>${otherSubtypes ? ` ou <code style="font-family:'DM Mono',monospace;font-size:.62rem">${ac.subtypes[1]}</code>` : ''}.</p>
+        </div>
+      </div>
+    </div>`;
   document.getElementById('detail').innerHTML = `
     <div class="detail-fr">${ac.fr}</div>
     <div class="detail-ifc" style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);margin-bottom:.35rem">${name}</div>
@@ -6473,7 +6488,8 @@ function showAbstractDetail(name){
         </div>
         <div class="toggle-body" style="padding-top:.4rem">${subtypesHtml}</div>
       </div>
-    </div>`;
+    </div>
+    ${analogyHtml}`;
 }
 function buildHierTree(){
   const root = {};
