@@ -517,10 +517,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 }
 .hier-group.open > .hier-row .hier-arrow{transform:rotate(90deg)}
 
-/* Pastille couleur catégorie */
+/* Pastille concrète (toujours bleue) */
 .hier-dot{
   width:7px;height:7px;border-radius:2px;
   flex-shrink:0;display:inline-block;
+}
+
+/* Pastille abstraite (gris) */
+.hier-dot-abs{
+  width:7px;height:7px;border-radius:2px;flex-shrink:0;
+  display:inline-block;background:var(--muted);opacity:.55;
 }
 
 /* Nom français */
@@ -529,9 +535,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 /* Nom IFC en mono */
 .hier-ifc{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis}
 
-/* Nœud abstrait : pas de pastille, nom IFC plus visible */
-.hier-row.abstract .hier-ifc{color:var(--text);font-size:.62rem}
-.hier-row.abstract .hier-fr{font-size:.65rem;font-weight:500;color:var(--muted)}
+/* Nœud abstrait : dot gris + même style texte que concret */
+.hier-row.abstract .hier-fr{font-size:.7rem;font-weight:600;color:var(--text)}
+.hier-row.abstract .hier-ifc{font-size:.55rem;color:var(--muted)}
+
+/* Légende */
+.hier-legend{display:flex;gap:1.2rem;padding:.75rem .4rem .35rem;border-top:1px solid var(--border);margin-top:.65rem}
+.hier-legend-item{display:flex;align-items:center;gap:.35rem;font-size:.62rem;color:var(--muted)}
 
 /* Badge enfants */
 .hier-badge{font-size:.48rem;border:1px solid var(--border);border-radius:99px;padding:.03rem .3rem;color:var(--muted);flex-shrink:0;background:transparent}
@@ -548,17 +558,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 /* Ligne verticale : pleine hauteur pour non-dernier, demi-ligne pour dernier */
 .hier-children > .hier-group::before{
   content:'';position:absolute;left:.5rem;top:0;bottom:0;
-  width:1px;background:var(--border);
+  width:1.5px;background:var(--border);
 }
 .hier-children > .hier-group:last-child::before{
-  bottom:auto;height:.7rem; /* s'arrête au milieu de la ligne (≈ demi-hauteur de row) */
+  bottom:auto;height:.7rem;
 }
 
 /* Bras horizontal reliant la ligne verticale à la row */
 .hier-children > .hier-group::after{
   content:'';position:absolute;
   left:.5rem;top:.7rem;
-  width:.9rem;height:1px;
+  width:.9rem;height:1.5px;
   background:var(--border);
 }
 .aside-pane::-webkit-scrollbar{width:4px}
@@ -767,7 +777,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-05</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-06</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -1194,6 +1204,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
     <div class="aside-pane" id="pane-hier">
       <input class="hier-search" id="hier-search" type="text" placeholder="Filtrer les classes IFC…" oninput="filterHierTree(this.value)" autocomplete="off" spellcheck="false">
       <div id="hier-tree"></div>
+      <div class="hier-legend">
+        <span class="hier-legend-item"><span class="hier-dot" style="background:var(--sp);display:inline-block"></span>Entité concrète</span>
+        <span class="hier-legend-item"><span class="hier-dot-abs"></span>Entité abstraite</span>
+      </div>
     </div>
 
     <!-- Onglet Résultats de recherche -->
@@ -6546,8 +6560,8 @@ function hierRowHtml(name, node){
   const toggle = hasChildren ? `<span class="hier-arrow">›</span>` : '';
 
   const dot = en
-    ? `<span class="hier-dot" style="background:${getCatColor(en.cat)}"></span>`
-    : `<span class="hier-spacer-dot"></span>`;
+    ? `<span class="hier-dot" style="background:var(--sp)"></span>`
+    : `<span class="hier-dot-abs"></span>`;
 
   const frPart = (en || ac)
     ? `<span class="hier-fr">${en ? en.fr : ac.fr}</span>`
