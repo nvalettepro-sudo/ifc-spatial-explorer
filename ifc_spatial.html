@@ -558,7 +558,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 /* Ligne verticale : pleine hauteur pour non-dernier, demi-ligne pour dernier */
 .hier-children > .hier-group::before{
   content:'';position:absolute;left:.5rem;top:0;bottom:0;
-  width:1.5px;background:var(--border);
+  width:1.5px;background:var(--text);opacity:.28;
 }
 .hier-children > .hier-group:last-child::before{
   bottom:auto;height:.7rem;
@@ -569,8 +569,38 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   content:'';position:absolute;
   left:.5rem;top:.7rem;
   width:.9rem;height:1.5px;
-  background:var(--border);
+  background:var(--text);opacity:.28;
 }
+
+/* ── Sections logiques ─────────────────────────────────────────────────── */
+.hier-section-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);padding:.55rem .3rem .2rem;margin-top:.3rem;
+  cursor:pointer;user-select:none;border-top:1px solid var(--border);
+}
+.hier-section-hd:hover{color:var(--text)}
+.hier-section-hd .hier-arrow{font-size:.55rem;margin-left:.3rem;transition:transform .15s}
+.hier-section:not(.open) .hier-section-hd .hier-arrow{transform:rotate(0deg)}
+.hier-section.open .hier-section-hd .hier-arrow{transform:rotate(90deg)}
+.hier-section-body{display:none}
+.hier-section.open .hier-section-body{display:block}
+
+/* Label IfcRoot épinglé */
+.hier-pinned-label{
+  font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--sp);padding:.15rem .3rem .1rem;margin-bottom:.1rem;
+}
+
+/* Boutons replier/déployer */
+.hier-controls{display:flex;gap:.4rem;margin-bottom:.5rem}
+.hier-ctrl-btn{
+  font-size:.62rem;font-family:'DM Sans',sans-serif;font-weight:500;
+  padding:.22rem .6rem;border-radius:6px;
+  border:1px solid var(--border);background:var(--card);color:var(--muted);
+  cursor:pointer;transition:all .12s;flex:1;
+}
+.hier-ctrl-btn:hover{border-color:var(--sp-bd);color:var(--sp);background:var(--sp-bg)}
 .aside-pane::-webkit-scrollbar{width:4px}
 .aside-pane::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
@@ -777,7 +807,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-06</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-07</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -1203,6 +1233,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
     <!-- Onglet Hiérarchie IFC -->
     <div class="aside-pane" id="pane-hier">
       <input class="hier-search" id="hier-search" type="text" placeholder="Filtrer les classes IFC…" oninput="filterHierTree(this.value)" autocomplete="off" spellcheck="false">
+      <div class="hier-controls">
+        <button class="hier-ctrl-btn" onclick="expandAll()">↓ Tout déployer</button>
+        <button class="hier-ctrl-btn" onclick="collapseAll()">↑ Tout replier</button>
+      </div>
       <div id="hier-tree"></div>
       <div class="hier-legend">
         <span class="hier-legend-item"><span class="hier-dot" style="background:var(--sp);display:inline-block"></span>Entité concrète</span>
@@ -6624,6 +6658,32 @@ function renderHierNode(name, node, val){
   </div>`;
 }
 
+// Sections logiques pour les classes ressources (hors IfcRoot)
+const HIER_SECTIONS = [
+  {fr:"Acteurs & Organisations", items:["IfcActorRole","IfcApplication","IfcOrganization","IfcOwnerHistory","IfcPerson","IfcPersonAndOrganization"]},
+  {fr:"Adresses", items:["IfcAddress"]},
+  {fr:"Matériaux", items:["IfcMaterial","IfcMaterialLayer","IfcMaterialLayerSet","IfcMaterialLayerSetUsage"]},
+  {fr:"Unités de mesure", items:["IfcDerivedUnit","IfcNamedUnit","IfcUnitAssignment"]},
+  {fr:"Géométrie & Représentation", items:["IfcGridAxis","IfcObjectPlacement","IfcProductRepresentation","IfcProfileDef","IfcRepresentation","IfcRepresentationContext","IfcRepresentationItem"]},
+  {fr:"Documents & Classification", items:["IfcClassification","IfcClassificationItem","IfcDocumentInformation","IfcExternalReference","IfcLibraryInformation"]},
+  {fr:"Données & Contraintes", items:["IfcAppliedValue","IfcApproval","IfcConstraint","IfcProperty"]},
+];
+
+function _sectionHtml(section, val){
+  const items = section.items
+    .filter(n => _hierTree[n])
+    .map(n => val !== undefined ? renderHierNode(n, _hierTree[n], val) : renderHierNode(n, _hierTree[n]))
+    .filter(h => h)
+    .join('');
+  if(!items) return '';
+  return `<div class="hier-section open">
+    <div class="hier-section-hd" onclick="this.closest('.hier-section').classList.toggle('open')">
+      <span>${section.fr}</span><span class="hier-arrow">›</span>
+    </div>
+    <div class="hier-section-body">${items}</div>
+  </div>`;
+}
+
 function navigateToHier(name){
   switchTab('hier');
   if(!_hierTree) renderHierTree();
@@ -6632,7 +6692,8 @@ function navigateToHier(name){
   if(!row) return;
   let el = row.parentElement;
   while(el && el !== container){
-    if(el.classList.contains('hier-group')) el.classList.add('open');
+    if(el.classList.contains('hier-group') || el.classList.contains('hier-section'))
+      el.classList.add('open');
     el = el.parentElement;
   }
   requestAnimationFrame(() => {
@@ -6642,28 +6703,51 @@ function navigateToHier(name){
   });
 }
 
+function expandAll(){
+  document.querySelectorAll('#hier-tree .hier-group, #hier-tree .hier-section').forEach(g => g.classList.add('open'));
+}
+function collapseAll(){
+  document.querySelectorAll('#hier-tree .hier-group').forEach(g => g.classList.remove('open'));
+}
+
 let _hierTree = null;
 function renderHierTree(){
   if(!_hierTree) _hierTree = buildHierTree();
-  const html = Object.entries(_hierTree)
-    .sort(([a],[b]) => a.localeCompare(b))
-    .map(([name, node]) => renderHierNode(name, node))
-    .join('');
   const container = document.getElementById('hier-tree');
+
+  // IfcRoot en premier, épinglé
+  let html = '';
+  if(_hierTree['IfcRoot']){
+    const node = renderHierNode('IfcRoot', _hierTree['IfcRoot']);
+    html += `<div class="hier-pinned-label">Racine IFC</div>${node}`;
+  }
+
+  // Sections logiques
+  for(const section of HIER_SECTIONS){
+    html += _sectionHtml(section);
+  }
+
   container.innerHTML = html || '<div class="hier-empty">Aucun résultat</div>';
-  container.querySelectorAll(':scope > .hier-group').forEach(g => g.classList.add('open'));
+  // Ouvrir IfcRoot par défaut
+  const rootGroup = container.querySelector(`.hier-row[data-ifc="IfcRoot"]`)?.closest('.hier-group');
+  if(rootGroup) rootGroup.classList.add('open');
 }
 
 function filterHierTree(q){
   const val = q.trim().toLowerCase();
   if(!val){ renderHierTree(); return; }
   if(!_hierTree) _hierTree = buildHierTree();
-  const html = Object.entries(_hierTree)
-    .filter(([n,c]) => hierMatchNode(c, n, val))
-    .sort(([a],[b]) => a.localeCompare(b))
-    .map(([n,c]) => renderHierNode(n, c, val))
-    .join('');
-  document.getElementById('hier-tree').innerHTML = html || '<div class="hier-empty">Aucun résultat</div>';
+  const container = document.getElementById('hier-tree');
+
+  let html = '';
+  if(_hierTree['IfcRoot'] && hierMatchNode(_hierTree['IfcRoot'], 'IfcRoot', val)){
+    html += `<div class="hier-pinned-label">Racine IFC</div>${renderHierNode('IfcRoot', _hierTree['IfcRoot'], val)}`;
+  }
+  for(const section of HIER_SECTIONS){
+    html += _sectionHtml(section, val);
+  }
+
+  container.innerHTML = html || '<div class="hier-empty">Aucun résultat</div>';
 }
 
 function switchTab(tab){
