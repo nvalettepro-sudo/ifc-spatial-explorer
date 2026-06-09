@@ -628,7 +628,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .heritage{display:flex;flex-wrap:wrap;gap:.2rem;align-items:center}
 .her-item{font-family:'DM Mono',monospace;font-size:.58rem;padding:.18rem .5rem;border-radius:99px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:background .15s,color .15s,border-color .15s}
 .her-item:hover{background:var(--sp-bg);border-color:var(--sp-bd);color:var(--sp)}
-.her-item.current{background:var(--text);color:var(--card);border-color:var(--text);cursor:default;pointer-events:none}
+.her-item.current{background:var(--text);color:var(--card);border-color:var(--text);cursor:pointer}
 .her-arrow{color:var(--muted);font-size:.65rem}
 .hier-highlight{animation:hier-flash .7s ease 2}
 .attrs{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.1rem}
@@ -807,7 +807,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-07</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-08</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -8119,7 +8119,7 @@ function showDetail(id){
 
   const heritage = en.heritage.map((h,i)=>{
     const isLast = i===en.heritage.length-1;
-    const click = isLast ? '' : ` onclick="navigateToHier('${h}')"`;
+    const click = ` onclick="navigateToHier('${h}')"`;
     return `<span class="her-item${isLast?' current':''}"${click}>${h}</span>${isLast?'':`<span class="her-arrow">→</span>`}`;
   }).join('');
 
