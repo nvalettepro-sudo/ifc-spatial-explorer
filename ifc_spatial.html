@@ -566,9 +566,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .detail-section-title{font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:.65rem 0 .3rem}
 .detail-desc{font-size:.72rem;color:var(--text);line-height:1.65}
 .heritage{display:flex;flex-wrap:wrap;gap:.2rem;align-items:center}
-.her-item{font-family:'DM Mono',monospace;font-size:.58rem;padding:.18rem .5rem;border-radius:99px;background:var(--card);border:1px solid var(--border);color:var(--muted)}
-.her-item.current{background:var(--text);color:var(--card);border-color:var(--text)}
+.her-item{font-family:'DM Mono',monospace;font-size:.58rem;padding:.18rem .5rem;border-radius:99px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.her-item:hover{background:var(--sp-bg);border-color:var(--sp-bd);color:var(--sp)}
+.her-item.current{background:var(--text);color:var(--card);border-color:var(--text);cursor:default}
+.her-item.current:hover{background:var(--text);color:var(--card);border-color:var(--text)}
 .her-arrow{color:var(--muted);font-size:.65rem}
+.hier-highlight{animation:hier-flash .7s ease 2}
 .attrs{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.1rem}
 .attr-pill{font-size:.62rem;padding:.2rem .55rem;border-radius:99px;background:var(--bg);border:1px solid var(--border);color:var(--text)}
 .examples{display:flex;flex-direction:column;gap:.22rem}
@@ -738,6 +741,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   border-color: rgba(144,202,249,.55);
   color: #90CAF9;
 }
+@keyframes hier-flash{0%,100%{background:transparent}50%{background:var(--sp-bg)}}
 </style>
 </head>
 <body>
@@ -6525,7 +6529,7 @@ function hierRowHtml(name, node){
     ? `this.closest('.hier-group').classList.toggle('open')${clickHandler ? `;${clickHandler}` : ''}`
     : (clickHandler || '');
 
-  return `<div class="hier-row${en?'':' abstract'}" onclick="${rowClick}">
+  return `<div class="hier-row${en?'':' abstract'}" data-ifc="${name}" onclick="${rowClick}">
     ${arrow}${dot}${frPart}
     <span class="hier-ifc">${name}</span>
     ${badge}
@@ -6573,6 +6577,25 @@ function renderHierNode(name, node, val){
     ${hierRowHtml(name, node)}
     <div class="hier-children">${childrenHtml}</div>
   </div>`;
+}
+
+function navigateToHier(name){
+  switchTab('hier');
+  // S'assurer que l'arbre est rendu
+  if(!_hierTree) renderHierTree();
+  const container = document.getElementById('hier-tree');
+  const row = container.querySelector(`.hier-row[data-ifc="${name}"]`);
+  if(!row) return;
+  // Ouvrir tous les .hier-group ancêtres
+  let el = row.parentElement;
+  while(el && el !== container){
+    if(el.classList.contains('hier-group')) el.classList.add('open');
+    el = el.parentElement;
+  }
+  // Scroll + flash de mise en évidence
+  row.scrollIntoView({behavior:'smooth', block:'center'});
+  row.classList.add('hier-highlight');
+  setTimeout(() => row.classList.remove('hier-highlight'), 1400);
 }
 
 let _hierTree = null;
@@ -7968,7 +7991,8 @@ function showDetail(id){
 
   const heritage = en.heritage.map((h,i)=>{
     const isLast = i===en.heritage.length-1;
-    return `<span class="her-item${isLast?' current':''}">${h}</span>${i<en.heritage.length-1?'<span class="her-arrow">→</span>':''}`;
+    const click = isLast ? '' : ` onclick="navigateToHier('${h}')"`;
+    return `<span class="her-item${isLast?' current':''}"${click}>${h}</span>${i<en.heritage.length-1?'<span class="her-arrow">→</span>':''}`;
   }).join('');
 
   // Attrs complets depuis ATTRS_BY_ENTITY
