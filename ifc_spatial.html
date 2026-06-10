@@ -801,13 +801,72 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   color: #90CAF9;
 }
 @keyframes hier-flash{0%,100%{background:transparent}50%{background:var(--sp-bg)}}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE — MOBILE (≤ 640px, portrait)
+   Stratégie : un seul panneau visible à la fois.
+   Données/Hiérarchie (aside) par défaut.
+   Clic sur une entité → fiche plein écran.
+   Bouton ← Retour → revient à la liste.
+───────────────────────────────────────── */
+.mob-back-btn{
+  display:none;
+  align-items:center;gap:.35rem;
+  font-size:.7rem;font-weight:600;color:var(--sp);
+  background:none;border:none;cursor:pointer;
+  padding:.25rem .5rem .25rem 0;
+  font-family:'DM Sans',sans-serif;
+}
+.mob-back-btn:hover{opacity:.75}
+
+@media(max-width:640px){
+  /* Header compact */
+  header{padding:.45rem .75rem;gap:.4rem;flex-wrap:nowrap}
+  .sub{display:none}
+  .logo .ver{display:none}
+  .logo{font-size:.8rem}
+  .search-wrap{min-width:0;flex:1;max-width:none}
+  .hctrls{gap:.25rem;flex-shrink:0}
+  .btn{padding:.3rem .5rem;font-size:.62rem}
+
+  /* Layout : colonne unique */
+  .app{flex-direction:column}
+  .aside{width:100% !important;min-width:0 !important;flex:1}
+  .resizer{display:none}
+  .fiche-panel{display:none;width:100%;flex:1}
+
+  /* Mobile states */
+  .fiche-panel.mob-show{display:flex}
+  .aside.mob-hide{display:none}
+
+  /* Bouton Retour */
+  .mob-back-btn{display:flex}
+
+  /* Touch targets agrandis */
+  .aside-tab{padding:.6rem .4rem;font-size:.63rem;min-height:42px}
+  .btn.add,.btn.del{min-height:38px}
+  .cat-chip{padding:.42rem .55rem}
+  .elem{padding:.35rem .6rem}
+  .hier-row{padding:.3rem .25rem;min-height:34px}
+  .ds-header{padding:.5rem .75rem;min-height:38px}
+  .toggle-hd{padding:.5rem .7rem;min-height:38px}
+
+  /* Fiche : scroll normal */
+  .fiche-panel-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
+}
+
+/* Tablette / iPhone paysage (641–1023px) : côte à côte mais proportions ajustées */
+@media(min-width:641px) and (max-width:1023px){
+  .aside{width:44vw !important}
+  .btn{font-size:.65rem}
+}
 </style>
 </head>
 <body>
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-03</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-04</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -1264,6 +1323,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   <!-- ── PANNEAU DROIT : FICHE ── -->
   <div class="fiche-panel">
     <div class="fiche-panel-header">
+      <button class="mob-back-btn" onclick="mobilePanelBack()" aria-label="Retour à la liste">‹ Retour</button>
       <span class="fiche-panel-title">Fiche détaillée</span>
       <span class="aside-badge" id="aside-badge" style="opacity:0">●</span>
     </div>
@@ -6546,11 +6606,25 @@ const ABSTRACT_CLASSES = {
   IfcStructuralMember:{fr:"Membre structurel",desc:"Élément porteur dans le modèle d'analyse structurelle IFC : barre, poutre-colonne, câble, surface. Complémentaire des éléments physiques (IfcBeam, IfcColumn) — le membre structurel représente l'idéalisation pour le calcul.",subtypes:["IfcStructuralCurveMember","IfcStructuralSurfaceMember"]}
 };
 
+function isMobile(){ return window.innerWidth <= 640; }
+
+function mobilePanelFiche(){
+  if(!isMobile()) return;
+  document.querySelector('.aside').classList.add('mob-hide');
+  document.querySelector('.fiche-panel').classList.add('mob-show');
+}
+
+function mobilePanelBack(){
+  document.querySelector('.fiche-panel').classList.remove('mob-show');
+  document.querySelector('.aside').classList.remove('mob-hide');
+}
+
 function showAbstractDetail(name){
   const ac = ABSTRACT_CLASSES[name];
   if(!ac) return;
   selected = null;
   document.getElementById('aside-badge').classList.add('on');
+  mobilePanelFiche();
   const subtypesHtml = ac.subtypes.length
     ? ac.subtypes.map(s => `<span style="font-family:'DM Mono',monospace;font-size:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:.15rem .4rem;display:inline-block;margin:.1rem .2rem .1rem 0">${s}</span>`).join('')
     : '<span style="color:var(--muted);font-size:.65rem">Aucun sous-type documenté</span>';
@@ -8134,9 +8208,8 @@ const INHERITED_ORDER = ['Name','ObjectType','Description','GlobalId','OwnerHist
 
 function showDetail(id){
   selected = id;
-  // Basculer vers l'onglet Fiche
-  // fiche toujours visible à droite
   document.getElementById('aside-badge').classList.add('on');
+  mobilePanelFiche();
   // Re-render storey chips to update selected state
   renderStoreys();
 
