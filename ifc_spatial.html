@@ -807,7 +807,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-08</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">09/06/26-09</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -887,6 +887,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
     <!-- Onglet 2 : Données invisibles + légende -->
     <div class="aside-pane active" id="pane-data">
+
+      <input class="hier-search" id="data-search" type="text" placeholder="Filtrer les entités du catalogue…" oninput="filterCatalogue(this.value)" autocomplete="off" spellcheck="false">
 
       <!-- ── Navigation rapide ── -->
       <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.75rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)">
@@ -4063,6 +4065,32 @@ function renderCatalogue(){
   </div>` + html;
 }
 
+
+function filterCatalogue(q){
+  const val = q.trim().toLowerCase();
+  const catBlock = document.getElementById('ds-catalogue');
+  const sections = document.querySelectorAll('#catalogue .cat-section');
+  if(!val){
+    sections.forEach(s => {
+      s.style.display = '';
+      s.querySelectorAll('.cat-chip').forEach(c => c.style.display = '');
+    });
+    return;
+  }
+  // Ouvrir le catalogue si replié
+  if(catBlock && !catBlock.classList.contains('open')) catBlock.classList.add('open');
+  sections.forEach(s => {
+    let visible = 0;
+    s.querySelectorAll('.cat-chip').forEach(c => {
+      const fr  = c.querySelector('.chip-fr')?.textContent.toLowerCase()  || '';
+      const ifc = c.querySelector('.chip-ifc')?.textContent.toLowerCase() || '';
+      const show = fr.includes(val) || ifc.includes(val);
+      c.style.display = show ? '' : 'none';
+      if(show) visible++;
+    });
+    s.style.display = visible ? '' : 'none';
+  });
+}
 
 const ATTR_DICT = {
   GlobalId:{fr:'Identifiant unique (GUID)',def:'Identifiant universel unique de 22 caractères, généré une seule fois. Stable et immuable pour toute la durée de vie de l\'objet dans tous les logiciels.'},
