@@ -807,7 +807,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-01</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-03</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -1633,10 +1633,10 @@ const E = {
     ex:["Dalle LED encastrée 60×60cm bureau (POINTSOURCE)","Applique de sécurité voie de fuite (SECURITYLIGHTING)","Projecteur LED orientable commerce (DIRECTIONSOURCE)"]},
 
   lamp:{fr:'Lampe / Source lumineuse',ifc:'IfcLampType',cat:'elec',
-    desc:"La source lumineuse seule (sans le luminaire). PredefinedType : COMPACTFLUORESCENT, FLUORESCENT (fluo), HALOGEN, HIGHPRESSUREMERCURY, HIGHPRESSURESODIUM, LED, METALHALIDE, TUNGSTENFILAMENT.",
+    desc:"La source lumineuse seule (sans le luminaire). PredefinedType IFC2x3 : COMPACTFLUORESCENT, FLUORESCENT (fluo), HIGHPRESSUREMERCURY, HIGHPRESSURESODIUM, METALHALIDE, TUNGSTENFILAMENT.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowTerminalType','IfcLampType'],
     attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Lampe LED E27 9W 2700K (LED)","Tube fluorescent T8 36W (FLUORESCENT)","Lampe halogène GU10 50W (HALOGEN)"]},
+    ex:["Tube fluorescent compact 11W E27 (COMPACTFLUORESCENT)","Tube fluorescent T8 36W (FLUORESCENT)","Lampe à vapeur de mercure 125W (HIGHPRESSUREMERCURY)"]},
 
   firesupp:{fr:'Terminal de suppression incendie',ifc:'IfcFireSuppressionTerminalType',cat:'mep',
     desc:"Appareil terminal des systèmes de suppression incendie. PredefinedType : BREECHINGINLET (raccord pompier), SPRINKLERDEFLECTOR, SPRINKLER (sprinkleur), HOSEBIBB (robinet incendie armé).",
@@ -1651,7 +1651,7 @@ const E = {
     ex:["Prise gaz naturel cuisine Ø20mm","Point de gaz médical O2 chambre d'hôpital","Robinet gaz propane armoire extérieure"]},
 
   wasteterm:{fr:'Siphon / Évacuation',ifc:'IfcWasteTerminalType',cat:'mep',
-    desc:"Appareil terminal des réseaux d'évacuation des eaux usées ou vannes. PredefinedType : FLOORTRAP (siphon de sol), FOOTBATH, GULLYTRAP (avaloir), ROOFDRAIN (trop-plein de toiture), WASTEDISPOSALUNIT.",
+    desc:"Appareil terminal des réseaux d'évacuation des eaux usées ou vannes. PredefinedType IFC2x3 : FLOORTRAP (siphon de sol), FLOORWASTE, GULLYSUMP, GULLYTRAP (avaloir), ROOFDRAIN (trop-plein de toiture), WASTEDISPOSALUNIT.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowTerminalType','IfcWasteTerminalType'],
     attrs:['PredefinedType','Tag','Name','GlobalId'],
     ex:["Siphon de sol Ø100mm inox (FLOORTRAP)","Avaloir de cour Ø125mm grille fonte (GULLYTRAP)","Trop-plein de toiture terrasse Ø125mm (ROOFDRAIN)"]},
@@ -2485,7 +2485,7 @@ const E = {
   /* Racines abstraites */
   relship:  {fr:'Relation (base)',ifc:'IfcRelationship',cat:'prop',
     desc:"Classe abstraite racine de toutes les relations IFC. Une relation lie deux objets ou groupes d'objets sans modifier leur définition propre. C'est le mécanisme fondamental d'assemblage d'un fichier IFC.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship'],
+    heritage:['IfcRoot','IfcRelationship'],
     attrs:['GlobalId','OwnerHistory','Name','Description'],
     ex:["→ IfcRelAggregates lie un IfcBuilding à ses IfcBuildingStorey","→ IfcRelDefinesByProperties lie un mur à son Pset_WallCommon","→ IfcRelContainedInSpatialStructure place une porte dans un niveau"]},
 
@@ -2498,13 +2498,13 @@ const E = {
   /* ── Décomposition ── */
   relagg:   {fr:'Agrégation',ifc:'IfcRelAggregates',cat:'prop',
     desc:"Relation de décomposition physique : un objet parent (RelatingObject) est constitué d'objets enfants (RelatedObjects). C'est la relation qui structure la hiérarchie spatiale IFC : Projet → Terrain → Bâtiment → Niveau → Espace.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelDecomposes','IfcRelAggregates'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelDecomposes','IfcRelAggregates'],
     attrs:['GlobalId','OwnerHistory','Name','Description','RelatingObject','RelatedObjects'],
     ex:["→ IfcProject agrège IfcSite (le terrain du projet)","→ IfcSite agrège IfcBuilding (le bâtiment sur le terrain)","→ IfcBuilding agrège ses IfcBuildingStorey (niveaux)","→ IfcBuildingStorey agrège ses IfcSpace (locaux)"]},
 
   relnests: {fr:'Imbrication',ifc:'IfcRelNests',cat:'prop',
     desc:"Relation d'imbrication logique — un objet parent ordonne des objets enfants sans relation physique directe. Utilisée pour les tâches de planning, les ports MEP ou les sous-éléments de types.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelDecomposes','IfcRelNests'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelDecomposes','IfcRelNests'],
     attrs:['GlobalId','OwnerHistory','Name','Description','RelatingObject','RelatedObjects'],
     ex:["→ Une tâche principale imbrique ses sous-tâches","→ Un type d'équipement imbrique ses ports de connexion","→ Un groupe de travail imbrique ses activités séquentielles"]},
 
@@ -2604,13 +2604,13 @@ const E = {
 
   relfills:{fr:"Remplissage d'ouverture",ifc:'IfcRelFillsElement',cat:'prop',
     desc:"Lie une porte ou fenêtre (IfcDoor, IfcWindow) à la trémie (IfcOpeningElement) qu'elle remplit. Complète la chaîne : Mur → IfcRelVoidsElement → Trémie → IfcRelFillsElement → Porte/Fenêtre.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelConnects','IfcRelFillsElement'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelConnects','IfcRelFillsElement'],
     attrs:['GlobalId','OwnerHistory','Name','Description','RelatingOpeningElement','RelatedBuildingElement'],
     ex:["→ IfcRelFillsElement lie la trémie de 1.00×2.10m à la porte coupe-feu EI60","→ Une fenêtre triple vitrage remplit la trémie de façade correspondante","→ Un châssis fixe remplit un percement dans un mur de refend"]},
 
   relconn:{fr:"Connexion d'éléments",ifc:'IfcRelConnectsElements',cat:'prop',
     desc:"Relation générique de connexion entre deux éléments physiques. Décrit comment deux éléments se raccordent géométriquement, avec une description optionnelle de la connexion (fixation, soudure, clavetage…).",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelConnects','IfcRelConnectsElements'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelConnects','IfcRelConnectsElements'],
     attrs:['GlobalId','OwnerHistory','Name','Description','ConnectionGeometry','RelatingElement','RelatedElement'],
     ex:["→ Connexion entre une poutre et son poteau d'appui","→ Raccordement entre deux segments de canalisation","→ Jonction entre un plancher et le voile porteur adjacent"]},
 
@@ -2622,25 +2622,25 @@ const E = {
 
   relprojects:{fr:"Projection d'élément",ifc:'IfcRelProjectsElement',cat:'prop',
     desc:"Lie un élément de projection (IfcProjectionElement — avancée, saillie, débord) à l'élément de construction hôte. Complément géométrique additionnel : la saillie s'ajoute à l'élément de base.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelConnects','IfcRelProjectsElement'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelConnects','IfcRelProjectsElement'],
     attrs:['GlobalId','OwnerHistory','Name','Description','RelatingElement','RelatedFeatureElement'],
     ex:["→ Un pilastre en saillie sur un mur","→ Un acrotère débordant de la toiture-terrasse","→ Un nez de dalle dépassant du nu de façade"]},
 
   relcovers:{fr:"Revêtement d'un élément",ifc:'IfcRelCoversBldgElements',cat:'prop',
     desc:"Lie un revêtement (IfcCovering) à l'élément de construction qu'il recouvre. Un carrelage sur dalle, un bardage sur façade, une faux-plafond sous plancher — tous sont reliés à leur support par cette relation.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelConnects','IfcRelCoversBldgElements'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelConnects','IfcRelCoversBldgElements'],
     attrs:['GlobalId','OwnerHistory','Name','Description','RelatingBuildingElement','RelatedCoverings'],
     ex:["→ Le carrelage (IfcCovering FLOORING) est associé à la dalle du RDC","→ Le bardage aluminium (CLADDING) est associé au mur de façade","→ Le faux-plafond dalles minérales (CEILING) recouvre le plancher du R+1"]},
 
   relcoverssp:{fr:"Revêtement d'un espace",ifc:'IfcRelCoversSpaces',cat:'prop',
     desc:"Lie un revêtement (IfcCovering) à l'espace qu'il borne. Complémentaire de IfcRelCoversBldgElements : l'espace sait quels revêtements définissent ses surfaces intérieures.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelConnects','IfcRelCoversSpaces'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelConnects','IfcRelCoversSpaces'],
     attrs:['GlobalId','OwnerHistory','Name','Description','RelatingSpace','RelatedCoverings'],
     ex:["→ L'espace 'Bureau 201' est associé à son parquet, ses peintures et son faux-plafond","→ La salle de bain connaît ses revêtements : faïence murs et sol","→ Le couloir liste ses revêtements de sol et de plafond"]},
 
   relspaceb:{fr:"Limite d'espace",ifc:'IfcRelSpaceBoundary',cat:'prop',
     desc:"Relation avancée qui décrit les surfaces de délimitation d'un espace (les faces de murs, dalles, fenêtres qui l'enclosent). Indispensable pour les calculs thermiques et énergétiques — chaque face de l'espace est identifiée avec son élément constructif associé.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelConnects','IfcRelSpaceBoundary'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelConnects','IfcRelSpaceBoundary'],
     attrs:['GlobalId','OwnerHistory','Name','Description','RelatingSpace','RelatedBuildingElement','ConnectionGeometry','PhysicalOrVirtualBoundary','InternalOrExternalBoundary'],
     ex:["→ Le bureau 201 est délimité par 4 murs, un plancher et un plafond avec leur géométrie exacte","→ Chaque face de l'espace de la salle répertorie son élément (mur béton, vitrage, dalle)","→ Utilisé par les logiciels de simulation thermique pour les calculs d'échanges"]},
 
@@ -2713,7 +2713,7 @@ const E = {
 
   relassocc:{fr:"Occupation d'espace",ifc:'IfcRelOccupiesSpaces',cat:'prop',
     desc:"Lie un occupant (IfcOccupant — personne, organisation) aux espaces qu'il occupe. Utilisé en gestion patrimoniale et facility management pour le suivi des occupations de surfaces.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcRelationship','IfcRelAssigns','IfcRelAssignsToActor','IfcRelOccupiesSpaces'],
+    heritage:['IfcRoot','IfcRelationship','IfcRelAssigns','IfcRelAssignsToActor','IfcRelOccupiesSpaces'],
     attrs:['GlobalId','OwnerHistory','Name','Description','RelatedObjects','RelatingActor','ActingRole'],
     ex:["→ La direction générale occupe les espaces du 4ème étage","→ Le service RH est affecté aux bureaux 201 à 215","→ Un locataire commercial occupe les 450m² du rez-de-chaussée"]},
 
