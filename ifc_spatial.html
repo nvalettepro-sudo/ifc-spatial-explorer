@@ -866,7 +866,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-04</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-05</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche -->
@@ -6787,6 +6787,7 @@ function _sectionHtml(section, val){
 }
 
 function navigateToHier(name){
+  mobilePanelBack();
   switchTab('hier');
   if(!_hierTree) renderHierTree();
   const container = document.getElementById('hier-tree');
