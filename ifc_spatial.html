@@ -827,20 +827,29 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   padding:.2rem .55rem;line-height:1;flex-shrink:0;
 }
 /* Panneau burger — caché sur desktop */
+/* Overlay transparent derrière le burger (ferme au clic extérieur) */
+.mob-overlay{
+  display:none;position:fixed;inset:0;z-index:198;
+  background:transparent;
+}
+.mob-overlay.open{display:block}
+
 .mob-menu{
   display:none;flex-direction:column;gap:.55rem;
-  position:absolute;top:0;left:0;right:0;z-index:200;
+  position:fixed;left:0;right:0;z-index:199;
   background:var(--card);border-bottom:2px solid var(--border);
-  padding:.65rem .75rem .75rem;
-  box-shadow:0 4px 16px rgba(0,0,0,.18);
+  padding:.65rem .75rem .8rem;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+  /* top positionné en JS après mesure du header */
 }
 .mob-menu.open{display:flex}
 .mob-menu-search{position:relative}
-.mob-menu-search .search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--muted);pointer-events:none}
-.mob-menu-search .search-input{width:100%;padding:.42rem .75rem .42rem 2rem}
-.mob-menu-search .search-clear{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;border:none;background:var(--muted);color:#fff;font-size:.65rem;cursor:pointer;display:none;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;line-height:1}
+.mob-menu-search .search-icon{position:absolute;left:.65rem;top:50%;transform:translateY(-50%);font-size:.9rem;color:var(--muted);pointer-events:none}
+/* font-size 16px sur iOS = pas de zoom automatique */
+.mob-menu-search .search-input{width:100%;padding:.55rem .75rem .55rem 2.1rem;font-size:16px !important}
+.mob-menu-search .search-clear{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;border:none;background:var(--muted);color:#fff;font-size:.7rem;cursor:pointer;display:none;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;line-height:1}
 .mob-menu-actions{display:flex;gap:.5rem}
-.mob-menu-actions .btn{flex:1;text-align:center;min-height:38px}
+.mob-menu-actions .btn{flex:1;text-align:center;min-height:42px;font-size:.72rem}
 
 @media(max-width:640px){
   /* Header compact : logo + burger */
@@ -889,7 +898,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-06</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-07</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -911,6 +920,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   <!-- Burger menu (mobile uniquement) -->
   <button class="mob-burger" id="mob-burger" onclick="toggleMobMenu()" aria-label="Menu">☰</button>
 </header>
+
+<!-- Overlay fermeture burger (mobile) -->
+<div class="mob-overlay" id="mob-overlay" onclick="closeMobMenu()"></div>
 
 <!-- Panneau burger (mobile) -->
 <div class="mob-menu" id="mob-menu">
@@ -6676,13 +6688,24 @@ function mobilePanelBack(){
 
 function toggleMobMenu(){
   const m = document.getElementById('mob-menu');
-  m.classList.toggle('open');
-  if(m.classList.contains('open'))
-    document.getElementById('search-input-mob').focus();
+  const ov = document.getElementById('mob-overlay');
+  const isOpen = m.classList.contains('open');
+  if(isOpen){
+    m.classList.remove('open');
+    ov.classList.remove('open');
+  } else {
+    // Positionne le menu juste sous le header
+    const hdrH = document.querySelector('header').getBoundingClientRect().bottom;
+    m.style.top = hdrH + 'px';
+    m.classList.add('open');
+    ov.classList.add('open');
+    setTimeout(() => document.getElementById('search-input-mob').focus(), 60);
+  }
 }
 
 function closeMobMenu(){
   document.getElementById('mob-menu').classList.remove('open');
+  document.getElementById('mob-overlay').classList.remove('open');
 }
 
 function showAbstractDetail(name){
