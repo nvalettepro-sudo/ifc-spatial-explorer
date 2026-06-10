@@ -819,14 +819,37 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 }
 .mob-back-btn:hover{opacity:.75}
 
+/* Burger button — caché sur desktop */
+.mob-burger{
+  display:none;
+  background:none;border:1px solid var(--border);border-radius:7px;
+  color:var(--text);font-size:1.1rem;cursor:pointer;
+  padding:.2rem .55rem;line-height:1;flex-shrink:0;
+}
+/* Panneau burger — caché sur desktop */
+.mob-menu{
+  display:none;flex-direction:column;gap:.55rem;
+  position:absolute;top:0;left:0;right:0;z-index:200;
+  background:var(--card);border-bottom:2px solid var(--border);
+  padding:.65rem .75rem .75rem;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+}
+.mob-menu.open{display:flex}
+.mob-menu-search{position:relative}
+.mob-menu-search .search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--muted);pointer-events:none}
+.mob-menu-search .search-input{width:100%;padding:.42rem .75rem .42rem 2rem}
+.mob-menu-search .search-clear{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;border:none;background:var(--muted);color:#fff;font-size:.65rem;cursor:pointer;display:none;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;line-height:1}
+.mob-menu-actions{display:flex;gap:.5rem}
+.mob-menu-actions .btn{flex:1;text-align:center;min-height:38px}
+
 @media(max-width:640px){
-  /* Header compact */
-  header{padding:.45rem .75rem;gap:.4rem;flex-wrap:nowrap}
+  /* Header compact : logo + burger */
+  header{padding:.45rem .75rem;gap:.5rem;flex-wrap:nowrap;position:relative}
   .sub{display:none}
-  .logo .ver{display:none}
-  .logo{font-size:.8rem}
-  .search-wrap{min-width:0;flex:1;max-width:none}
-  .hctrls{gap:.25rem;flex-shrink:0}
+  .logo{font-size:.82rem}
+  #search-wrap-desktop{display:none}
+  #hctrls-desktop{display:none}
+  .mob-burger{display:flex;align-items:center}
   .btn{padding:.3rem .5rem;font-size:.62rem}
 
   /* Layout : colonne unique */
@@ -866,11 +889,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-05</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-06</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
-  <!-- Barre de recherche -->
-  <div class="search-wrap">
+  <!-- Barre de recherche (desktop) -->
+  <div class="search-wrap" id="search-wrap-desktop">
     <span class="search-icon">🔍</span>
     <input class="search-input" id="search-input" type="text"
       placeholder="Chercher une entité, un attribut, un mot-clé…"
@@ -880,11 +903,31 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
     <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
   </div>
 
-  <div class="hctrls">
+  <div class="hctrls" id="hctrls-desktop">
     <button class="btn" id="btn-theme" onclick="toggleTheme()" title="Basculer thème sombre / clair" style="font-size:.85rem;padding:.28rem .55rem">☀</button>
-      <button class="btn" onclick="showInfo()" title="À propos et guide">?&nbsp;Guide</button>
+    <button class="btn" onclick="showInfo()" title="À propos et guide">?&nbsp;Guide</button>
   </div>
+
+  <!-- Burger menu (mobile uniquement) -->
+  <button class="mob-burger" id="mob-burger" onclick="toggleMobMenu()" aria-label="Menu">☰</button>
 </header>
+
+<!-- Panneau burger (mobile) -->
+<div class="mob-menu" id="mob-menu">
+  <div class="mob-menu-search">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="search-input-mob" type="text"
+      placeholder="Chercher une entité, un attribut…"
+      oninput="onSearch(this.value); document.getElementById('search-input').value=this.value;"
+      onkeydown="if(event.key==='Escape'){clearSearch();closeMobMenu()}"
+      autocomplete="off" spellcheck="false">
+    <button class="search-clear" id="search-clear-mob" onclick="clearSearch()">✕</button>
+  </div>
+  <div class="mob-menu-actions">
+    <button class="btn" onclick="toggleTheme()" style="font-size:.85rem;padding:.3rem .6rem">☀ Thème</button>
+    <button class="btn" onclick="showInfo();closeMobMenu()">? Guide</button>
+  </div>
+</div>
 
 <div class="app">
 
@@ -6371,11 +6414,18 @@ function scoreFields(frText, ifcText, descText, sq){
 
 function onSearch(val){
   const q = val.trim();
+  // Synchronise les deux champs (desktop ↔ mobile burger)
+  const deskInp = document.getElementById('search-input');
+  const mobInp  = document.getElementById('search-input-mob');
+  if(deskInp && deskInp.value !== val) deskInp.value = val;
+  if(mobInp  && mobInp.value  !== val) mobInp.value  = val;
   const clearBtn = document.getElementById('search-clear');
+  const clearMob = document.getElementById('search-clear-mob');
   const badge = document.getElementById('search-badge');
   const tab = document.getElementById('tab-search');
 
   clearBtn.classList.toggle('visible', q.length > 0);
+  if(clearMob) clearMob.style.display = q.length > 0 ? 'flex' : 'none';
 
   if(q.length < 2){
     tab.style.display = 'none';
@@ -6551,11 +6601,16 @@ function showAttrDetail(name){
 
 function clearSearch(){
   const inp = document.getElementById('search-input');
+  const mobInp = document.getElementById('search-input-mob');
   inp.value = '';
+  if(mobInp) mobInp.value = '';
   inp.focus();
   document.getElementById('search-clear').classList.remove('visible');
+  const clearMob = document.getElementById('search-clear-mob');
+  if(clearMob) clearMob.style.display = 'none';
   document.getElementById('tab-search').style.display = 'none';
   document.getElementById('search-results-content').innerHTML = '';
+  closeMobMenu();
   switchTab('data');
 }
 
@@ -6617,6 +6672,17 @@ function mobilePanelFiche(){
 function mobilePanelBack(){
   document.querySelector('.fiche-panel').classList.remove('mob-show');
   document.querySelector('.aside').classList.remove('mob-hide');
+}
+
+function toggleMobMenu(){
+  const m = document.getElementById('mob-menu');
+  m.classList.toggle('open');
+  if(m.classList.contains('open'))
+    document.getElementById('search-input-mob').focus();
+}
+
+function closeMobMenu(){
+  document.getElementById('mob-menu').classList.remove('open');
 }
 
 function showAbstractDetail(name){
