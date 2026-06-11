@@ -360,9 +360,9 @@ tr:hover td{background:var(--bg)}
 
     <div class="stats">
       <div class="stat info"><div class="stat-num">164</div><div class="stat-label">Enums dans le schéma</div></div>
-      <div class="stat warn"><div class="stat-num">~34</div><div class="stat-label">Dans l'application</div></div>
-      <div class="stat bad"><div class="stat-num">~130</div><div class="stat-label">Manquantes</div></div>
-      <div class="stat ok"><div class="stat-num">21%</div><div class="stat-label">Couverture</div></div>
+      <div class="stat warn"><div class="stat-num">~47</div><div class="stat-label">Dans l'application</div></div>
+      <div class="stat bad"><div class="stat-num">~117</div><div class="stat-label">Manquantes</div></div>
+      <div class="stat ok"><div class="stat-num">29%</div><div class="stat-label">Couverture</div></div>
     </div>
 
     <table>
@@ -370,15 +370,15 @@ tr:hover td{background:var(--bg)}
         <tr><th>Catégorie</th><th>Énumérations clés manquantes</th><th>Priorité</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td>Éléments de bâtiment</td>
-          <td class="mono">IfcCoveringTypeEnum, IfcColumnTypeEnum, IfcBeamTypeEnum, IfcPlateTypeEnum, IfcMemberTypeEnum, IfcFootingTypeEnum, IfcPileTypeEnum</td>
-          <td><span class="prio-1">Haute</span></td>
+        <tr style="opacity:.5">
+          <td>✔ <s>Éléments de bâtiment</s></td>
+          <td class="mono"><s>IfcCoveringTypeEnum, IfcColumnTypeEnum, IfcBeamTypeEnum, IfcPlateTypeEnum, IfcMemberTypeEnum, IfcFootingTypeEnum, IfcPileTypeEnum</s></td>
+          <td><span class="tag tag-content" style="font-size:.55rem">Injecté 11/06/26</span></td>
         </tr>
-        <tr>
-          <td>Fenêtres / Portes</td>
-          <td class="mono">IfcDoorStyleOperationEnum (partielle), IfcDoorStyleConstructionEnum, IfcWindowStyleOperationEnum, IfcWindowStyleConstructionEnum</td>
-          <td><span class="prio-1">Haute</span></td>
+        <tr style="opacity:.5">
+          <td>✔ <s>Fenêtres / Portes</s></td>
+          <td class="mono"><s>IfcDoorStyleOperationEnum (complétée), IfcDoorStyleConstructionEnum, IfcWindowStyleOperationEnum (complétée), IfcWindowStyleConstructionEnum</s></td>
+          <td><span class="tag tag-content" style="font-size:.55rem">Injecté 11/06/26</span></td>
         </tr>
         <tr>
           <td>MEP — CVC</td>
@@ -603,7 +603,7 @@ tr:hover td{background:var(--bg)}
         <tr><td>5</td><td>URL partageable par entité (#IfcWall)</td><td><span class="tag tag-ux">UX</span></td><td>★★☆</td><td>★☆☆</td></tr>
         <tr><td>6</td><td>Liens buildingSMART officiels dans les fiches</td><td><span class="tag tag-content">Contenu</span></td><td>★★☆</td><td>★☆☆</td></tr>
         <tr><td>7</td><td>Favoris / Marque-pages (localStorage)</td><td><span class="tag tag-ux">UX</span></td><td>★★☆</td><td>★★☆</td></tr>
-        <tr><td>8</td><td>Compléter les énumérations P1 (bâtiment, portes/fenêtres)</td><td><span class="tag tag-content">Contenu</span></td><td>★★☆</td><td>★★☆</td></tr>
+        <tr><td>8</td><td>Compléter les énumérations MEP (CVC, électricité, plomberie)</td><td><span class="tag tag-content">Contenu</span></td><td>★★☆</td><td>★★☆</td></tr>
         <tr><td>9</td><td>Correction regex filterHierTree</td><td><span class="tag tag-perf">Bug</span></td><td>★★☆</td><td>★☆☆</td></tr>
         <tr><td>10</td><td>Export PDF d'une fiche (@media print)</td><td><span class="tag tag-perf">Tech</span></td><td>★★☆</td><td>★★☆</td></tr>
       </tbody>
@@ -611,7 +611,7 @@ tr:hover td{background:var(--bg)}
   </section>
 
   <p style="font-size:.62rem;color:var(--muted);text-align:center;margin-top:2rem;font-family:'DM Mono',monospace">
-    IFC2x3 Explorateur pédagogique · Nico Valette · Audit du 10/06/2026 · buildingSMART International 2005
+    IFC2x3 Explorateur pédagogique · Nico Valette · Audit 10/06/2026 · Mis à jour 11/06/2026 · buildingSMART International 2005
   </p>
 
 </div>
