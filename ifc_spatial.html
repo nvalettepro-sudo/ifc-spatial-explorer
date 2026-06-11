@@ -898,7 +898,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">10/06/26-07</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">11/06/26-01</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1180,6 +1180,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
         <div class="inv-item" onclick="showEnum('stairtype')"><span class="inv-fr">Types d'escalier</span><span class="inv-ifc">IfcStairTypeEnum</span></div>
         <div class="inv-item" onclick="showEnum('railingtype')"><span class="inv-fr">Types de garde-corps</span><span class="inv-ifc">IfcRailingTypeEnum</span></div>
         <div class="inv-item" onclick="showEnum('coveringtype')"><span class="inv-fr">Types de revêtement</span><span class="inv-ifc">IfcCoveringTypeEnum</span></div>
+        <div class="inv-item" onclick="showEnum('beamtype')"><span class="inv-fr">Types de poutre</span><span class="inv-ifc">IfcBeamTypeEnum</span></div>
+        <div class="inv-item" onclick="showEnum('columntype')"><span class="inv-fr">Types de poteau</span><span class="inv-ifc">IfcColumnTypeEnum</span></div>
+        <div class="inv-item" onclick="showEnum('membertype')"><span class="inv-fr">Types de membrure</span><span class="inv-ifc">IfcMemberTypeEnum</span></div>
+        <div class="inv-item" onclick="showEnum('platetype')"><span class="inv-fr">Types de plaque</span><span class="inv-ifc">IfcPlateTypeEnum</span></div>
         <div class="inv-item" onclick="showEnum('footingtype')"><span class="inv-fr">Types de fondations</span><span class="inv-ifc">IfcFootingTypeEnum</span></div>
         <div class="inv-item" onclick="showEnum('piletype')"><span class="inv-fr">Types de pieux</span><span class="inv-ifc">IfcPileTypeEnum</span></div>
       </div>
@@ -1187,7 +1191,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Portes & Fenêtres</div>
       <div class="invisible-items">
         <div class="inv-item" onclick="showEnum('dooroperation')"><span class="inv-fr">Modes d'ouverture (porte)</span><span class="inv-ifc">IfcDoorStyleOperationEnum</span></div>
-        <div class="inv-item" onclick="showEnum('winpaneloperation')"><span class="inv-fr">Modes d'ouverture (fenêtre)</span><span class="inv-ifc">IfcWindowPanelOperationEnum</span></div>
+        <div class="inv-item" onclick="showEnum('doorconstruction')"><span class="inv-fr">Matériaux de portes</span><span class="inv-ifc">IfcDoorStyleConstructionEnum</span></div>
+        <div class="inv-item" onclick="showEnum('winoperation')"><span class="inv-fr">Configuration vantaux (fenêtre)</span><span class="inv-ifc">IfcWindowStyleOperationEnum</span></div>
+        <div class="inv-item" onclick="showEnum('winpaneloperation')"><span class="inv-fr">Modes d'ouverture vantail</span><span class="inv-ifc">IfcWindowPanelOperationEnum</span></div>
         <div class="inv-item" onclick="showEnum('winconstruction')"><span class="inv-fr">Matériaux de fenêtres</span><span class="inv-ifc">IfcWindowStyleConstructionEnum</span></div>
       </div>
 
@@ -3562,7 +3568,8 @@ const ENUMS = {
       ["ROOFING","Couverture","Revêtement imperméable de toiture"],
       ["INSULATION","Isolation","Matériau isolant thermique ou acoustique"],
       ["MEMBRANE","Membrane d'étanchéité","Feuille d'étanchéité (toiture, fondation)"],
-      ["WRAPPING","Habillage de tuyaux","Isolation ou protection autour des canalisations"],
+      ["SLEEVING","Gaine de protection","Manchon ou fourreau protégeant une canalisation ou un câble"],
+      ["WRAPPING","Habillage de tuyaux","Isolation ou protection enroulée autour des canalisations"],
       ["USERDEFINED","Type personnalisé",""],
       ["NOTDEFINED","Non défini",""]
     ]},
@@ -3590,19 +3597,94 @@ const ENUMS = {
       ["NOTDEFINED","Non défini",""]
     ]},
 
+  beamtype:{fr:"Types de poutre",ifc:"IfcBeamTypeEnum",
+    desc:"PredefinedType de IfcBeam — précise la fonction structurale de la poutre dans l'ossature.",
+    usedBy:"IfcBeam.PredefinedType",
+    vals:[
+      ["BEAM","Poutre","Élément horizontal portant des charges en flexion — la poutre standard"],
+      ["JOIST","Solive","Petite poutre secondaire supportant un plancher ou un plafond"],
+      ["LINTEL","Linteau","Poutre courte au-dessus d'une ouverture (fenêtre, porte) dans un mur"],
+      ["T_BEAM","Poutre en T","Section en T — âme verticale et table horizontale — béton précontraint ou composite"],
+      ["USERDEFINED","Type personnalisé",""],
+      ["NOTDEFINED","Non défini",""]
+    ]},
+
+  columntype:{fr:"Types de poteau",ifc:"IfcColumnTypeEnum",
+    desc:"PredefinedType de IfcColumn — précise la fonction du poteau dans la structure porteuse.",
+    usedBy:"IfcColumn.PredefinedType",
+    vals:[
+      ["COLUMN","Poteau","Élément vertical reprenant les charges de compression — béton, acier ou bois"],
+      ["USERDEFINED","Type personnalisé",""],
+      ["NOTDEFINED","Non défini",""]
+    ]},
+
+  membertype:{fr:"Types de membrure",ifc:"IfcMemberTypeEnum",
+    desc:"PredefinedType de IfcMember — précise le rôle d'une membrure dans une charpente ou une ossature.",
+    usedBy:"IfcMember.PredefinedType",
+    vals:[
+      ["BRACE","Contreventement","Élément diagonal assurant la stabilité d'un cadre contre les forces horizontales"],
+      ["CHORD","Corde de treillis","Élément horizontal supérieur ou inférieur d'une poutre treillis"],
+      ["COLLAR","Entrait retroussé","Pièce horizontale reliant deux chevrons d'une ferme de toiture"],
+      ["MEMBER","Membrure générique","Élément de structure secondaire non spécialisé"],
+      ["MULLION","Meneau","Poteau vertical divisant une baie vitrée ou un rideau de verre"],
+      ["PLATE","Sablière / Lisse","Pièce horizontale de liaison en pied ou en tête d'une ossature"],
+      ["POST","Montant","Poteau vertical secondaire dans une ossature bois ou métallique"],
+      ["PURLIN","Panne","Pièce horizontale de charpente supportant les chevrons ou les plaques de couverture"],
+      ["RAFTER","Chevron","Pièce inclinée de charpente portant la couverture depuis le faîtage jusqu'à la sablière"],
+      ["STRINGER","Limon","Pièce inclinée portant les marches d'un escalier"],
+      ["STRUT","Jambe de force","Élément comprimé oblique dans une ferme ou un contreventement"],
+      ["STUD","Montant d'ossature","Poteau léger d'une cloison à ossature bois ou métal"],
+      ["USERDEFINED","Type personnalisé",""],
+      ["NOTDEFINED","Non défini",""]
+    ]},
+
+  platetype:{fr:"Types de plaque",ifc:"IfcPlateTypeEnum",
+    desc:"PredefinedType de IfcPlate — précise l'usage d'un élément plan mince (plaque, panneau).",
+    usedBy:"IfcPlate.PredefinedType",
+    vals:[
+      ["CURTAIN_PANEL","Panneau de façade légère","Verre, aluminium composite ou autre matériau de remplissage d'un rideau de verre"],
+      ["SHEET","Tôle / Plaque","Élément plan en métal ou matériau composite — toiture bac acier, bardage"],
+      ["USERDEFINED","Type personnalisé",""],
+      ["NOTDEFINED","Non défini",""]
+    ]},
+
   /* ── Portes & Fenêtres ── */
+  doorconstruction:{fr:"Matériaux de portes",ifc:"IfcDoorStyleConstructionEnum",
+    desc:"Matériau de construction du dormant et des vantaux d'une porte.",
+    usedBy:"IfcDoorStyle.ConstructionType",
+    vals:[
+      ["ALUMINIUM","Aluminium","Porte aluminium — légère, recyclable, peu d'entretien"],
+      ["HIGH_GRADE_STEEL","Acier haute qualité","Acier inoxydable ou traité haute résistance — usage technique ou sécurisé"],
+      ["STEEL","Acier","Porte acier laquée ou galvanisée — EI30/EI60, coupe-feu"],
+      ["WOOD","Bois","Porte en bois massif ou en panneaux — intérieure ou extérieure isolée"],
+      ["ALUMINIUM_WOOD","Aluminium-bois","Bois côté intérieur pour le confort, aluminium côté extérieur pour la durabilité"],
+      ["ALUMINIUM_PLASTIC","Aluminium-PVC","Association aluminium et profilés plastique pour optimiser isolation et coût"],
+      ["PLASTIC","PVC","Porte PVC — économique, bonne isolation thermique"],
+      ["USERDEFINED","Type personnalisé",""],
+      ["NOTDEFINED","Non défini",""]
+    ]},
+
   dooroperation:{fr:"Modes d'ouverture de porte",ifc:"IfcDoorStyleOperationEnum",
     desc:"Définit comment les vantaux d'une porte s'ouvrent — sens de rotation, type de mouvement.",
     usedBy:"IfcDoorStyle.OperationType",
     vals:[
-      ["SINGLE_SWING_LEFT","Simple battant gauche","Un vantail, charnières à gauche"],
-      ["SINGLE_SWING_RIGHT","Simple battant droite","Un vantail, charnières à droite"],
-      ["DOUBLE_DOOR_SINGLE_SWING","Double battant","Deux vantaux, même sens d'ouverture"],
-      ["DOUBLE_SWING_LEFT","Double battement gauche","Un vantail, s'ouvre des deux côtés"],
+      ["SINGLE_SWING_LEFT","Battant simple gauche","Un vantail, charnières à gauche, ouverture vers la gauche"],
+      ["SINGLE_SWING_RIGHT","Battant simple droit","Un vantail, charnières à droite, ouverture vers la droite"],
+      ["DOUBLE_DOOR_SINGLE_SWING","Double porte, battant simple","Deux vantaux indépendants, chacun s'ouvre d'un côté"],
+      ["DOUBLE_DOOR_SINGLE_SWING_OPPOSITE_LEFT","Double porte, battants opposés gauche","Deux vantaux s'ouvrant en sens opposé, principal à gauche"],
+      ["DOUBLE_DOOR_SINGLE_SWING_OPPOSITE_RIGHT","Double porte, battants opposés droit","Deux vantaux s'ouvrant en sens opposé, principal à droite"],
+      ["DOUBLE_SWING_LEFT","Double battement gauche","Un vantail s'ouvrant des deux côtés — porte va-et-vient gauche"],
+      ["DOUBLE_SWING_RIGHT","Double battement droit","Un vantail va-et-vient côté droit"],
+      ["DOUBLE_DOOR_DOUBLE_SWING","Double porte va-et-vient","Deux vantaux, tous deux en va-et-vient"],
       ["SLIDING_TO_LEFT","Coulissant vers gauche","Vantail coulissant vers la gauche"],
-      ["SLIDING_TO_RIGHT","Coulissant vers droite",""],
-      ["FOLDING_TO_LEFT","Pliant vers gauche","Porte pliante (accordéon)"],
-      ["REVOLVING","Tambour rotatif","Porte à tambour (accès hôtel/aéroport)"],
+      ["SLIDING_TO_RIGHT","Coulissant vers droite","Vantail coulissant vers la droite"],
+      ["DOUBLE_DOOR_SLIDING","Double porte coulissante","Deux vantaux coulissants s'écartant vers les côtés"],
+      ["FOLDING_TO_LEFT","Pliant vers gauche","Porte accordéon se repliant vers la gauche"],
+      ["FOLDING_TO_RIGHT","Pliant vers droite","Porte accordéon se repliant vers la droite"],
+      ["DOUBLE_DOOR_FOLDING","Double porte pliante","Deux panneaux pliants s'écartant des deux côtés"],
+      ["REVOLVING","Tambour rotatif","Porte à tambour — usage hôtel, aéroport, immeuble de bureaux"],
+      ["ROLLINGUP","Rideau relevable","Porte sectionnelle ou rideau montant — garage, entrepôt"],
+      ["USERDEFINED","Type personnalisé",""],
       ["NOTDEFINED","Non défini",""]
     ]},
 
@@ -3624,10 +3706,15 @@ const ENUMS = {
     desc:"Définit la configuration des vantaux d'une fenêtre — nombre et disposition des panneaux.",
     usedBy:"IfcWindowStyle.OperationType",
     vals:[
-      ["SINGLE_PANEL","Un seul vantail","Fenêtre à un seul panneau"],
-      ["DOUBLE_PANEL_VERTICAL","Deux vantaux côte à côte","Deux panneaux verticaux"],
-      ["DOUBLE_PANEL_HORIZONTAL","Deux vantaux superposés","Deux panneaux horizontaux"],
-      ["TRIPLE_PANEL_VERTICAL","Trois vantaux verticaux",""],
+      ["SINGLE_PANEL","Un seul vantail","Fenêtre à un seul panneau (fixe ou ouvrant)"],
+      ["DOUBLE_PANEL_VERTICAL","Deux vantaux côte à côte","Deux panneaux disposés verticalement, séparés par un petit-bois vertical"],
+      ["DOUBLE_PANEL_HORIZONTAL","Deux vantaux superposés","Deux panneaux disposés horizontalement, séparés par un traversin"],
+      ["TRIPLE_PANEL_VERTICAL","Trois vantaux verticaux","Trois panneaux côte à côte — baie large ou porte-fenêtre triple"],
+      ["TRIPLE_PANEL_BOTTOM","Trois vantaux — panneau inférieur","Deux panneaux en haut, un grand panneau en bas"],
+      ["TRIPLE_PANEL_TOP","Trois vantaux — panneau supérieur","Un grand panneau en haut, deux panneaux en bas"],
+      ["TRIPLE_PANEL_LEFT","Trois vantaux — grand panneau gauche","Grand panneau à gauche, deux panneaux à droite"],
+      ["TRIPLE_PANEL_RIGHT","Trois vantaux — grand panneau droit","Grand panneau à droite, deux panneaux à gauche"],
+      ["TRIPLE_PANEL_HORIZONTAL","Trois vantaux horizontaux","Trois panneaux superposés — rare, usage vitrine ou verrière"],
       ["USERDEFINED","Type personnalisé",""],
       ["NOTDEFINED","Non défini",""]
     ]},
