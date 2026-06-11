@@ -923,7 +923,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">11/06/26-04</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">11/06/26-05</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -3388,6 +3388,127 @@ const E = {
     ex:["→ IfcBuildingElementType regroupe tous les types d'éléments physiques de bâtiment",
         "→ C'est le parent commun de tous les types architecturaux et structurels",
         "→ Dans Archicad, chaque famille d'objet GDL exporte un IfcBuildingElementType correspondant"]},
+
+  /* ── MEP — Types manquants (injection 11/06/26) ── */
+  distribFlowElemType:{fr:"Type d'élément de distribution de flux (base)",ifc:'IfcDistributionFlowElementType',cat:'mep',
+    desc:"Classe abstraite commune à tous les types d'éléments qui transportent ou traitent un fluide, de l'air ou de l'électricité. Parent de IfcFlowSegmentType (tuyaux, gaines, câbles), IfcFlowFittingType (raccords), IfcFlowTerminalType (appareils terminaux), IfcEnergyConversionDeviceType (équipements de transformation) et autres familles de distribution.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Classe mère de IfcPipeSegmentType, IfcDuctSegmentType, IfcCableSegmentType",
+        "→ Tous les types MEP de flux héritent de IfcDistributionFlowElementType",
+        "→ Permet de filtrer tous les types de réseaux fluides dans un export IFC"]},
+
+  distribCtrlElemType:{fr:"Type d'élément de contrôle de distribution (base)",ifc:'IfcDistributionControlElementType',cat:'mep',
+    desc:"Classe abstraite pour tous les types d'équipements de mesure, détection et régulation des réseaux. Parent de IfcSensorType (capteurs), IfcAlarmType (alarmes), IfcActuatorType (actionneurs), IfcControllerType (régulateurs). Ces éléments ne transportent pas de fluide mais pilotent les systèmes de distribution.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionControlElementType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ IfcSensorType hérite de IfcDistributionControlElementType",
+        "→ Tous les équipements GTB/GTC sont des sous-types de cette classe",
+        "→ Différent de IfcDistributionFlowElementType : contrôle ≠ transport de fluide"]},
+
+  distribChamberElemType:{fr:"Type de chambre de distribution",ifc:'IfcDistributionChamberElementType',cat:'mep',
+    desc:"Type d'enceinte ou de chambre dans un réseau de distribution : regard de visite, regard de branchement, chambre de tirage de câbles, fosse de relevage. Permet de définir les caractéristiques communes d'une famille de regards ou de chambres réutilisables dans le projet.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcDistributionChamberElementType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Type de regard EU DN600 préfabriqué — partagé entre 12 instances",
+        "→ Chambre de tirage câble HTA — type commun aux 4 chambres du sous-sol",
+        "→ Fosse de relevage eaux pluviales — capacité et dimensions définies par le type"]},
+
+  flowFittingType:{fr:"Type de raccord de réseau (base)",ifc:'IfcFlowFittingType',cat:'mep',
+    desc:"Classe abstraite pour tous les types de raccords et pièces de forme des réseaux. Parent de IfcPipeFittingType (coudes, tés, réductions plomberie), IfcDuctFittingType (pièces spéciales gaines), IfcCableCarrierFittingType (pièces de chemin de câbles). Un raccord connecte plusieurs segments entre eux.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowFittingType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Parent de IfcPipeFittingType, IfcDuctFittingType, IfcCableCarrierFittingType",
+        "→ Un coude 90° DN50 fonte est un IfcPipeFittingType, sous-type de IfcFlowFittingType",
+        "→ Distinguer les raccords (pièces de forme) des segments (tronçons droits)"]},
+
+  flowSegmentType:{fr:"Type de segment de réseau (base)",ifc:'IfcFlowSegmentType',cat:'mep',
+    desc:"Classe abstraite pour tous les types de segments linéaires des réseaux : tronçons droits de tuyaux, gaines, câbles ou chemins de câbles. Parent de IfcPipeSegmentType, IfcDuctSegmentType, IfcCableSegmentType, IfcCableCarrierSegmentType. Un segment connecte deux nœuds (raccords, équipements) dans un réseau.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowSegmentType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Parent de IfcPipeSegmentType, IfcDuctSegmentType, IfcCableSegmentType",
+        "→ Tuyau acier galvanisé DN32 — type de segment de plomberie",
+        "→ Gaine rectangulaire 400×200 isolée — type de segment de ventilation"]},
+
+  condenserType:{fr:"Type de condenseur",ifc:'IfcCondenserType',cat:'mep',
+    desc:"Type de condenseur d'un circuit frigorifique ou d'une pompe à chaleur. Le condenseur restitue la chaleur du fluide frigorigène vers l'environnement (air, eau, sol). Types principaux : condenseur à air (refroidissement direct), condenseur à eau (tour de refroidissement), condenseur évaporatif (aspersion d'eau).",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcCondenserType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Condenseur à air de split-system — rejet thermique vers l'extérieur",
+        "→ Condenseur à eau de groupe froid — couplé à une tour de refroidissement",
+        "→ Condenseur évaporatif de centrale de traitement d'air — haute efficacité"]},
+
+  cooledBeamType:{fr:"Type de poutre froide",ifc:'IfcCooledBeamType',cat:'mep',
+    desc:"Type de terminal CVC à rayonnement et convection intégré au plafond. La poutre froide diffuse le froid (ou la chaleur) par échangeur eau-air sans ventilateur. Types : active (avec air primaire soufflé) ou passive (convection naturelle). Utilisée en tertiaire pour le confort acoustique et l'efficacité énergétique.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcCooledBeamType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Poutre froide active 2400mm — bureau open space tertiaire, débit d'air primaire 60 m³/h",
+        "→ Poutre froide passive plafond béton — salle de réunion, induction naturelle",
+        "→ Associée à IfcPipeSegmentType (eau glacée) et IfcDuctSegmentType (air primaire)"]},
+
+  evaporatorType:{fr:"Type d'évaporateur",ifc:'IfcEvaporatorType',cat:'mep',
+    desc:"Type d'évaporateur d'un circuit frigorifique. L'évaporateur absorbe la chaleur du milieu à refroidir en vaporisant le fluide frigorigène. Composant central des groupes froids, climatiseurs et chambres froides. Types : à détente directe (DX), noyé, à plaques brasées, tube-calandre.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcEvaporatorType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Évaporateur DX de split-system mural — refroidit l'air du local directement",
+        "→ Évaporateur noyé d'un groupe froid centrifuge — production eau glacée 6°C",
+        "→ Évaporateur à plaques chambre froide négative — température -18°C"]},
+
+  evapCoolerType:{fr:"Type de refroidisseur évaporatif",ifc:'IfcEvaporativeCoolerType',cat:'mep',
+    desc:"Type de refroidisseur qui exploite l'évaporation de l'eau pour abaisser la température de l'air. Différent d'un condenseur évaporatif : ici l'air traité est refroidi directement (direct) ou indirectement via un échangeur (indirect). Efficace en climat sec. Consomme très peu d'énergie par rapport à la climatisation conventionnelle.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcEvaporativeCoolerType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Refroidisseur évaporatif direct datacentre — efficacité PUE < 1,2 en climat continental",
+        "→ Cooler indirect CTA — l'air extrait refroidit l'air neuf via un échangeur à plaques",
+        "→ Tour aéroréfrigérante ouverte — rejet thermique groupe froid tertiaire"]},
+
+  elecMotorType:{fr:"Type de moteur électrique",ifc:'IfcElectricMotorType',cat:'elec',
+    desc:"Type de moteur électrique convertissant l'énergie électrique en énergie mécanique. Entraîne pompes, ventilateurs, compresseurs, convoyeurs et toute autre charge mécanique. Types IFC2x3 : DC (courant continu), INDUCTION (asynchrone triphasé), SYNCHRONOUS (synchrone), RELUCTANCESYNCHRONOUS, STEPPER (pas à pas).",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcElectricMotorType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Moteur asynchrone 11 kW — entraîne la pompe primaire du réseau de chauffage",
+        "→ Moteur EC 750 W variateur intégré — ventilateur CTA à débit variable",
+        "→ Moteur synchrone à aimants permanents — ascenseur régénératif basse consommation"]},
+
+  elecGeneratorType:{fr:"Type de groupe électrogène / générateur",ifc:'IfcElectricGeneratorType',cat:'elec',
+    desc:"Type de générateur convertissant une énergie mécanique (ou chimique) en énergie électrique. Groupe électrogène secours, alternateur de cogénération, générateur photovoltaïque (onduleur). En IFC2x3 : ENGINE_GENERATOR (groupe moteur-alternateur), STANDALONE (autonome) ou USERDEFINED.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcElectricGeneratorType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Groupe électrogène secours 200 kVA — alimentation TGBT secouru datacenter",
+        "→ Cogénérateur gaz 100 kWe — production simultanée chaleur et électricité tertiaire",
+        "→ Groupe de sécurité UPS 40 kVA — maintien alimentation salles chirurgicales"]},
+
+  motorConnType:{fr:"Type de couplage moteur",ifc:'IfcMotorConnectionType',cat:'mep',
+    desc:"Type de dispositif mécanique reliant le moteur à sa charge (pompe, ventilateur, compresseur). Accouplement direct, accouplement flexible, courroie trapézoïdale, engrenage. Définit les caractéristiques de la transmission : rapport de réduction, couple nominal, type de protection.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcMotorConnectionType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Accouplement élastique moteur-pompe — amortit les vibrations, désalignement toléré 0,3°",
+        "→ Courroie trapézoïdale ventilateur — rapport de réduction 1/1,4, remplacement annuel",
+        "→ Couplage direct variateur-compresseur — pas de pertes mécaniques intermédiaires"]},
+
+  interceptorType:{fr:"Type d'intercepteur / séparateur",ifc:'IfcInterceptorType',cat:'mep',
+    desc:"Type de dispositif de traitement des effluents liquides par séparation physique avant rejet au réseau. Séparateur d'hydrocarbures (parkings), séparateur de graisses (cuisines), séparateur de fécules (légumeries), débourbeur. Intercalé sur le réseau EU ou EP pour retenir les polluants par décantation ou flottation.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowTreatmentDeviceType','IfcInterceptorType'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ApplicableOccurrence','HasPropertySets','RepresentationMaps','Tag'],
+    ex:["→ Séparateur d'hydrocarbures parking 10 l/s — avant rejet réseau EP communal",
+        "→ Bac à graisses inox 300 L cuisine collective — nettoyage hebdomadaire",
+        "→ Débourbeur 3000 L béton — traitement eaux pluviales toiture végétalisée"]},
+
+  distribPort:{fr:"Port de distribution",ifc:'IfcDistributionPort',cat:'mep',
+    desc:"Point de connexion physique d'un élément de distribution (tuyau, gaine, câble) à un autre élément ou équipement. Matérialise l'entrée ou la sortie d'un flux : eau, air, électricité, données. Permet de modéliser la topologie des réseaux sans ambiguïté : chaque port a un sens (source/récepteur) et un type de fluide.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcPort','IfcDistributionPort'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ObjectType','ObjectPlacement','Representation'],
+    ex:["→ Port d'entrée eau froide DN20 d'un lave-mains — connecté au tuyau amont",
+        "→ Port de soufflage d'une bouche CVC — raccordé à la gaine de distribution",
+        "→ Port électrique 400V/16A d'un tableau divisionnaire — alimentation d'un circuit"]},
+
+  ifcPort:{fr:"Port (base)",ifc:'IfcPort',cat:'mep',
+    desc:"Classe abstraite représentant un point de connexion d'un produit. Sous-type : IfcDistributionPort pour les réseaux de distribution. Un port appartient à un produit via la relation IfcRelConnectsPortToElement, et se connecte à un autre port via IfcRelConnectsPorts. Concept clé pour la modélisation topologique des réseaux IFC.",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcPort'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','ObjectType','ObjectPlacement','Representation'],
+    ex:["→ Concept fondateur de la connectivité des réseaux IFC",
+        "→ IfcDistributionPort est le seul sous-type concret de IfcPort en IFC2x3",
+        "→ Deux ports connectés = une jonction entre deux éléments de réseau"]},
 
   distribElemType:{fr:"Type d'élément de distribution (base)",ifc:'IfcDistributionElementType',cat:'mep',
     desc:"Classe abstraite pour tous les types d'équipements MEP et fluides. Classe parente de tous les types de tuyaux, gaines, câbles, vannes et équipements de production d'énergie. Définit le contrat commun aux systèmes de distribution : connectivité aux ports, appartenance aux systèmes et propriétés de flux.",
@@ -8715,16 +8836,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>11/06/2026</strong> · buildingSMART International 2005 · 653 entités officielles · v11/06/26-04</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>11/06/2026</strong> · buildingSMART International 2005 · 653 entités officielles · v11/06/26-05</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--am)">39%</div>
+        <div class="cov-stat-num" style="color:var(--am)">47%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">258 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:39%;background:var(--am)"></div></div>
+        <div class="cov-stat-sub">308 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:47%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
@@ -8748,7 +8869,7 @@ function toggleTheme(){
         <tbody>
           <tr><td>Éléments de bâtiment</td><td>~28 / 38</td><td>74%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Relations IFC (IfcRel*)</td><td>~34 / 42</td><td>81%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Systèmes MEP</td><td>~45 / 90</td><td>50%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
+          <tr><td>Systèmes MEP</td><td>~74 / 90</td><td>82%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Planification / Coût</td><td>~8 / 40</td><td>20%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
           <tr><td>Acteurs &amp; Documents</td><td>~12 / 20</td><td>60%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
           <tr><td>Propriétés / Quantités</td><td>~17 / 35</td><td>49%</td><td><span class="cov-tag cov-tag-p2">P2 — en cours</span></td></tr>
