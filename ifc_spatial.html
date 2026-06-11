@@ -923,7 +923,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">11/06/26-02</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">11/06/26-03</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1137,11 +1137,29 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
           <span class="ds-arrow">›</span>
         </div>
         <div class="ds-body">
-          <div class="aside-section-title" style="margin-top:0">Propriétés</div>
+          <div class="aside-section-title" style="margin-top:0">Propriétés individuelles</div>
           <div class="invisible-items">
             <div class="inv-item" onclick="showDetail('propset')"><span class="inv-fr">Jeu de propriétés</span><span class="inv-ifc">IfcPropertySet</span></div>
             <div class="inv-item" onclick="showDetail('propval')"><span class="inv-fr">Valeur simple</span><span class="inv-ifc">IfcPropertySingleValue</span></div>
+            <div class="inv-item" onclick="showDetail('propenumval')"><span class="inv-fr">Valeur énumérée</span><span class="inv-ifc">IfcPropertyEnumeratedValue</span></div>
+            <div class="inv-item" onclick="showDetail('propbounded')"><span class="inv-fr">Valeur avec bornes</span><span class="inv-ifc">IfcPropertyBoundedValue</span></div>
+            <div class="inv-item" onclick="showDetail('proplistval')"><span class="inv-fr">Liste de valeurs</span><span class="inv-ifc">IfcPropertyListValue</span></div>
+            <div class="inv-item" onclick="showDetail('proptableval')"><span class="inv-fr">Valeur tabulaire</span><span class="inv-ifc">IfcPropertyTableValue</span></div>
+            <div class="inv-item" onclick="showDetail('proprefval')"><span class="inv-fr">Valeur référencée</span><span class="inv-ifc">IfcPropertyReferenceValue</span></div>
+            <div class="inv-item" onclick="showDetail('complexprop')"><span class="inv-fr">Propriété complexe</span><span class="inv-ifc">IfcComplexProperty</span></div>
+          </div>
+          <div class="aside-section-title">Quantités mesurées</div>
+          <div class="invisible-items">
             <div class="inv-item" onclick="showDetail('elemqty')"><span class="inv-fr">Quantités mesurées</span><span class="inv-ifc">IfcElementQuantity</span></div>
+            <div class="inv-item" onclick="showDetail('qtylength')"><span class="inv-fr">Longueur</span><span class="inv-ifc">IfcQuantityLength</span></div>
+            <div class="inv-item" onclick="showDetail('qtyarea')"><span class="inv-fr">Surface</span><span class="inv-ifc">IfcQuantityArea</span></div>
+            <div class="inv-item" onclick="showDetail('qtyvolume')"><span class="inv-fr">Volume</span><span class="inv-ifc">IfcQuantityVolume</span></div>
+            <div class="inv-item" onclick="showDetail('qtycount')"><span class="inv-fr">Nombre</span><span class="inv-ifc">IfcQuantityCount</span></div>
+            <div class="inv-item" onclick="showDetail('qtyweight')"><span class="inv-fr">Poids</span><span class="inv-ifc">IfcQuantityWeight</span></div>
+            <div class="inv-item" onclick="showDetail('qtytime')"><span class="inv-fr">Durée</span><span class="inv-ifc">IfcQuantityTime</span></div>
+          </div>
+          <div class="aside-section-title">Contraintes</div>
+          <div class="invisible-items">
             <div class="inv-item" onclick="showDetail('constraint')"><span class="inv-fr">Contrainte</span><span class="inv-ifc">IfcConstraint</span></div>
           </div>
           <div class="aside-section-title">Matériaux</div>
@@ -2045,11 +2063,65 @@ const E = {
     attrs:["Name","ListValues","Unit"],
     ex:["Couleurs de façade : [RAL9006, RAL7040]","Épaisseurs de couches : [12mm, 100mm, 13mm]","Fréquences testées : [125Hz, 250Hz, 500Hz, 1kHz]"]},
 
+  proptableval:{fr:"Valeur tabulaire",ifc:"IfcPropertyTableValue",cat:"prop",
+    desc:"Propriété dont la valeur est un tableau à deux colonnes — des valeurs définissantes (axe X) et des valeurs définies correspondantes (axe Y). Idéale pour les courbes de performance ou les tarifs par tranche.",
+    heritage:['IfcProperty','IfcSimpleProperty','IfcPropertyTableValue'],
+    attrs:["Name","Description","DefiningValues","DefinedValues","Expression","DefiningUnit","DefinedUnit"],
+    ex:["→ Courbe de rendement d'un ventilateur : débit (m³/h) → pression (Pa)","→ Tarif d'énergie par tranche : kWh consommés → coût unitaire","→ Résistance thermique en fonction de la température : T(°C) → R(m²·K/W)"]},
+
+  proprefval:{fr:"Valeur référencée",ifc:"IfcPropertyReferenceValue",cat:"prop",
+    desc:"Propriété dont la valeur est une référence vers un autre objet IFC plutôt qu'une valeur directe. Permet de lier une propriété à un matériau, un calendrier, un document ou un timeseries.",
+    heritage:['IfcProperty','IfcSimpleProperty','IfcPropertyReferenceValue'],
+    attrs:["Name","Description","UsageName","PropertyReference"],
+    ex:["→ Référence au matériau IfcMaterial 'Béton C25/30' pour une propriété de résistance","→ Référence à un IfcTimeSeries pour une courbe de consommation annuelle","→ Référence à un IfcDocumentInformation pour la fiche technique du produit"]},
+
+  complexprop:{fr:"Propriété complexe",ifc:"IfcComplexProperty",cat:"prop",
+    desc:"Propriété conteneur qui regroupe plusieurs propriétés enfants sous un même nom. Permet de structurer des données imbriquées — ex : une propriété 'Acoustique' contenant 'Absorption 500Hz', 'Absorption 1000Hz', 'NRC'.",
+    heritage:['IfcProperty','IfcComplexProperty'],
+    attrs:["Name","Description","UsageName","HasProperties"],
+    ex:["→ Propriété 'Isolation acoustique' regroupant Rw=52dB, C=-1, Ctr=-5","→ Propriété 'Performance thermique' contenant U=0.30, g=0.62, TL=Tglass","→ Propriété 'Couleur façade' : RAL principal + RAL secondaire + finition"]},
+
   elemqty:{fr:"Quantités mesurées",ifc:"IfcElementQuantity",cat:"prop",
     desc:"Les métrés — mesures précises extraites de la géométrie 3D d'un élément (surfaces, volumes, longueurs, poids). Servent de base au devis quantitatif et aux calculs réglementaires.",
     heritage:["IfcRoot","IfcPropertyDefinition","IfcPropertySetDefinition","IfcElementQuantity"],
     attrs:["GlobalId","Name","MethodOfMeasurement","Quantities"],
     ex:["Qto_WallBaseQuantities : longueur=8m, surface=22.4m², volume=4.5m³","Qto_SlabBaseQuantities : surface brute=45m², volume béton=9m³","Qto_SpaceBaseQuantities : surface=18.5m², périmètre=17.4m, hauteur=2.8m"]},
+
+  qtylength:{fr:"Quantité — Longueur",ifc:"IfcQuantityLength",cat:"prop",
+    desc:"Mesure de longueur extraite de la géométrie d'un élément. Utilisée dans les métrés IFC pour exprimer des longueurs linéaires — longueur d'un mur, hauteur d'un niveau, périmètre d'un espace.",
+    heritage:["IfcPhysicalQuantity","IfcPhysicalSimpleQuantity","IfcQuantityLength"],
+    attrs:["Name","Description","Unit","LengthValue"],
+    ex:["→ Longueur d'un mur porteur : LengthValue = 8.40 m","→ Hauteur libre sous plafond : LengthValue = 2.70 m","→ Périmètre d'un espace : LengthValue = 17.40 m"]},
+
+  qtyarea:{fr:"Quantité — Surface",ifc:"IfcQuantityArea",cat:"prop",
+    desc:"Mesure de surface extraite de la géométrie. Clé pour les métrés et le calcul réglementaire — surfaces habitables RT, surface de façade pour isolation, surface de plancher pour les devis.",
+    heritage:["IfcPhysicalQuantity","IfcPhysicalSimpleQuantity","IfcQuantityArea"],
+    attrs:["Name","Description","Unit","AreaValue"],
+    ex:["→ Surface brute d'un plancher : AreaValue = 45.00 m²","→ Surface habitable RT d'un espace : AreaValue = 18.50 m²","→ Surface nette de façade hors ouvertures : AreaValue = 32.40 m²"]},
+
+  qtyvolume:{fr:"Quantité — Volume",ifc:"IfcQuantityVolume",cat:"prop",
+    desc:"Mesure de volume extraite de la géométrie. Indispensable pour les métrés béton, les calculs thermiques (volume chauffé) et la gestion des terres (terrassement).",
+    heritage:["IfcPhysicalQuantity","IfcPhysicalSimpleQuantity","IfcQuantityVolume"],
+    attrs:["Name","Description","Unit","VolumeValue"],
+    ex:["→ Volume béton d'un mur : VolumeValue = 4.50 m³","→ Volume chauffé d'un bâtiment : VolumeValue = 3240 m³","→ Volume de terre excavée pour un bassin : VolumeValue = 125 m³"]},
+
+  qtycount:{fr:"Quantité — Nombre",ifc:"IfcQuantityCount",cat:"prop",
+    desc:"Comptage d'éléments discrets. Utilisé pour les nomenclatures — nombre de portes, de fenêtres, de luminaires, de prises, de points d'ancrage.",
+    heritage:["IfcPhysicalQuantity","IfcPhysicalSimpleQuantity","IfcQuantityCount"],
+    attrs:["Name","Description","Unit","CountValue"],
+    ex:["→ Nombre de portes coupe-feu EI60 : CountValue = 12","→ Nombre de prises RJ45 dans un bureau : CountValue = 4","→ Nombre de têtes sprinkler dans une zone : CountValue = 8"]},
+
+  qtyweight:{fr:"Quantité — Poids",ifc:"IfcQuantityWeight",cat:"prop",
+    desc:"Mesure de masse d'un élément ou d'un ensemble. Utilisée pour la charpente métallique, les équipements lourds, la logistique de chantier et les études de stabilité.",
+    heritage:["IfcPhysicalQuantity","IfcPhysicalSimpleQuantity","IfcQuantityWeight"],
+    attrs:["Name","Description","Unit","WeightValue"],
+    ex:["→ Masse d'une poutre HEA 300 de 12m : WeightValue = 1188 kg","→ Masse d'un groupe froid toiture : WeightValue = 2400 kg","→ Masse totale de charpente acier d'un niveau : WeightValue = 45600 kg"]},
+
+  qtytime:{fr:"Quantité — Durée",ifc:"IfcQuantityTime",cat:"prop",
+    desc:"Mesure d'une durée associée à un élément ou une tâche. Utilisée pour les temps de pose (planning), les durées de vie (maintenance) et les délais de livraison.",
+    heritage:["IfcPhysicalQuantity","IfcPhysicalSimpleQuantity","IfcQuantityTime"],
+    attrs:["Name","Description","Unit","TimeValue"],
+    ex:["→ Durée de pose d'une fenêtre : TimeValue = 1.5 h","→ Durée de vie d'une chaudière : TimeValue = 15 ans","→ Temps de séchage d'une chape : TimeValue = 28 jours"]},
 
   doorliningprops:{fr:"Propriétés du dormant (porte)",ifc:"IfcDoorLiningProperties",cat:"prop",
     desc:"Fiche technique des dimensions et caractéristiques du dormant (cadre fixe) d'une porte — profondeur, épaisseur, seuil, feuillure.",
@@ -8643,16 +8715,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>11/06/2026</strong> · buildingSMART International 2005 · 653 entités officielles</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>11/06/2026</strong> · buildingSMART International 2005 · 653 entités officielles · v11/06/26-03</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--am)">39%</div>
+        <div class="cov-stat-num" style="color:var(--am)">40%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">256 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:39%;background:var(--am)"></div></div>
+        <div class="cov-stat-sub">265 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:40%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">29%</div>
@@ -8679,7 +8751,7 @@ function toggleTheme(){
           <tr><td>Systèmes MEP</td><td>~45 / 90</td><td>50%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
           <tr><td>Planification / Coût</td><td>~8 / 40</td><td>20%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
           <tr><td>Acteurs &amp; Documents</td><td>~12 / 20</td><td>60%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
-          <tr><td>Propriétés / Quantités</td><td>0 / 35</td><td>0%</td><td><span class="cov-tag cov-tag-p1">Prioritaire</span></td></tr>
+          <tr><td>Propriétés / Quantités</td><td>~17 / 35</td><td>49%</td><td><span class="cov-tag cov-tag-p2">P2 — en cours</span></td></tr>
           <tr><td>Géométrie &amp; Style</td><td>0 / ~280</td><td>0%</td><td><span class="cov-tag cov-tag-hs">Hors scope</span></td></tr>
         </tbody>
       </table>
