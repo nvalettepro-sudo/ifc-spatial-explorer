@@ -693,6 +693,30 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .info-stat-n{font-size:1.1rem;font-weight:600;color:var(--text)}
 .info-stat-l{font-size:.58rem;color:var(--muted);margin-top:.1rem}
 
+/* ── MODALE COUVERTURE ── */
+.cov-card{background:var(--card);border-radius:16px;padding:1.75rem 2rem 1.5rem;max-width:700px;width:94%;
+  box-shadow:0 24px 64px rgba(0,0,0,.22);position:relative;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:.9rem}
+.cov-stats{display:flex;gap:.65rem;flex-wrap:wrap}
+.cov-stat{flex:1;min-width:120px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:.7rem .9rem;text-align:center}
+.cov-stat-num{font-size:1.55rem;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.cov-stat-sub{font-size:.56rem;color:var(--muted);margin-top:.2rem;font-family:'DM Mono',monospace}
+.cov-stat-label{font-size:.56rem;color:var(--muted);margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.cov-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:.3rem}
+.cov-bar-fill{height:100%;border-radius:99px}
+.cov-section-title{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.35rem;padding-bottom:.3rem;border-bottom:1px solid var(--border)}
+.cov-table{width:100%;border-collapse:collapse;font-size:.68rem}
+.cov-table th{font-size:.55rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;padding:.35rem .6rem;border-bottom:1.5px solid var(--border);text-align:left}
+.cov-table td{padding:.35rem .6rem;border-bottom:1px solid var(--border);vertical-align:middle;line-height:1.4}
+.cov-table tr:last-child td{border-bottom:none}
+.cov-table tr:hover td{background:var(--bg)}
+.cov-done{text-decoration:line-through;opacity:.38}
+.cov-tag{display:inline-block;font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.1rem .38rem;border-radius:99px;border:1px solid;white-space:nowrap}
+.cov-tag-ok{background:var(--gr-bg);color:var(--gr);border-color:var(--gr-bd)}
+.cov-tag-p1{background:var(--re-bg);color:var(--re);border-color:var(--re-bd)}
+.cov-tag-p2{background:var(--am-bg);color:var(--am);border-color:var(--am-bd)}
+.cov-tag-p3{background:var(--sp-bg);color:var(--sp);border-color:var(--sp-bd)}
+.cov-tag-hs{background:var(--bg);color:var(--muted);border-color:var(--border)}
+
 /* ── CATALOGUE ── */
 .cat-section{margin-bottom:.75rem}
 .cat-section-title{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
@@ -781,6 +805,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 [data-theme="dark"] .sr-item      { background:var(--card); }
 [data-theme="dark"] .sr-item:hover { background:var(--card2,#252525); }
 [data-theme="dark"] .info-card    { background:var(--card2,#252525); }
+[data-theme="dark"] .cov-card     { background:var(--card2,#252525); }
 [data-theme="dark"] .pset-header-inline { background:var(--card2,#252525) !important; }
 [data-theme="dark"] .aside-pane   { background:var(--card); }
 [data-theme="dark"] .aside-badge {
@@ -898,7 +923,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">11/06/26-01</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">11/06/26-02</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -914,6 +939,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
   <div class="hctrls" id="hctrls-desktop">
     <button class="btn" id="btn-theme" onclick="toggleTheme()" title="Basculer thème sombre / clair" style="font-size:.85rem;padding:.28rem .55rem">☀</button>
+    <button class="btn" onclick="showCov()" title="Couverture du schéma IFC2x3">≡&nbsp;Couverture</button>
     <button class="btn" onclick="showInfo()" title="À propos et guide">?&nbsp;Guide</button>
   </div>
 
@@ -937,6 +963,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   </div>
   <div class="mob-menu-actions">
     <button class="btn" onclick="toggleTheme()" style="font-size:.85rem;padding:.3rem .6rem">☀ Thème</button>
+    <button class="btn" onclick="showCov();closeMobMenu()">≡ Couverture</button>
     <button class="btn" onclick="showInfo();closeMobMenu()">? Guide</button>
   </div>
 </div>
@@ -4095,6 +4122,12 @@ function dismissInfo(){
 }
 function showInfo(){
   document.getElementById('info-overlay').classList.remove('hidden');
+}
+function dismissCov(){
+  document.getElementById('cov-overlay').classList.add('hidden');
+}
+function showCov(){
+  document.getElementById('cov-overlay').classList.remove('hidden');
 }
 
 /* ── Catalogue complet ── */
@@ -8599,6 +8632,85 @@ function toggleTheme(){
 </script>
 
 <!-- ── OVERLAY INFO ── -->
+<!-- ══ MODALE COUVERTURE IFC2x3 ══
+     À mettre à jour à chaque injection de données.
+     Valeurs courantes : 11/06/2026 · v11/06/26-01
+══════════════════════════════════════════════ -->
+<div class="info-overlay hidden" id="cov-overlay" onclick="if(event.target===this)dismissCov()">
+  <div class="cov-card">
+    <button class="info-close" onclick="dismissCov()">✕</button>
+
+    <!-- En-tête -->
+    <div>
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>11/06/2026</strong> · buildingSMART International 2005 · 653 entités officielles</div>
+    </div>
+
+    <!-- Stats globales -->
+    <div class="cov-stats">
+      <div class="cov-stat">
+        <div class="cov-stat-num" style="color:var(--am)">39%</div>
+        <div class="cov-stat-label">Entités couvertes</div>
+        <div class="cov-stat-sub">256 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:39%;background:var(--am)"></div></div>
+      </div>
+      <div class="cov-stat">
+        <div class="cov-stat-num" style="color:var(--am)">29%</div>
+        <div class="cov-stat-label">Énumérations</div>
+        <div class="cov-stat-sub">~47 / 164</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:29%;background:var(--am)"></div></div>
+      </div>
+      <div class="cov-stat">
+        <div class="cov-stat-num" style="color:var(--gr)">100%</div>
+        <div class="cov-stat-label">Conformité héritage</div>
+        <div class="cov-stat-sub">Corrigé 10/06/26</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:100%;background:var(--gr)"></div></div>
+      </div>
+    </div>
+
+    <!-- Entités par domaine -->
+    <div>
+      <div class="cov-section-title">Entités par domaine</div>
+      <table class="cov-table">
+        <thead><tr><th>Domaine</th><th>Dans l'app</th><th>Couverture</th><th>État</th></tr></thead>
+        <tbody>
+          <tr><td>Éléments de bâtiment</td><td>~28 / 38</td><td>74%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Relations IFC (IfcRel*)</td><td>~34 / 42</td><td>81%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Systèmes MEP</td><td>~45 / 90</td><td>50%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
+          <tr><td>Planification / Coût</td><td>~8 / 40</td><td>20%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
+          <tr><td>Acteurs &amp; Documents</td><td>~12 / 20</td><td>60%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
+          <tr><td>Propriétés / Quantités</td><td>0 / 35</td><td>0%</td><td><span class="cov-tag cov-tag-p1">Prioritaire</span></td></tr>
+          <tr><td>Géométrie &amp; Style</td><td>0 / ~280</td><td>0%</td><td><span class="cov-tag cov-tag-hs">Hors scope</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Énumérations -->
+    <div>
+      <div class="cov-section-title">Énumérations — état par catégorie</div>
+      <table class="cov-table">
+        <thead><tr><th>Catégorie</th><th>État</th></tr></thead>
+        <tbody>
+          <tr><td class="cov-done">Éléments de bâtiment — IfcBeamTypeEnum, IfcColumnTypeEnum, IfcMemberTypeEnum, IfcPlateTypeEnum, IfcFootingTypeEnum, IfcPileTypeEnum, IfcCoveringTypeEnum</td><td><span class="cov-tag cov-tag-ok">✔ 11/06/26</span></td></tr>
+          <tr><td class="cov-done">Portes / Fenêtres — IfcDoorStyleOperationEnum, IfcDoorStyleConstructionEnum, IfcWindowStyleOperationEnum, IfcWindowStyleConstructionEnum</td><td><span class="cov-tag cov-tag-ok">✔ 11/06/26</span></td></tr>
+          <tr><td>MEP — CVC (IfcAirTerminalTypeEnum, IfcBoilerTypeEnum, IfcCoilTypeEnum, IfcCondenserTypeEnum…)</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
+          <tr><td>MEP — Électricité (IfcElectricApplianceTypeEnum, IfcElectricMotorTypeEnum…)</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
+          <tr><td>MEP — Plomberie (IfcSanitaryTerminalTypeEnum, IfcValveTypeEnum, IfcTankTypeEnum…)</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
+          <tr><td>Planning / Gestion (IfcTaskTypeEnum, IfcWorkControlTypeEnum, IfcObjectiveEnum…)</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
+          <tr><td>Géométrie / Profils (IfcTransitionCode, IfcBooleanOperator…)</td><td><span class="cov-tag cov-tag-hs">Hors scope</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pied -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;padding-top:.25rem;border-top:1px solid var(--border)">
+      <a href="https://nvalettepro-sudo.github.io/ifc-spatial-explorer/rapport-audit.html" target="_blank"
+         style="font-size:.67rem;color:var(--sp);text-decoration:none;font-weight:600">→ Rapport d'audit complet</a>
+      <button class="info-btn" style="width:auto;padding:.45rem 1.25rem" onclick="dismissCov()">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <div class="info-overlay hidden" id="info-overlay">
   <div class="info-card">
     <button class="info-close" onclick="dismissInfo()">✕</button>
