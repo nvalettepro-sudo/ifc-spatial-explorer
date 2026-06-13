@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-03</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-04</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -4113,7 +4113,119 @@ const E = {
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type silent-bloc 60 Shore charge 50-200 kg — pompes et ventilateurs","Type platine ressorts 4 points f0=3Hz — CTAs lourdes","Type suspension caoutchouc-métal M12 — petit matériel CVC"]},
 
+  /* ── IFC4.1 — Alignement & positionnement linéaire ── */
+  alignment:{fr:"Alignement",ifc:"IfcAlignment",cat:"geo",ver:"IFC4x1",
+    desc:"Axe géométrique d'une infrastructure linéaire (route, voie ferrée, pipeline) défini par des segments horizontaux et verticaux. Entité centrale de l'IFC4.1 pour les projets d'infrastructure.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement","IfcAlignment"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Axis"],
+    ex:["→ Axe de la RD12 sur 3,2 km — tracé en plan + profil en long","→ Alignement voie principale LGV — courbes de rayon 6 000 m","→ Axe pipeline DN500 — 18 km avec 3 coudes"]},
+
+  linearPositioningElement:{fr:"Élément de positionnement linéaire",ifc:"IfcLinearPositioningElement",cat:"geo",ver:"IFC4x1",
+    desc:"Classe abstraite représentant tout élément servant de référence de positionnement linéaire (alignement, axe). Base de IfcAlignment dans la hiérarchie IFC4.1.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
+    ex:["→ Classe mère de IfcAlignment","→ Utilisée pour tout axe servant de référence de positionnement","→ Permet d'ancrer des objets à une station (chaînage) le long d'un axe"]},
+
+  alignmentHorizontal:{fr:"Alignement horizontal",ifc:"IfcAlignmentHorizontal",cat:"geo",ver:"IFC4x1",
+    desc:"Tracé en plan d'un alignement : succession de segments droits, arcs de cercle et clothoïdes définissant la trajectoire horizontale d'une infrastructure.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement","IfcAlignmentHorizontal"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
+    ex:["→ Plan d'alignement autoroute : droite 800 m + clothoïde 200 m + arc R=1200 m","→ Tracé en plan d'une piste d'aéroport","→ Alignement horizontal d'un raccordement ferroviaire en gare"]},
+
+  alignmentVertical:{fr:"Alignement vertical",ifc:"IfcAlignmentVertical",cat:"geo",ver:"IFC4x1",
+    desc:"Profil en long d'un alignement : succession de pentes constantes et de raccordements paraboliques définissant l'altitude de l'axe tout au long du tracé.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement","IfcAlignmentVertical"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
+    ex:["→ Profil en long RD12 : montée 4% sur 600 m + raccordement parabolique + descente 2%","→ Profil vertical d'un tunnel — minimise les dénivellations","→ Profil en long voie ferrée LGV : pente max 2,5%"]},
+
+  alignmentCant:{fr:"Dévers d'alignement",ifc:"IfcAlignmentCant",cat:"geo",ver:"IFC4x1",
+    desc:"Définit l'inclinaison transversale (dévers) de la chaussée ou de la voie en courbe pour compenser la force centrifuge. Composante du profil en travers le long de l'alignement.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement","IfcAlignmentCant"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","RailHeadDistance"],
+    ex:["→ Dévers ferroviaire LGV : 150 mm entre rails en courbe R=3000 m","→ Dévers routier 7% en courbe avec transition progressive","→ Dévers nul en alignement droit — retour à la pente transversale de base"]},
+
+  referent:{fr:"Référent de positionnement",ifc:"IfcReferent",cat:"geo",ver:"IFC4x1",
+    desc:"Point de référence le long d'un alignement, identifié par son chaînage (station). Permet de localiser précisément un objet ou un événement sur l'infrastructure linéaire.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcPositioningElement","IfcReferent"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","PredefinedType"],
+    ex:["→ PR 12+350 — point de référence à 12 350 m du début d'autoroute","→ Station 0+000 — origine d'un alignement de voie ferrée","→ Chaînage km 3+800 — position d'un ouvrage d'art sur tracé routier"]},
+
+  positioningElement:{fr:"Élément de positionnement",ifc:"IfcPositioningElement",cat:"geo",ver:"IFC4x1",
+    desc:"Classe abstraite pour les éléments dont la fonction est de servir de référence de positionnement (grille, niveau, alignement). Classe mère de IfcGrid, IfcLinearPositioningElement et IfcReferent.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcPositioningElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
+    ex:["→ Classe mère abstraite de IfcGrid et IfcLinearPositioningElement","→ Regroupe tous les éléments de référence géométrique","→ Permet la requête générique de tous les axes et grilles d'un projet"]},
+
+  alignmentSegment:{fr:"Segment d'alignement",ifc:"IfcAlignmentSegment",cat:"geo",ver:"IFC4x1",
+    desc:"Tronçon élémentaire d'un alignement (horizontal, vertical ou en dévers) : droite, arc de cercle, clothoïde, parabole… Chaque segment a un début, une longueur et une géométrie définie.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcAlignmentSegment"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","DesignParameters"],
+    ex:["→ Segment clothoïde A=500 — transition courbe-droite LGV","→ Arc R=800 m, L=240 m — courbe principale tracé routier","→ Segment parabolique Kv=25000 m — raccordement de profil autoroute"]},
+
+  sectionedSolid:{fr:"Solide à sections droites",ifc:"IfcSectionedSolid",cat:"geo",ver:"IFC4x1",
+    desc:"Géométrie d'un élément de longueur obtenue par balayage de sections transversales le long d'une courbe directrice. Représentation standard des ouvrages linéaires (chaussées, voies, remblais).",
+    heritage:["IfcSectionedSolid"],
+    attrs:["Directrix","CrossSections","CrossSectionPositions"],
+    ex:["→ Chaussée 2x2 voies : sections trapézoïdales balayées sur 3,2 km","→ Profil voie ferrée : 2 rails + traverses — solide sectionné sur 18 km","→ Remblai autoroutier : section triangulaire variable le long de l'axe"]},
+
+  sectionedSolidHorizontal:{fr:"Solide sectionné horizontal",ifc:"IfcSectionedSolidHorizontal",cat:"geo",ver:"IFC4x1",
+    desc:"Spécialisation de IfcSectionedSolid pour les ouvrages à directrice horizontale. Les sections sont interpolées entre positions définies le long de l'alignement.",
+    heritage:["IfcSectionedSolid","IfcSectionedSolidHorizontal"],
+    attrs:["Directrix","CrossSections","CrossSectionPositions","FixedAxisVertical"],
+    ex:["→ Dalle de chaussée interpolée entre profils en travers kilométriques","→ Superstructure ferroviaire à sections variables en courbe","→ Plateforme d'aéroport : sections balayées selon axe de piste"]},
+
+  linearPlacement:{fr:"Positionnement linéaire",ifc:"IfcLinearPlacement",cat:"geo",ver:"IFC4x1",
+    desc:"Système de placement d'un objet le long d'un alignement, défini par une station (chaînage), un décalage latéral et une altitude relative. Alternative aux coordonnées XYZ absolues pour les infrastructures.",
+    heritage:["IfcObjectPlacement","IfcLinearPlacement"],
+    attrs:["PlacementRelTo","PlacementMeasuredAlong","Distance","Lateral","Vertical","Orientation"],
+    ex:["→ Portique de signalisation à PK 12+350, déport 3,5 m droite, H=5,5 m","→ Garde-corps positionné en station curviligne le long d'un pont","→ Feux tricolores à PK 0+820, axe central, H=0 m sol"]},
+
+  distanceExpression:{fr:"Expression de distance curviligne",ifc:"IfcDistanceExpression",cat:"geo",ver:"IFC4x1",
+    desc:"Valeur numérique exprimant une position le long d'une courbe (chaînage/station). Composante de IfcLinearPlacement pour définir la station d'ancrage d'un objet sur l'alignement.",
+    heritage:["IfcDistanceExpression"],
+    attrs:["DistanceAlong","OffsetLateral","OffsetVertical","OffsetLongitudinal","AlongHorizontal"],
+    ex:["→ Station 12 350 m — chaînage absolu sur RD12","→ Station 0+800 avec décalage latéral 2,0 m (côté droite)","→ Position le long d'une bretelle : 450 m depuis bifurcation"]},
+
+  relPositions:{fr:"Relation de positionnement",ifc:"IfcRelPositions",cat:"geo",ver:"IFC4x1",
+    desc:"Relation entre un IfcPositioningElement (alignement, grille) et les objets qui s'y réfèrent pour leur positionnement. Formalise la dépendance de placement des équipements sur un axe.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelPositions"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatingPositioningElement","RelatedProducts"],
+    ex:["→ Alignement RD12 ← portiques, glissières, candélabres","→ Axe LGV ← caténaires, signaux, aiguillages positionnés en station","→ Axe pipeline ← vannes, coudes, supports positionnés par chaînage"]},
+
+  /* ── IFC4.1 — Éléments d'infrastructure ── */
+  course:{fr:"Couche de structure",ifc:"IfcCourse",cat:"struct",ver:"IFC4x1",
+    desc:"Couche homogène constituant une structure de chaussée, de voie ou d'ouvrage d'art : couche de base, couche de fondation, couche de roulement. Élément de construction linéaire par couches.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcCourse"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["→ Grave bitume 0/20 — couche de base autoroute, e=18 cm","→ Béton de propreté — couche de fondation semelle filante","→ Couche de forme PSV — chaussée ferroviaire"]},
+
+  courseType:{fr:"Type de couche de structure",ifc:"IfcCourseType",cat:"struct",ver:"IFC4x1",
+    desc:"Type paramétrique de couche de structure partageant matériau, granulométrie et épaisseur nominale. Sert de gabarit pour les couches récurrentes d'un projet d'infrastructure.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuildingElementType","IfcCourseType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["→ Type 'EME2 0/14 e=6cm' — couche de liaison autoroute","→ Type 'GNT 0/31,5 e=35cm' — couche de fondation standard","→ Type 'BBTM 0/6 e=2,5cm' — couche de roulement urbaine"]},
+
+  pavement:{fr:"Chaussée",ifc:"IfcPavement",cat:"struct",ver:"IFC4x1",
+    desc:"Ouvrage de surface portant et guidant la circulation routière, composé de plusieurs couches superposées (fondation, base, liaison, roulement). Contient les IfcCourse qui le constituent.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcPavement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["→ Chaussée 2x3 voies autoroute — structure bitumineuse 55 cm","→ Piste aéroport — PCN 80 / F / C / X / T béton armé continu","→ Chaussée urbaine — structure semi-rigide 40 cm"]},
+
+  kerb:{fr:"Bordure de trottoir",ifc:"IfcKerb",cat:"struct",ver:"IFC4x1",
+    desc:"Élément de bordure délimitant la chaussée du trottoir ou d'un espace piéton. Peut être en béton préfabriqué, granit ou pierre. Élément d'infrastructure de voirie.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcKerb"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","Mountable"],
+    ex:["→ Bordure T2 béton préfabriqué — séparation chaussée/trottoir","→ Bordure granit 20x15 cm — voirie patrimoniale centre historique","→ Abaissé de trottoir PMR — bordure chanfreinée 4 cm saillie"]},
+
+  kerbType:{fr:"Type de bordure",ifc:"IfcKerbType",cat:"struct",ver:"IFC4x1",
+    desc:"Type paramétrique de bordure de trottoir définissant le profil, le matériau et les dimensions standards. Référence les familles normalisées (T2, CS1, etc.).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuiltElementType","IfcKerbType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","Mountable","PredefinedType"],
+    ex:["→ Type 'T2-100' — bordure haute 100 cm béton NF P98-302","→ Type 'CS1' — bordure basse chanfreinée PMR","→ Type 'P1' — bordure plate en granit gris flamé"]},
+
 };
+
+
 
 const CAT_LABELS = {
   space:'Structure spatiale', arch:'Élément architectural',
@@ -9440,16 +9552,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-03</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-04</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--am)">62%</div>
+        <div class="cov-stat-num" style="color:var(--am)">64%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">402 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:62%;background:var(--am)"></div></div>
+        <div class="cov-stat-sub">420 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:64%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
