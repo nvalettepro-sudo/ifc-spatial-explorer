@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-04</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-05</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -4223,7 +4223,147 @@ const E = {
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","Mountable","PredefinedType"],
     ex:["→ Type 'T2-100' — bordure haute 100 cm béton NF P98-302","→ Type 'CS1' — bordure basse chanfreinée PMR","→ Type 'P1' — bordure plate en granit gris flamé"]},
 
+  /* ── IFC4.3 — Ouvrages d'infrastructure ── */
+  road:{fr:"Route",ifc:"IfcRoad",cat:"struct",ver:"IFC4x3",
+    desc:"Ouvrage linéaire de transport routier : autoroute, route nationale, départementale, voie urbaine. Contient les chaussées, trottoirs, équipements et ouvrages associés. Entité faîtière du domaine routier IFC4.3.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcRoad"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
+    ex:["→ A6 — autoroute du Soleil, section Nemours-Beaune 240 km","→ RD12 — route départementale traversant 14 communes","→ Boulevard périphérique Paris — voie rapide urbaine 35 km"]},
+
+  railway:{fr:"Voie ferrée",ifc:"IfcRailway",cat:"struct",ver:"IFC4x3",
+    desc:"Ouvrage linéaire ferroviaire : ligne LGV, ligne classique, métro, tramway. Contient les voies, caténaires, signalisation et ouvrages d'art ferroviaires. Entité faîtière du domaine ferroviaire IFC4.3.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcRailway"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
+    ex:["→ LGV Sud-Est — Paris-Lyon 400 km, Vmax 300 km/h","→ Ligne 14 du métro parisien — extension Orly","→ Tramway T3b — Paris, section Porte de la Chapelle-Asnières"]},
+
+  bridge:{fr:"Pont",ifc:"IfcBridge",cat:"struct",ver:"IFC4x3",
+    desc:"Ouvrage d'art permettant le franchissement d'un obstacle (cours d'eau, vallée, autre voie). Comprend tablier, piles, culées, appareils d'appui, équipements. Entité faîtière du domaine ouvrages d'art IFC4.3.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcBridge"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
+    ex:["→ Viaduc de Millau — tablier haubané 2 460 m, H=343 m","→ Pont de Normandie — travée centrale 856 m haubans","→ Passerelle piétonne sur A86 — béton précontraint L=62 m"]},
+
+  tunnel:{fr:"Tunnel",ifc:"IfcTunnel",cat:"struct",ver:"IFC4x3",
+    desc:"Ouvrage souterrain de franchissement creusé dans la roche ou le sol : tunnel routier, ferroviaire, piéton ou hydraulique. Comprend creusement, revêtement, équipements de sécurité et ventilation.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcTunnel"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
+    ex:["→ Tunnel du Fréjus — 12,87 km, liaison France-Italie","→ Tunnel sous la Manche — 50,5 km dont 38 km sous mer","→ Tunnel Prado-Carénage Marseille — 2,5 km urbain"]},
+
+  facility:{fr:"Ouvrage d'infrastructure",ifc:"IfcFacility",cat:"struct",ver:"IFC4x3",
+    desc:"Classe abstraite faîtière de tous les ouvrages d'infrastructure IFC4.3 : route, voie ferrée, pont, tunnel, marina, aéroport… Étend IfcSpatialElement pour les ouvrages non bâtimentaires.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType"],
+    ex:["→ Classe mère abstraite de IfcRoad, IfcRailway, IfcBridge, IfcTunnel","→ Permet la requête générique de tous les ouvrages d'un projet","→ Un aéroport = IfcFacility avec sous-ouvrages spécialisés"]},
+
+  facilityPart:{fr:"Partie d'ouvrage",ifc:"IfcFacilityPart",cat:"struct",ver:"IFC4x3",
+    desc:"Subdivision spatiale d'un ouvrage d'infrastructure : tronçon de route, travée de pont, tube de tunnel, section de voie. Permet la décomposition hiérarchique des grands ouvrages.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType"],
+    ex:["→ Tronçon A6 km 120-180 — section de concession autoroutière","→ Travée centrale viaduc — portée principale 400 m","→ Tube Sud tunnel routier — sens Province-Paris"]},
+
+  facilityPartCommon:{fr:"Partie commune d'ouvrage",ifc:"IfcFacilityPartCommon",cat:"struct",ver:"IFC4x3",
+    desc:"Partie d'ouvrage transversale partagée entre plusieurs usages (exemple : chaussée bidirectionnelle sans séparateur, zone de péage commune). Spécialisation de IfcFacilityPart.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcFacilityPartCommon"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
+    ex:["→ Zone de péage autoroute — accès tous véhicules","→ Section route bidirectionnelle sans terre-plein central","→ Voie de service commune à deux lignes de métro"]},
+
+  railwayPart:{fr:"Partie de voie ferrée",ifc:"IfcRailwayPart",cat:"struct",ver:"IFC4x3",
+    desc:"Subdivision fonctionnelle ou géographique d'une voie ferrée : section de ligne, zone de gare, zone d'aiguillage, depot. Permet la décomposition hiérarchique des infrastructures ferroviaires.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcRailwayPart"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
+    ex:["→ Zone de gare Lyon-Part-Dieu — faisceau 14 voies","→ Section LGV km 120-145 — zone de contrôle vitesse","→ Dépôt maintenance TGV Conflans — infrastructure ateliers"]},
+
+  roadPart:{fr:"Partie de route",ifc:"IfcRoadPart",cat:"struct",ver:"IFC4x3",
+    desc:"Subdivision fonctionnelle d'une route : chaussée, accotement, terre-plein central, bretelle, giratoire, intersection. Permet la modélisation détaillée de la section transversale d'une route.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcRoadPart"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
+    ex:["→ Voie de droite autoroute — bande de roulement 3,75 m","→ Accotement stabilisé 2,50 m — côté droit RN7","→ Terre-plein central glissières béton — autoroute 2x3 voies"]},
+
+  bridgePart:{fr:"Partie de pont",ifc:"IfcBridgePart",cat:"struct",ver:"IFC4x3",
+    desc:"Composant structurel ou fonctionnel d'un pont : tablier, pile, culée, fondation, appareil d'appui, corniches. Permet la décomposition hiérarchique détaillée d'un ouvrage d'art.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcBridgePart"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
+    ex:["→ Tablier viaduc — dalle précontrainte L=240 m","→ Pile P4 — fût évidé H=82 m, fondations profondes","→ Culée rive gauche — béton armé avec murs en retour"]},
+
+  tunnelPart:{fr:"Partie de tunnel",ifc:"IfcTunnelPart",cat:"struct",ver:"IFC4x3",
+    desc:"Composant fonctionnel ou constructif d'un tunnel : excavation, revêtement, radier, niche de sécurité, galerie de secours, zone de bifurcation.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcTunnelPart"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
+    ex:["→ Section courante tunnel — revêtement béton projeté 40 cm","→ Niche de sécurité — tous les 150 m, côté droit","→ Galerie de secours piétonne — inter-tube, tous les 250 m"]},
+
+  builtElement:{fr:"Élément construit",ifc:"IfcBuiltElement",cat:"struct",ver:"IFC4x3",
+    desc:"Classe abstraite regroupant tous les éléments physiques construits : éléments de bâtiment et éléments d'infrastructure. Dans IFC4.3, IfcBuildingElement devient un sous-type de IfcBuiltElement.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Classe mère abstraite de IfcBuildingElement et éléments infra","→ Permet la requête générique de tout élément physique","→ Unification bâtiment + infrastructure dans IFC4.3"]},
+
+  builtSystem:{fr:"Système construit",ifc:"IfcBuiltSystem",cat:"gen",ver:"IFC4x3",
+    desc:"Système fonctionnel d'éléments construits formant un ensemble cohérent : système structurel, système de façade, système de protection. Extension de IfcSystem pour les ouvrages d'infrastructure.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcGroup","IfcSystem","IfcBuiltSystem"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","PredefinedType"],
+    ex:["→ Système structurel tablier pont — poutres + entretoises + dalle","→ Système de drainage routier — cunettes + bouches d'égout + collecteurs","→ Système de signalisation tunnel — jalonnement + panneaux + balisage"]},
+
+  sign:{fr:"Panneau de signalisation",ifc:"IfcSign",cat:"gen",ver:"IFC4x3",
+    desc:"Panneau ou dispositif de signalisation routière, ferroviaire ou d'information : panneau de limitation, indication, danger, direction. Élément d'équipement des infrastructures.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcSign"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["→ Panneau B14 — limitation à 70 km/h","→ Panneau E43c — direction sortie autoroute 2 km","→ Signal ferroviaire carré — arrêt absolu"]},
+
+  signType:{fr:"Type de panneau",ifc:"IfcSignType",cat:"gen",ver:"IFC4x3",
+    desc:"Type paramétrique de panneau de signalisation définissant catégorie, forme, couleur et texte réglementaires. Permet la bibliothèque de signalisation d'un projet.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuiltElementType","IfcSignType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["→ Type 'B14-70' — panneau rond rouge, 70 km/h, Ø700mm","→ Type 'A1' — panneau triangulaire danger virage à droite","→ Type 'EB10d' — panneau vert sortie autoroute sens Province"]},
+
+  trackElement:{fr:"Élément de voie ferrée",ifc:"IfcTrackElement",cat:"struct",ver:"IFC4x3",
+    desc:"Composant physique d'une voie ferrée : rail, traverse, semelle, ballast, aiguillage, taquet d'arrêt. Élément de base de l'infrastructure ferroviaire.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcTrackElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["→ Aiguillage EV-A-L 650-1/11 — voie principale gare","→ Rail UIC60 soudé en barres longues — LGV","→ Traverse bi-blocs B70 — voie ballastée LGV 320 km/h"]},
+
+  trackElementType:{fr:"Type d'élément de voie",ifc:"IfcTrackElementType",cat:"struct",ver:"IFC4x3",
+    desc:"Type paramétrique d'un composant de voie ferrée : famille de traverses, de rails ou d'aiguillages partageant les mêmes caractéristiques mécaniques et dimensionnelles.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuiltElementType","IfcTrackElementType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["→ Type 'Rail UIC60' — section 60 kg/m, acier R260","→ Type 'Traverse B70' — béton bi-blocs, espacement 600 mm","→ Type 'Aiguillage EV-L 500' — radius 500 m, vitesse déviation 60 km/h"]},
+
+  geotechnicalElement:{fr:"Élément géotechnique",ifc:"IfcGeotechnicalElement",cat:"struct",ver:"IFC4x3",
+    desc:"Classe abstraite pour les éléments géotechniques caractérisant le sous-sol : couches de sol, formations géologiques, niveau phréatique. Base de la modélisation géotechnique IFC4.3.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcGeotechnicalElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Classe mère des couches géologiques et formations","→ Représente toute entité du sous-sol modélisée","→ Base pour les sondages et coupes géotechniques IFC4.3"]},
+
+  geotechnicalStratum:{fr:"Couche géotechnique",ifc:"IfcGeotechnicalStratum",cat:"struct",ver:"IFC4x3",
+    desc:"Couche homogène de sol ou de roche définie par ses caractéristiques géotechniques : nature, résistance, perméabilité, épaisseur. Issue de sondages ou d'essais in situ.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcGeotechnicalElement","IfcGeotechnicalStratum"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["→ Remblai argilo-limoneux — e=3,5 m, γ=18 kN/m³, Cu=40 kPa","→ Calcaire fissuré Kimméridgien — toit à -8,5 m TN","→ Alluvions sablo-graveleuses — nappe à -2,3 m, K=5×10⁻⁴ m/s"]},
+
+  earthworksElement:{fr:"Élément de terrassement",ifc:"IfcEarthworksElement",cat:"struct",ver:"IFC4x3",
+    desc:"Élément issu de travaux de terrassement : remblai, déblai, talus, fossé, plateforme. Classe abstraite mère des volumes de terre modélisés dans les projets d'infrastructure.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcEarthworksElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Remblai routier — talus 3H/2V, V=45 000 m³","→ Déblai ferroviaire — banquette drainage + fossé pied","→ Plateforme aéroport — décapage + remblai compacté Q4"]},
+
+  earthworksCut:{fr:"Déblai",ifc:"IfcEarthworksCut",cat:"struct",ver:"IFC4x3",
+    desc:"Volume de terre ou de roche excavé pour réaliser une plateforme, une tranchée ou un tunnel à ciel ouvert. Caractérisé par son volume, sa nature et ses conditions de réutilisation.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcEarthworksElement","IfcEarthworksCut"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["→ Déblai grande masse calcaire — 180 000 m³ réutilisable en remblai","→ Tranchée couverte A86 — déblai blindé 8 m profondeur","→ Découverte carrière — déblai stérile, mise en dépôt"]},
+
+  earthworksFill:{fr:"Remblai",ifc:"IfcEarthworksFill",cat:"struct",ver:"IFC4x3",
+    desc:"Volume de matériaux rapportés et compactés pour former une plateforme, un talus ou combler une dépression. Caractérisé par la nature des matériaux et leur degré de compactage requis.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcEarthworksElement","IfcEarthworksFill"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["→ Remblai GNT autoroute — compactage OPM 95%, e=35 cm","→ Remblai contigu ouvrage d'art — matériaux sélectionnés","→ Comblement fouille — béton de propreté + remblai compacté"]},
+
+  marina:{fr:"Port de plaisance",ifc:"IfcMarineFacility",cat:"struct",ver:"IFC4x3",
+    desc:"Ouvrage maritime ou fluvial : port de plaisance, quai commercial, digue de protection, bassin. Entité faîtière du domaine maritime IFC4.3.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcMarineFacility"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
+    ex:["→ Port de plaisance Cap d'Agde — 1750 anneaux","→ Terminal conteneurs Le Havre — quai 700 m, tirant d'eau 16 m","→ Digue nord port de Brest — ouvrage de protection 2,3 km"]},
+
 };
+
 
 
 
@@ -9552,16 +9692,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-04</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-05</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--am)">64%</div>
+        <div class="cov-stat-num" style="color:var(--am)">68%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">420 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:64%;background:var(--am)"></div></div>
+        <div class="cov-stat-sub">443 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:68%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
