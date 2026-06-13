@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-08</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-09</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1796,23 +1796,11 @@ const E = {
     attrs:['PredefinedType','Tag','Name','GlobalId'],
     ex:["VAV débit variable indépendant pression","CAV débit constant 200m³/h","Boîte terminale de plafond 4 bouches"]},
 
-  outlet:{fr:'Prise / Point de courant',ifc:'IfcOutletType',cat:'elec',ver:'IFC2x3',
-    desc:"Point de connexion électrique ou de données en extrémité de réseau. PredefinedType : AUDIOVISUALOUTLET, COMMUNICATIONSOUTLET, DATAOUTLET, POWEROUTLET (prise de courant), TELEPHONEOUTLET.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowTerminalType','IfcOutletType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Prise 2P+T 16A encastrée (POWEROUTLET)","Prise RJ45 réseau Cat6 (DATAOUTLET)","Prise TV coaxiale (AUDIOVISUALOUTLET)"]},
-
   lightfixture:{fr:'Luminaire',ifc:'IfcLightFixtureType',cat:'elec',ver:'IFC2x3',
     desc:"Appareil d'éclairage complet intégrant la source lumineuse et le corps. PredefinedType : POINTSOURCE (ponctuel), DIRECTIONSOURCE (directionnel), SECURITYLIGHTING (sécurité).",
     heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowTerminalType','IfcLightFixtureType'],
     attrs:['PredefinedType','Tag','Name','GlobalId'],
     ex:["Dalle LED encastrée 60×60cm bureau (POINTSOURCE)","Applique de sécurité voie de fuite (SECURITYLIGHTING)","Projecteur LED orientable commerce (DIRECTIONSOURCE)"]},
-
-  lamp:{fr:'Lampe / Source lumineuse',ifc:'IfcLampType',cat:'elec',ver:'IFC2x3',
-    desc:"La source lumineuse seule (sans le luminaire). PredefinedType IFC2x3 : COMPACTFLUORESCENT, FLUORESCENT (fluo), HIGHPRESSUREMERCURY, HIGHPRESSURESODIUM, METALHALIDE, TUNGSTENFILAMENT.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowTerminalType','IfcLampType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Tube fluorescent compact 11W E27 (COMPACTFLUORESCENT)","Tube fluorescent T8 36W (FLUORESCENT)","Lampe à vapeur de mercure 125W (HIGHPRESSUREMERCURY)"]},
 
   firesupp:{fr:'Terminal de suppression incendie',ifc:'IfcFireSuppressionTerminalType',cat:'mep',ver:'IFC2x3',
     desc:"Appareil terminal des systèmes de suppression incendie. PredefinedType : BREECHINGINLET (raccord pompier), SPRINKLERDEFLECTOR, SPRINKLER (sprinkleur), HOSEBIBB (robinet incendie armé).",
@@ -1851,42 +1839,6 @@ const E = {
     ex:["Radiateur à inertie 1500W (ELECTRICPOINTHEATER)","Sèche-serviette électrique 500W","Convecteur basse consommation 1000W"]},
 
   /* ── Régulation et contrôle ── */
-  sensor:{fr:'Capteur',ifc:'IfcSensorType',cat:'mep',ver:'IFC2x3',
-    desc:"Composant qui mesure une grandeur physique et transmet l'information au système de régulation. PredefinedType : CO2SENSOR, FIRESENSOR, FLOWSENSOR, GASSENSOR, HEATSENSOR, HUMIDITYSENSOR, LIGHTSENSOR, MOISTURESENSOR, MOVEMENTSENSOR, PRESSURESENSOR, SMOKESENSOR, SOUNDSENSOR, TEMPERATURESENSOR.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionControlElementType','IfcSensorType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Sonde de température d'ambiance (TEMPERATURESENSOR)","Détecteur CO2 pour VMC (CO2SENSOR)","Détecteur de fumée optique (SMOKESENSOR)"]},
-
-  alarm:{fr:'Alarme',ifc:'IfcAlarmType',cat:'mep',ver:'IFC2x3',
-    desc:"Dispositif d'avertissement sonore ou lumineux déclenché par un signal du système de contrôle. PredefinedType : BELL (cloche), BREAKGLASSBUTTON, LIGHT (flash), MANUALPULLBOX, SIREN (sirène), WHISTLE.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionControlElementType','IfcAlarmType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Sirène d'évacuation incendie (SIREN)","Déclencheur manuel brise-glace (BREAKGLASSBUTTON)","Flash lumineux pour malentendants (LIGHT)"]},
-
-  actuator:{fr:'Actionneur / Servo',ifc:'IfcActuatorType',cat:'mep',ver:'IFC2x3',
-    desc:"Dispositif qui convertit un signal de commande en action physique sur un équipement. PredefinedType : ELECTRICACTUATOR, HANDOPERATEDACTUATOR, HYDRAULICACTUATOR, PNEUMATICACTUATOR, THERMOELECTRICACTUATOR.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionControlElementType','IfcActuatorType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Servomoteur électrique de vanne (ELECTRICACTUATOR)","Actionneur pneumatique de registre (PNEUMATICACTUATOR)","Tête thermostatique de radiateur (THERMOELECTRICACTUATOR)"]},
-
-  controller:{fr:'Contrôleur / Régulateur',ifc:'IfcControllerType',cat:'mep',ver:'IFC2x3',
-    desc:"Dispositif de régulation qui compare une mesure à une consigne et pilote les actionneurs. PredefinedType : FLOATING, PROPORTIONAL, PROPORTIONALINTEGRAL, PROPORTIONALINTEGRALDERIVATIVE, TIMEDTWOPOSITION, TWOPOSITION.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionControlElementType','IfcControllerType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Régulateur PID de température (PROPORTIONALINTEGRALDERIVATIVE)","Thermostat tout-ou-rien (TWOPOSITION)","GTB — régulateur de zone CVC (PROPORTIONALINTEGRAL)"]},
-
-  valve:{fr:'Vanne',ifc:'IfcValveType',cat:'mep',ver:'IFC2x3',
-    desc:"Composant qui régule ou interrompt le débit dans une canalisation. PredefinedType : AIRRELEASE, ANTIVACUUM, CHANGEOVER, CHECK (clapet), COMMISSIONING, DOUBLECHECK, DRAWOFFCOCK (robinet), FLUSHING, GATE (vanne à opercule), ISOLATING, MIXING, PRESSUREREDUCING, PRESSURERELIEF, STOPCOCK.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowControllerType','IfcValveType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Vanne d'isolement à opercule DN50 (GATE)","Clapet anti-retour DN40 (CHECK)","Vanne de mélange 3 voies DN25 (MIXING)"]},
-
-  damper:{fr:'Registre / Volet coupe-feu',ifc:'IfcDamperType',cat:'mep',ver:'IFC2x3',
-    desc:"Composant qui régule ou interrompt le débit d'air dans un réseau de gaines. PredefinedType : BACKDRAFTDAMPER, BALANCINGDAMPER, BLASTDAMPER, CONTROLDAMPER, FIREDAMPER (volet coupe-feu), FIRESMOKEDAMPER, FUMEHOODEXHAUST, GRAVITYDAMPER, GRAVITYTILTDAMPER, SMOKEDAMPER.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowControllerType','IfcDamperType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Volet coupe-feu EI120 Ø200mm (FIREDAMPER)","Registre d'équilibrage 400×200mm (BALANCINGDAMPER)","Registre de contrôle motorisé (CONTROLDAMPER)"]},
-
   flowmeter:{fr:'Compteur de débit',ifc:'IfcFlowMeterType',cat:'mep',ver:'IFC2x3',
     desc:"Appareil qui mesure le volume ou le débit d'un fluide dans un réseau. PredefinedType : ENERGYMETER (compteur d'énergie), GASMETER (compteur gaz), OILMETER, WATERMETER (compteur eau).",
     heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowControllerType','IfcFlowMeterType'],
@@ -1924,18 +1876,6 @@ const E = {
     ex:["TGBT — Tableau général basse tension","TD — Tableau divisionnaire RDC","Coffret de commande CVC local technique"]},
 
   /* ── Conversion d'énergie ── */
-  boiler:{fr:'Chaudière',ifc:'IfcBoilerType',cat:'mep',ver:'IFC2x3',
-    desc:"Appareil de production de chaleur par combustion ou résistance électrique. PredefinedType : WATER (eau chaude), STEAM (vapeur).",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcBoilerType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Chaudière gaz condensation 100kW (WATER)","Chaudière biomasse pellets 80kW","Générateur vapeur 10 bar (STEAM)"]},
-
-  chiller:{fr:'Groupe froid',ifc:'IfcChillerType',cat:'mep',ver:'IFC2x3',
-    desc:"Appareil de production de froid par compression ou absorption de frigorigène. PredefinedType : AIRCOOLED (condensation par air), WATERCOOLED (condensation par eau), HEATRECOVERY.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcChillerType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Groupe froid à détente directe 50kW (AIRCOOLED)","Refroidisseur à eau 200kW (WATERCOOLED)","Pompe à chaleur eau/eau (HEATRECOVERY)"]},
-
   spaceheater:{fr:'Émetteur de chaleur',ifc:'IfcSpaceHeaterType',cat:'mep',ver:'IFC2x3',
     desc:"Appareil de chauffage terminal qui diffuse la chaleur dans un local. PredefinedType : BASEBOARD, CONVECTOR (convecteur), FINNEDTUBEUNIT, PANELRADIATOR (radiateur panneau), SECTIONALRADIATOR, TUBULARRADIATOR, UNITHEATER.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcSpaceHeaterType'],
@@ -1960,25 +1900,6 @@ const E = {
     attrs:['PredefinedType','Tag','Name','GlobalId'],
     ex:["Tour de refroidissement à tirage induit 500kW (MECHANICALINDUCEDDRAFT)","Aéroréfrigérant à sec (MECHANICALFORCEDDRAFT)","Tour ouverte à tirage naturel (NATURALDRAFT)"]},
 
-  coil:{fr:'Batterie CVC',ifc:'IfcCoilType',cat:'mep',ver:'IFC2x3',
-    desc:"Échangeur thermique intégré dans un caisson de traitement d'air. PredefinedType : DXCOOLINGCOIL (froid direct), ELECTRICHEATINGCOIL (électrique), HYDRONICCOIL (eau chaude/froide), STEAMHEATINGCOIL (vapeur).",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcCoilType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Batterie chaude eau chaude 20kW (HYDRONICCOIL)","Batterie froide à détente directe DX (DXCOOLINGCOIL)","Batterie de préchauffage électrique (ELECTRICHEATINGCOIL)"]},
-
-  transformer:{fr:'Transformateur',ifc:'IfcTransformerType',cat:'elec',ver:'IFC2x3',
-    desc:"Appareil qui modifie le niveau de tension électrique. PredefinedType : CURRENT (transformateur de courant), FREQUENCY (de fréquence), INVERTER, RECTIFIER, VOLTAGE (de tension HTA/BTA).",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcEnergyConversionDeviceType','IfcTransformerType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Transformateur HTA/BTA 1000 kVA (VOLTAGE)","Transformateur de courant 400/5A (CURRENT)","Onduleur 10kVA (INVERTER)"]},
-
-  /* ── Stockage ── */
-  tank:{fr:'Ballon / Cuve',ifc:'IfcTankType',cat:'mep',ver:'IFC2x3',
-    desc:"Récipient qui stocke des fluides — eau, combustible, air comprimé. PredefinedType : BASIN, BREAKPRESSUREVESSEL, BUTT (citerne), CISTERN (réservoir), EXPANSION (vase d'expansion), FEEDANDEXPANSION, GASBLADDER, OILRETENTIONTRAY, PRESSUREVESSEL, STORAGE.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowStorageDeviceType','IfcTankType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Ballon ECS 300L (STORAGE)","Vase d'expansion 35L (EXPANSION)","Cuve à fuel 2000L enterrée (CISTERN)"]},
-
   battery:{fr:'Batterie / Accumulateur électrique',ifc:'IfcElectricFlowStorageDeviceType',cat:'elec',ver:'IFC2x3',
     desc:"Dispositif de stockage d'énergie électrique. PredefinedType : BATTERY (batterie plomb), CAPACITOR, INDUCTANCECAPACITOR, INDUCTORBANK, RECHARGER.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowStorageDeviceType','IfcElectricFlowStorageDeviceType'],
@@ -1986,31 +1907,6 @@ const E = {
     ex:["Batterie d'onduleur 48V 200Ah (BATTERY)","Batterie secours éclairage de sécurité","Banc de condensateurs correction facteur puissance (CAPACITOR)"]},
 
   /* ── Déplacement ── */
-  pump:{fr:'Pompe',ifc:'IfcPumpType',cat:'mep',ver:'IFC2x3',
-    desc:"Appareil qui met en mouvement un liquide dans un réseau de tuyauterie. PredefinedType : CIRCULATOR (circulateur), ENDSUCTION, SPLITCASE, SUBMERSIBLEPUMP (submersible), VERTICALINLINE, VERTICALTURBINE.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowMovingDeviceType','IfcPumpType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Circulateur chauffage 25-40 (CIRCULATOR)","Pompe de relevage eaux usées (SUBMERSIBLEPUMP)","Pompe de surpression eau potable (ENDSUCTION)"]},
-
-  fan:{fr:'Ventilateur',ifc:'IfcFanType',cat:'mep',ver:'IFC2x3',
-    desc:"Appareil qui met en mouvement l'air dans un réseau de gaines. PredefinedType : CENTRIFUGALAIRFOIL, CENTRIFUGALBACKWARDINCLINEDCURVED, CENTRIFUGALFORWARDCURVED, CENTRIFUGALRADIAL, PROPELLER, TUBEAXIAL, VANEAXIAL.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowMovingDeviceType','IfcFanType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Ventilateur centrifuge caisson soufflage (CENTRIFUGALFORWARDCURVED)","Extracteur axial WC/SDB Ø125mm (TUBEAXIAL)","Extracteur hélicoïdal toiture (VANEAXIAL)"]},
-
-  compressor:{fr:'Compresseur',ifc:'IfcCompressorType',cat:'mep',ver:'IFC2x3',
-    desc:"Appareil qui comprime un gaz frigorigène, de l'air ou un gaz industriel. PredefinedType : DYNAMIC, RECIPROCATING (alternatif), ROTARY (rotatif), SCROLL, TROCHOIDAL, VARIABLE SPEED.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowMovingDeviceType','IfcCompressorType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Compresseur scroll climatisation (SCROLL)","Compresseur alternatif frigorifique (RECIPROCATING)","Compresseur à vis air comprimé industriel (ROTARY)"]},
-
-  /* ── Traitement ── */
-  filter:{fr:'Filtre',ifc:'IfcFilterType',cat:'mep',ver:'IFC2x3',
-    desc:"Appareil qui filtre les impuretés d'un fluide en transit. PredefinedType : AIRPARTICLEFILTER, COMPRESSEDAIRFILTER, ODORFILTER, OILFILTER, STRAINER (crépine), WATERFILTER.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowTreatmentDeviceType','IfcFilterType'],
-    attrs:['PredefinedType','Tag','Name','GlobalId'],
-    ex:["Filtre à particules G4+F7 CTA (AIRPARTICLEFILTER)","Crépine inox DN50 tuyauterie (STRAINER)","Filtre à eau 5 microns (WATERFILTER)"]},
-
   ductsilencer:{fr:'Silencieux de gaine',ifc:'IfcDuctSilencerType',cat:'mep',ver:'IFC2x3',
     desc:"Appareil qui atténue les bruits générés par les équipements de ventilation dans les gaines. PredefinedType : FLATOVAL, RECTANGULAR, ROUND.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionFlowElementType','IfcFlowTreatmentDeviceType','IfcDuctSilencerType'],
@@ -2158,25 +2054,6 @@ const E = {
     ex:["Section poteau : Ø12 tous les 20cm, étriers Ø8 tous les 15cm","Armatures longitudinales poutre : 4Ø20 + 2Ø16","Enrobage dalle : 3cm côté coffrage"]},
 
   /* ── Contraintes ── */
-  constraint:{fr:"Contrainte",ifc:"IfcConstraint",cat:"prop",ver:'IFC2x3',
-    desc:"Une règle ou exigence imposée sur un objet ou une valeur du projet — règle de conception, exigence réglementaire, critère de performance. Exprime ce qui DOIT être respecté.",
-    heritage:["IfcConstraint"],
-    attrs:["Name","Description","ConstraintGrade","ConstraintSource","CreatingActor"],
-    ex:["Hauteur sous plafond minimale = 2.50m (HARD)","Résistance au feu requise = EI60 (HARD)","Performance thermique recommandée U≤0.35 (SOFT)"]},
-
-  metric:{fr:"Métrique / Mesure de contrainte",ifc:"IfcMetric",cat:"prop",ver:'IFC2x3',
-    desc:"Une contrainte quantifiable définie par une comparaison — égalité, supériorité, infériorité. Permet de vérifier automatiquement si un objet respecte une exigence mesurable.",
-    heritage:["IfcConstraint","IfcMetric"],
-    attrs:["Benchmark","ValueSource","DataValue","Name"],
-    ex:["Surface ≥ 15m² (GREATERTHANOREQUALTO)","Épaisseur mur ≤ 30cm (LESSTHANOREQUALTO)","Hauteur = 2.70m exactement (EQUALTO)"]},
-
-  objective:{fr:"Objectif de conception",ifc:"IfcObjective",cat:"prop",ver:'IFC2x3',
-    desc:"Une contrainte composite combinant plusieurs métriques. Exprime un objectif de conception complexe avec plusieurs critères et valeurs de résultat.",
-    heritage:["IfcConstraint","IfcObjective"],
-    attrs:["BenchmarkValues","ResultValues","ObjectiveQualifier","Name"],
-    ex:["Conformité RE2020 (CODECOMPLIANCE)","Intention de design architecturale (DESIGNINTENT)","Exigence de sécurité incendie (HEALTHANDSAFETY)"]},
-
-  /* ── Matériaux ── */
   material:{fr:"Matériau",ifc:"IfcMaterial",cat:"prop",ver:'IFC2x3',
     desc:"La définition d'un matériau utilisé dans le bâtiment — son nom, ses propriétés physiques, thermiques, acoustiques et mécaniques peuvent être attachées via des Property Sets.",
     heritage:["IfcMaterial"],
@@ -2654,18 +2531,6 @@ const E = {
     ex:["Résultats ELU combinaison 1,35G+1,5Q — enveloppe de moments fléchissants","Résultats ELS quasi-permanente — flèches sous charges de service","Résultats analyse sismique — mode propres et déplacements spectraux"]},
 
   /* ── Éléments structuraux complémentaires ── */
-  member:{fr:"Membrure structurelle",ifc:"IfcMember",cat:"struct",ver:"IFC2x3",
-    desc:"Élément structurel linéaire générique ne relevant pas d'une catégorie spécifique : lisse, listeau, contreventement, diagonale, entrait. Catégorie fourre-tout pour les éléments de charpente secondaires.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcMember"],
-    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
-    ex:["→ Lisse basse bardage aluminium — fixation potelets tous les 1,50 m","→ Diagonale contreventement acier HEA160 — portique pignon","→ Entrait de ferme bois — poutre de tirant triangulation"]},
-
-  plate:{fr:"Plaque structurelle",ifc:"IfcPlate",cat:"struct",ver:"IFC2x3",
-    desc:"Élément structurel plan mince : plaque de gousset, nervure, platine d'assemblage, tôle de contreventement. Distinct de IfcSlab (plancher) par son rôle structurel secondaire ou d'assemblage.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcPlate"],
-    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
-    ex:["→ Platine d'encastrement poteau HEB200 — plaque 20 mm + 4 goujons","→ Gousset de contreventement — tôle 8 mm soudée en diagonale","→ Platine de pied de poteaux — assemblage boulonné sur fondation"]},
-
   structcurveconn:{fr:"Connexion linéaire (FEM)",ifc:"IfcStructuralCurveConnection",cat:"struct",ver:"IFC2x3",
     desc:"Liaison de type linéaire entre éléments dans le modèle d'analyse structurelle FEM : liaison rotule sur ligne, ligne d'appui, bord libre. Représente les conditions aux limites appliquées le long d'une arête.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcStructuralItem","IfcStructuralConnection","IfcStructuralCurveConnection"],
@@ -2751,12 +2616,6 @@ const E = {
     ex:["→ Poutre IPE360 connectée au nœud A3 (encastrement) et au nœud B3 (rotule)","→ Membrure diagonale liée aux nœuds d'un contreventement en treillis","→ Voile béton armé relié à sa base et sa tête via connexions surfaciques"]},
 
   /* ── Matériaux IFC2x3 ── */
-  material:{fr:"Matériau",ifc:"IfcMaterial",cat:"prop",ver:"IFC2x3",
-    desc:"Matériau homogène défini par son nom et ses propriétés physiques. Entité de base du système de matériaux IFC : béton, acier, bois, aluminium, verre… Associé aux éléments via IfcRelAssociatesMaterial.",
-    heritage:["IfcMaterial"],
-    attrs:["Name"],
-    ex:["→ Béton C30/37 — résistance caractéristique fck=30 MPa","→ Acier S355 — limite élastique fy=355 MPa","→ Bois massif GL32h — classe de résistance en flexion 32 MPa"]},
-
   materiallayer:{fr:"Couche de matériau",ifc:"IfcMaterialLayer",cat:"prop",ver:"IFC2x3",
     desc:"Couche homogène d'un matériau au sein d'une paroi composite, définie par son matériau et son épaisseur. Constituant de base d'un IfcMaterialLayerSet (composition de paroi).",
     heritage:["IfcMaterialLayer"],
@@ -2898,25 +2757,6 @@ const E = {
     attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatedObjectsType","RelatingControl"],
     ex:["→ Permis de construire → bâtiment entier","→ Ordre de service n°5 → travaux modification façade ouest","→ Planification tâche 12 → murs RDC à construire"]},
 
-  /* ── Unités de mesure ── */
-  siunit:{fr:"Unité SI",ifc:"IfcSIUnit",cat:"prop",ver:"IFC2x3",
-    desc:"Unité du Système International de mesure dans un fichier IFC : mètre, kilogramme, seconde, kelvin, pascal... Définie par sa dimension physique et un préfixe optionnel (kilo, milli, centi).",
-    heritage:["IfcNamedUnit","IfcSIUnit"],
-    attrs:["Dimensions","UnitType","Prefix","Name"],
-    ex:["→ LENGTHUNIT : mètre (m) — unité de longueur","→ AREAUNIT : mètre carré (m²) — unité de surface","→ PRESSUREUNIT : Pascal (Pa) — résistance au vent"]},
-
-  convunit:{fr:"Unité de conversion",ifc:"IfcConversionBasedUnit",cat:"prop",ver:"IFC2x3",
-    desc:"Unité dérivée d'une unité SI par un facteur de conversion : centimètre, degré Celsius, bar, kN… Permet d'exprimer les valeurs dans des unités pratiques tout en restant compatible avec le SI.",
-    heritage:["IfcNamedUnit","IfcConversionBasedUnit"],
-    attrs:["Dimensions","UnitType","Name","ConversionFactor"],
-    ex:["→ Centimètre = 0,01 m — surfaces en cm²","→ Degré Celsius = K − 273,15 — températures","→ Bar = 100 000 Pa — pression de réseau hydraulique"]},
-
-  unitassignment:{fr:"Affectation des unités du projet",ifc:"IfcUnitAssignment",cat:"prop",ver:"IFC2x3",
-    desc:"Ensemble des unités de mesure utilisées dans un projet IFC : longueur, surface, volume, masse, temps, température... Défini une seule fois au niveau de IfcProject — toutes les valeurs du fichier s'y réfèrent.",
-    heritage:["IfcUnitAssignment"],
-    attrs:["Units"],
-    ex:["→ Projet en mètres, m², m³, kg, secondes, kelvin","→ Unités mixtes : longueur en mm, surfaces en m², volumes en m³","→ Unités impériales : feet, square feet, cubic feet, pounds"]},
-
   /* ── Matériaux — Propriétés ── */
   matprops:{fr:"Propriétés générales de matériau",ifc:"IfcMaterialProperties",cat:"prop",ver:'IFC2x3',
     desc:"Classe abstraite de base pour toutes les familles de propriétés physiques d'un matériau IFC. Regroupe les familles de données descriptives, mécaniques, thermiques ou optiques associées à un IfcMaterial. Ne s'instancie pas directement — utiliser IfcExtendedMaterialProperties ou une sous-classe spécialisée.",
@@ -2950,7 +2790,129 @@ const E = {
     attrs:["Material","VisibleTransmittance","SolarTransmittance","ThermalIrTransmittance","ThermalIrEmissivityBack","ThermalIrEmissivityFront","VisibleReflectanceBack","VisibleReflectanceFront"],
     ex:["Vitrage 4/16/4 : τv=0,72, g=0,62, Uw=1,1 W/m²K","Vitrage contrôle solaire : τv=0,50, g=0,32","Store intérieur réflecteur ρ=0,60 — réduction des apports solaires été"]},
 
-  /* ── Construction Resources (complément) ── */
+  matpropshygr:{fr:"Propriétés hygroscopiques de matériau",ifc:"IfcHygroscopicMaterialProperties",cat:"prop",ver:"IFC2x3",
+    desc:"Propriétés liées à l'humidité d'un matériau : facteur de résistance à la diffusion de vapeur μ, teneur en eau, perméabilité à la vapeur. Essentielles pour les calculs de condensation et le dimensionnement des pare-vapeur.",
+    heritage:["IfcMaterialProperties","IfcHygroscopicMaterialProperties"],
+    attrs:["Material","UpperVaporResistanceFactor","LowerVaporResistanceFactor","IsothermalMoistureCapacity","VaporPermeability","MoistureDiffusivity"],
+    ex:["→ Laine de verre : μ=1 (perméable) — pas de pare-vapeur requis","→ Polystyrène expansé : μ=30-70 — faible perméabilité","→ Béton armé : μ=130 — forte résistance à la diffusion vapeur"]},
+
+  matpropsfuel:{fr:"Propriétés combustibles de matériau",ifc:"IfcFuelProperties",cat:"prop",ver:"IFC2x3",
+    desc:"Caractéristiques énergétiques d'un combustible : pouvoir calorifique inférieur (PCI), pouvoir calorifique supérieur (PCS), teneur en carbone et émissions CO₂. Utilisé pour les calculs de consommation et de bilan carbone.",
+    heritage:["IfcMaterialProperties","IfcFuelProperties"],
+    attrs:["Material","CombustionTemperature","CO2Content","LowerHeatingValue","UpperHeatingValue"],
+    ex:["→ Gaz naturel : PCI=10,7 kWh/m³, 0,227 kg CO₂/kWh","→ Fioul domestique : PCI=10,0 kWh/l, 0,324 kg CO₂/kWh","→ Granulés bois : PCI=4,9 kWh/kg, CO₂ neutre (cycle court)"]},
+
+  /* ── Finitions & accessoires ── */
+  discreteAccessory:{fr:"Accessoire discret",ifc:"IfcDiscreteAccessory",cat:"arch",ver:"IFC2x3",
+    desc:"Élément accessoire discret fixé à un élément porteur : cornière, platine, support, attache, console. Distinct de IfcFastener (fixation) — l'accessoire discret a une fonction structurelle ou fonctionnelle propre.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcElementComponent","IfcDiscreteAccessory"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Console de fixation façade — aluminium anodisé, portée 200 mm","→ Cornière de raidissage — acier galvanisé L100×100×8","→ Support de canalisation — collier inox M10 sur profilé Unistrut"]},
+
+  discreteAccessoryType:{fr:"Type d'accessoire discret",ifc:"IfcDiscreteAccessoryType",cat:"arch",ver:"IFC2x3",
+    desc:"Type paramétrique d'accessoire discret définissant géométrie, matériau et capacité portante. Permet la bibliothèque d'accessoires standards d'un projet (consoles, cornières, supports).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcElementComponentType","IfcDiscreteAccessoryType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["→ Type 'Console L200 Alu' — portée 200 mm, charge 80 kg","→ Type 'Cornière 100×100×8' — acier S235, longueur 1 m","→ Type 'Collier DN50' — fixation tube cuivre sur profilé M8"]},
+
+  fastener:{fr:"Fixation",ifc:"IfcFastener",cat:"arch",ver:"IFC2x3",
+    desc:"Élément de fixation mécanique entre composants : boulon, vis, rivet, cheville, agrafe. Représente la fixation individuelle dans un assemblage structurel ou de façade.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcElementComponent","IfcFastener"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Boulon HR M20 — assemblage charpente métallique","→ Cheville chimique M16 — scellement poteau sur fondation","→ Rivet aluminium Ø4 — fixation bardage sur ossature"]},
+
+  fastenerType:{fr:"Type de fixation",ifc:"IfcFastenerType",cat:"arch",ver:"IFC2x3",
+    desc:"Type paramétrique de fixation définissant norme, diamètre, classe de résistance et traitement de surface. Permet la bibliothèque de fixations d'un projet.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcElementComponentType","IfcFastenerType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["→ Type 'Boulon HR M20 10.9 zingué' — classe résistance 10.9","→ Type 'Vis à bois 6×80 inox A4' — terrasse bois","→ Type 'Cheville chimique Ø16 L200' — béton armé C25"]},
+
+  mechanicalFastener:{fr:"Fixation mécanique (résistance calculée)",ifc:"IfcMechanicalFastener",cat:"struct",ver:"IFC2x3",
+    desc:"Fixation mécanique dont la résistance est calculée dans le modèle structural : boulon de structure, ancrage calculé, assemblage boulonné vérifié aux Eurocodes. Sous-type de IfcFastener avec données mécaniques.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcElementComponent","IfcFastener","IfcMechanicalFastener"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","NominalDiameter","BoltLength"],
+    ex:["→ Boulon M24 Cl.10.9 — assemblage poteau/poutre, FRd=300 kN","→ Ancrage Ø20 L=500 — scellement poteau béton, NRd=180 kN","→ Vis HBS Ø8 — assemblage bois, effort cisaillement calculé"]},
+
+  /* ── Styles de présentation graphique ── */
+  surfaceStyle:{fr:"Style de surface",ifc:"IfcSurfaceStyle",cat:"geo",ver:"IFC2x3",
+    desc:"Apparence visuelle d'une surface dans un modèle 3D : couleur, brillance, transparence, texture. Utilisé pour la visualisation dans les visionneuses IFC et les rendus de présentation.",
+    heritage:["IfcPresentationStyle","IfcSurfaceStyle"],
+    attrs:["Name","Side","Styles"],
+    ex:["→ Béton brut : gris clair mat, opaque","→ Verre de façade : bleu-vert, transparence 70%","→ Acier patinable : brun-rouge, légèrement brillant"]},
+
+  colourRgb:{fr:"Couleur RVB",ifc:"IfcColourRgb",cat:"geo",ver:"IFC2x3",
+    desc:"Couleur définie par ses composantes rouge, vert, bleu entre 0 et 1. Composante fondamentale des styles de présentation IFC pour la visualisation des éléments en 3D.",
+    heritage:["IfcColourSpecification","IfcColourRgb"],
+    attrs:["Name","Red","Green","Blue"],
+    ex:["→ Béton : R=0,75 G=0,75 B=0,70 — gris béton","→ Acier : R=0,45 G=0,45 B=0,50 — gris métal","→ Bois : R=0,65 G=0,45 B=0,25 — brun bois clair"]},
+
+  surfaceStyleRendering:{fr:"Rendu de surface",ifc:"IfcSurfaceStyleRendering",cat:"geo",ver:"IFC2x3",
+    desc:"Paramètres de rendu photoréaliste d'une surface : couleur diffuse, spéculaire, ambiante, émissive, brillance et transparence. Permet un rendu de type Phong dans les visionneuses 3D.",
+    heritage:["IfcSurfaceStyleShading","IfcSurfaceStyleRendering"],
+    attrs:["SurfaceColour","Transparency","DiffuseColour","TransmissionColour","DiffuseTransmissionColour","ReflectionColour","SpecularColour","SpecularHighlight","ReflectanceMethod"],
+    ex:["→ Verre miroitant : DiffuseColour gris + Transparency 0,6 + SpecularHighlight","→ Métal brossé : ReflectanceMethod METAL, brillance=128","→ Bois vernis : DiffuseColour brun + Transparency 0 + légère brillance"]},
+
+  curveStyle:{fr:"Style de courbe",ifc:"IfcCurveStyle",cat:"geo",ver:"IFC2x3",
+    desc:"Apparence visuelle d'une courbe ou d'un contour dans une représentation 2D ou 3D : couleur, épaisseur de trait, type de trait (plein, tirets, pointillés). Utilisé pour les représentations graphiques 2D dans les plans.",
+    heritage:["IfcPresentationStyle","IfcCurveStyle"],
+    attrs:["Name","CurveFont","CurveWidth","CurveColour"],
+    ex:["→ Mur porteur : trait plein épaisseur 0,5 mm, noir","→ Cloison légère : trait interrompu 0,25 mm, gris","→ Axe de poteau : trait mixte 0,13 mm, rouge"]},
+
+  presentationStyleAssignment:{fr:"Affectation de style",ifc:"IfcPresentationStyleAssignment",cat:"geo",ver:"IFC2x3",
+    desc:"Ensemble de styles de présentation (couleur, trait, texte) affecté à un élément de représentation. Permet d'associer plusieurs styles à un objet pour son rendu graphique.",
+    heritage:["IfcPresentationStyleAssignment"],
+    attrs:["Styles"],
+    ex:["→ Mur béton : SurfaceStyle gris + CurveStyle trait plein 0,5mm","→ Vitrage : SurfaceStyle bleu transparent + CurveStyle fin","→ Poteau acier : SurfaceStyle gris métal + rendu brillant"]},
+
+  /* ── Topologie de base ── */
+  face:{fr:"Face polygonale",ifc:"IfcFace",cat:"geo",ver:"IFC2x3",
+    desc:"Surface polygonale plane délimitée par des boucles (contour extérieur + trous éventuels). Constituant d'un IfcClosedShell ou IfcOpenShell dans une représentation BRep.",
+    heritage:["IfcRepresentationItem","IfcTopologicalRepresentationItem","IfcFace"],
+    attrs:["Bounds"],
+    ex:["→ Face rectangulaire d'un mur — 4 sommets","→ Face trapézoïdale d'un pignon — 4 points inégaux","→ Face percée d'une dalle avec trémie — contour ext. + trou"]},
+
+  polyLoop:{fr:"Boucle polygonale",ifc:"IfcPolyLoop",cat:"geo",ver:"IFC2x3",
+    desc:"Contour polygonal fermé défini par une liste ordonnée de points cartésiens. Utilisé comme limite d'une face (IfcFace) dans les représentations topologiques BRep.",
+    heritage:["IfcRepresentationItem","IfcTopologicalRepresentationItem","IfcLoop","IfcPolyLoop"],
+    attrs:["Polygon"],
+    ex:["→ Contour rectangulaire 4 points — limite d'une face murale","→ Profil en L 6 points — section de poutre en cornière","→ Contour irrégulier 8 points — dalle de forme complexe"]},
+
+  /* ── Unités & quantités ── */
+  unitassignment:{fr:"Affectation des unités",ifc:"IfcUnitAssignment",cat:"prop",ver:"IFC2x3",
+    desc:"Ensemble des unités de mesure du projet IFC. Défini une fois au niveau de IfcProject — longueur, surface, volume, masse, temps, température, angle. Toutes les valeurs numériques du fichier s'y réfèrent implicitement.",
+    heritage:["IfcUnitAssignment"],
+    attrs:["Units"],
+    ex:["→ Projet SI : m, m², m³, kg, s, K, rad","→ Projet mixte : mm pour longueurs, m² pour surfaces, m³ pour volumes","→ Projet impérial : ft, ft², ft³, lb, s, °F"]},
+
+  quantitylength:{fr:"Quantité — longueur",ifc:"IfcQuantityLength",cat:"prop",ver:"IFC2x3",
+    desc:"Mesure d'une longueur dans un ensemble de quantités IFC : longueur d'une paroi, hauteur d'une fenêtre, développé d'un escalier. Composante d'un IfcElementQuantity.",
+    heritage:["IfcPhysicalSimpleQuantity","IfcQuantityLength"],
+    attrs:["Name","Description","Unit","LengthValue"],
+    ex:["→ Longueur mur : 4,80 m (axe en axe)","→ Hauteur libre sous plafond : 2,52 m","→ Développé rampe d'accès : 12,40 m"]},
+
+  quantityarea:{fr:"Quantité — surface",ifc:"IfcQuantityArea",cat:"prop",ver:"IFC2x3",
+    desc:"Mesure d'une surface dans un ensemble de quantités : surface nette de plancher, surface de façade, surface développée d'une toiture. Composante d'un IfcElementQuantity.",
+    heritage:["IfcPhysicalSimpleQuantity","IfcQuantityArea"],
+    attrs:["Name","Description","Unit","AreaValue"],
+    ex:["→ Surface nette bureau : 18,4 m²","→ Surface vitrée façade sud : 24,6 m²","→ Surface développée toiture : 485 m²"]},
+
+  quantityvolume:{fr:"Quantité — volume",ifc:"IfcQuantityVolume",cat:"prop",ver:"IFC2x3",
+    desc:"Mesure d'un volume dans un ensemble de quantités : volume brut d'un local, volume de béton d'un élément, volume d'air traité. Composante d'un IfcElementQuantity.",
+    heritage:["IfcPhysicalSimpleQuantity","IfcQuantityVolume"],
+    attrs:["Name","Description","Unit","VolumeValue"],
+    ex:["→ Volume béton fondation filante : 12,8 m³","→ Volume brut espace bureau ouvert : 285 m³","→ Volume de déblais tranchée : 45 m³"]},
+
+  quantitycount:{fr:"Quantité — nombre",ifc:"IfcQuantityCount",cat:"prop",ver:"IFC2x3",
+    desc:"Nombre d'occurrences d'un élément dans un ensemble de quantités : nombre de fixations, de panneaux, d'armatures. Composante d'un IfcElementQuantity.",
+    heritage:["IfcPhysicalSimpleQuantity","IfcQuantityCount"],
+    attrs:["Name","Description","Unit","CountValue"],
+    ex:["→ Nombre de fixations bardage : 240 attaches","→ Nombre de barres HA20 semelle : 8 barres","→ Nombre de spots encastrés plafond : 24 luminaires"]},
+
+  quantityweight:{fr:"Quantité — poids",ifc:"IfcQuantityWeight",cat:"prop",ver:"IFC2x3",
+    desc:"Mesure d'une masse dans un ensemble de quantités : poids d'un élément de charpente, masse d'armature, charge permanente. Composante d'un IfcElementQuantity.",
+    heritage:["IfcPhysicalSimpleQuantity","IfcQuantityWeight"],
+    attrs:["Name","Description","Unit","WeightValue"],
+    ex:["→ Poids ferme charpente métallique : 2 850 kg","→ Masse armatures RDC : 4,2 t","→ Charge permanente plancher haut : 5,8 kN/m²"]},
   constrprodres:{fr:"Ressource produit de construction",ifc:"IfcConstructionProductResource",cat:"plan",ver:'IFC2x3',
     desc:"Ressource représentant un produit ou matériau de construction nécessaire à la réalisation d'une tâche. Distinct de IfcConstructionMaterialResource (matières premières en vrac) : ici il s'agit de produits finis ou semi-finis — fenêtres, appareils sanitaires, équipements techniques.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcResource","IfcConstructionResource","IfcConstructionProductResource"],
@@ -3025,18 +2987,6 @@ const E = {
     ex:["Lavabo suspendu 60cm avec robinetterie","WC suspendu avec bâti-support","Douche à l'italienne 90×90cm"]},
 
   /* ── DONNÉES INVISIBLES ── */
-  material:{fr:'Matériau',ifc:'IfcMaterial',cat:'prop',ver:'IFC2x3',
-    desc:"La définition d'un matériau utilisé dans le bâtiment — ses propriétés physiques, thermiques, acoustiques et sa description.",
-    heritage:['IfcMaterial'],
-    attrs:['Name','Description','Category'],
-    ex:["Béton armé C25/30","Laine de roche 100mm λ=0.036","Parquet chêne 14mm verni mat"]},
-
-  propset:{fr:'Jeu de propriétés',ifc:'IfcPropertySet',cat:'prop',ver:'IFC2x3',
-    desc:"Une fiche technique contenant plusieurs propriétés d'un même objet. C'est l'outil principal pour stocker les données BIM non géométriques.",
-    heritage:['IfcRoot','IfcObjectDefinition','IfcPropertySetDefinition','IfcPropertySet'],
-    attrs:['GlobalId','Name','HasProperties'],
-    ex:["Pset_WallCommon : épaisseur, résistance feu","Pset_DoorCommon : hauteur, sens, coupe-feu","Pset_SpaceCommon : surface, hauteur sous plafond"]},
-
   rel:{fr:'Relation',ifc:'IfcRelationship',cat:'prop',ver:'IFC2x3',
     desc:"Un lien entre deux objets IFC. Sans relations, les objets seraient isolés. Elles créent la hiérarchie, attachent les propriétés, connectent les éléments.",
     heritage:['IfcRoot','IfcRelationship'],
@@ -3140,27 +3090,6 @@ const E = {
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcActor'],
     attrs:['GlobalId','Name','TheActor'],
     ex:["Architecte responsable de la conception","Entreprise de gros œuvre","Propriétaire du bâtiment en exploitation"]},
-
-  doc:{fr:'Document',ifc:'IfcDocumentInformation',cat:'actor',ver:'IFC2x3',
-    desc:"Un document lié au projet ou à un élément — plan, notice, rapport d'inspection, fiche technique, certificat.",
-    heritage:['IfcDocumentInformation'],
-    attrs:['DocumentId','Name','Description','Revision'],
-    ex:["Notice de sécurité incendie","Plan d'exécution béton Rev.B","Rapport d'inspection APAVE"]},
-
-  classif:{fr:'Classification',ifc:'IfcClassification',cat:'prop',ver:'IFC2x3',
-    desc:"Un système de classification externe qui permet de classer les éléments selon des normes professionnelles (OmniClass, Uniformat, Uniclass…).",
-    heritage:['IfcClassification'],
-    attrs:['Source','Edition','Name'],
-    ex:["OmniClass Table 21 (éléments)","Uniformat II (US)","Uniclass 2015 (UK)"]},
-
-  /* ── BLOC 7 : IfcRelationship — 48 relations IFC2x3 ── */
-
-  /* Racines abstraites */
-  relship:  {fr:'Relation (base)',ifc:'IfcRelationship',cat:'prop',
-    desc:"Classe abstraite racine de toutes les relations IFC. Une relation lie deux objets ou groupes d'objets sans modifier leur définition propre. C'est le mécanisme fondamental d'assemblage d'un fichier IFC.",
-    heritage:['IfcRoot','IfcRelationship'],
-    attrs:['GlobalId','OwnerHistory','Name','Description'],
-    ex:["→ IfcRelAggregates lie un IfcBuilding à ses IfcBuildingStorey","→ IfcRelDefinesByProperties lie un mur à son Pset_WallCommon","→ IfcRelContainedInSpatialStructure place une porte dans un niveau"]},
 
   reldecomp:{fr:'Décomposition',ifc:'IfcRelDecomposes',cat:'prop',ver:'IFC2x3',
     desc:"Relation abstraite de décomposition — un objet parent est décomposé en objets enfants. Deux sous-types : IfcRelAggregates (assemblage physique) et IfcRelNests (imbrication logique).",
@@ -10048,16 +9977,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-08</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-09</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--gr)">77%</div>
+        <div class="cov-stat-num" style="color:var(--gr)">75%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">501 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:77%;background:var(--gr)"></div></div>
+        <div class="cov-stat-sub">491 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:75%;background:var(--gr)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
