@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-05</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-06</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -2778,6 +2778,98 @@ const E = {
     heritage:['IfcRoot','IfcRelationship'],
     attrs:['GlobalId','Name','OwnerHistory'],
     ex:["IfcRelContainedInSpatialStructure : mur → RDC","IfcRelDefinesByProperties : mur → ses propriétés","IfcRelAggregates : bâtiment → ses niveaux"]},
+
+  /* ── Contraintes & métriques ── */
+  constraint:{fr:"Contrainte",ifc:"IfcConstraint",cat:"actor",ver:"IFC2x3",
+    desc:"Classe abstraite représentant une exigence ou limitation imposée sur un objet IFC : performance minimale, valeur limite, règle de conception. Base de IfcMetric et IfcObjective.",
+    heritage:["IfcConstraint"],
+    attrs:["Name","Description","ConstraintGrade","ConstraintSource","CreatingActor","CreationTime","UserDefinedGrade"],
+    ex:["→ Classe mère de IfcMetric et IfcObjective","→ Contrainte d'accessibilité PMR sur une porte","→ Limitation de hauteur libre 2,20 m sous faux plafond"]},
+
+  metric:{fr:"Métrique de contrainte",ifc:"IfcMetric",cat:"actor",ver:"IFC2x3",
+    desc:"Contrainte quantifiable définie par une valeur de référence et un opérateur de comparaison (inférieur à, égal à, supérieur à). Permet d'exprimer des exigences numériques vérifiables sur les éléments du modèle.",
+    heritage:["IfcConstraint","IfcMetric"],
+    attrs:["Name","Description","ConstraintGrade","Benchmark","ValueSource","DataValue","ReferencePath"],
+    ex:["→ Résistance thermique R ≥ 4,0 m²·K/W — mur extérieur","→ Hauteur libre ≥ 2,50 m — parking sous-sol","→ Charge admissible plancher ≤ 500 kg/m² — stockage"]},
+
+  objective:{fr:"Objectif de contrainte",ifc:"IfcObjective",cat:"actor",ver:"IFC2x3",
+    desc:"Contrainte qualitative exprimant un objectif de conception ou d'exécution : confort, sécurité, maintenabilité. Peut regrouper plusieurs métriques quantitatives liées par une logique booléenne.",
+    heritage:["IfcConstraint","IfcObjective"],
+    attrs:["Name","Description","ConstraintGrade","BenchmarkValues","ObjectiveQualifier","UserDefinedQualifier"],
+    ex:["→ Objectif de confort thermique : 20-26°C, HR 40-60%","→ Objectif de sécurité incendie : evacuation < 3 min","→ Objectif maintenabilité : accès équipements sans échafaudage"]},
+
+  relAssociatesConstraint:{fr:"Association contrainte",ifc:"IfcRelAssociatesConstraint",cat:"actor",ver:"IFC2x3",
+    desc:"Relation associant une contrainte (IfcConstraint) à des objets ou types du modèle. Permet de lier formellement une exigence à l'élément qu'elle contraint.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssociates","IfcRelAssociatesConstraint"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","Intent","RelatingConstraint"],
+    ex:["→ Contrainte acoustique R'w≥52dB → murs mitoyens logements","→ Objectif PMR → portes de circulation","→ Métrique Umax → parois opaques et vitrées"]},
+
+  relAssociatesApproval:{fr:"Association approbation",ifc:"IfcRelAssociatesApproval",cat:"actor",ver:"IFC2x3",
+    desc:"Relation liant un visa ou approbation (IfcApproval) à des objets du modèle IFC. Permet de tracer les validations et visas applicables à chaque élément.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssociates","IfcRelAssociatesApproval"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatingApproval"],
+    ex:["→ Visa du BET structure → poutres et poteaux béton","→ Approbation CSPS → détail d'exécution façade","→ Visa contrôleur technique → fondations profondes"]},
+
+  /* ── Gestion de projet & exploitation ── */
+  permit:{fr:"Permis / Autorisation",ifc:"IfcPermit",cat:"plan",ver:"IFC2x3",
+    desc:"Autorisation administrative ou réglementaire requise pour une action sur l'ouvrage : permis de construire, autorisation de travaux, permis de démolir. Rattaché à un projet ou une tâche.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcControl","IfcPermit"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","PermitID","TimeOfIssue","LongDescription"],
+    ex:["→ Permis de construire PC-075-2024-00142 — déposé 15/03/2024","→ Autorisation de travaux voirie — occupation trottoir 3 mois","→ Permis de démolir bâtiment classé zone ABF"]},
+
+  projectOrder:{fr:"Ordre de projet",ifc:"IfcProjectOrder",cat:"plan",ver:"IFC2x3",
+    desc:"Document formel d'engagement entre parties : bon de commande, ordre de service, ordre de changement. Formalise une instruction ou une demande dans le cadre d'un projet de construction.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcControl","IfcProjectOrder"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ID","Status","LongDescription","PredefinedType"],
+    ex:["→ OS n°12 — ordre de service modification disposition bureau R+2","→ Bon de commande charpente métallique — entreprise Laubeuf","→ Ordre de changement OC-007 — augmentation section portiques"]},
+
+  actionRequest:{fr:"Demande d'intervention",ifc:"IfcActionRequest",cat:"plan",ver:"IFC2x3",
+    desc:"Demande formelle d'action ou d'intervention sur l'ouvrage : demande de maintenance, demande de modification, signalement d'anomalie. Entité de gestion du patrimoine bâti.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcControl","IfcActionRequest"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RequestID","PredefinedType","Status","LongDescription"],
+    ex:["→ Demande maintenance n°47 — fuite robinet WC Niveau 2","→ DI-2024-089 — remplacement luminaire défaillant Hall A","→ Signalement DA-003 — infiltration façade nord"]},
+
+  performanceHistory:{fr:"Historique de performance",ifc:"IfcPerformanceHistory",cat:"plan",ver:"IFC2x3",
+    desc:"Enregistrement des données de performance mesurées d'un système ou équipement au fil du temps : consommations, rendements, pannes. Relie les valeurs réelles aux valeurs nominales pour le suivi en exploitation.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcControl","IfcPerformanceHistory"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","LifeCyclePhase"],
+    ex:["→ Historique COP chaudière — 3 ans de mesures, rendement 94-97%","→ Performance climatiseur salle serveurs — EER mesuré vs nominal","→ Suivi consommation ECS — profil mensuel sur 24 mois"]},
+
+  condition:{fr:"Condition d'état",ifc:"IfcCondition",cat:"plan",ver:"IFC2x3",
+    desc:"État constaté ou attendu d'un élément du bâtiment à un instant donné : bon état, dégradé, hors service. Utilisé dans les diagnostics, audits et plans de maintenance.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcGroup","IfcCondition"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ConditionCriterion"],
+    ex:["→ Condition menuiseries : dégradé — joints à remplacer sous 2 ans","→ État chaudière fioul : vétuste — remplacement prévu 2025","→ Condition toiture : bon état — révision décennale 2028"]},
+
+  serviceLife:{fr:"Durée de vie en service",ifc:"IfcServiceLife",cat:"plan",ver:"IFC2x3",
+    desc:"Durée de vie prévue ou réelle d'un composant ou ouvrage en exploitation. Utilisée dans les analyses de cycle de vie (ACV), les plans de maintenance et le calcul des amortissements.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcControl","IfcServiceLife"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ServiceLifeType","ServiceLifeDuration"],
+    ex:["→ Durée de vie structure béton armé : 50 ans","→ Durée de service fenêtres PVC : 25 ans","→ Vie en service CTA : 20 ans, maintenance préventive annuelle"]},
+
+  scheduleTimeControl:{fr:"Contrôle du temps de tâche",ifc:"IfcScheduleTimeControl",cat:"plan",ver:"IFC2x3",
+    desc:"Données de planification temporelle d'une tâche : dates planifiées/réelles de début et fin, durée, avancement. Rattaché à IfcTask pour le suivi de l'avancement chantier.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcControl","IfcScheduleTimeControl"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ActualStart","ActualFinish","EarlyStart","EarlyFinish","LateStart","LateFinish","FreeFloat","TotalFloat","IsCritical","StatusTime","ActualDuration","RemainingTime","Completion"],
+    ex:["→ Gros œuvre RDC : planifié S12-S18 / réalisé S12-S20 — retard 2 sem","→ Menuiseries ext. : début réel 14/05, fin 28/05, avancement 75%","→ Étanchéité toiture : chemin critique, marge libre = 0"]},
+
+  relSchedulesCostItems:{fr:"Lien planning-coûts",ifc:"IfcRelSchedulesCostItems",cat:"plan",ver:"IFC2x3",
+    desc:"Relation associant un planning (IfcWorkSchedule) à des postes de coût (IfcCostItem). Permet le phasage financier : décomposer les coûts par période d'exécution.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelSchedulesCostItems"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ScheduleTimeControl","RelatedCostItems"],
+    ex:["→ Planning phase fondations → coûts terrassement + béton","→ Calendrier corps d'état → postes lot électricité","→ Planning TCE → budget par mois d'avancement"]},
+
+  appliedValue:{fr:"Valeur appliquée",ifc:"IfcAppliedValue",cat:"plan",ver:"IFC2x3",
+    desc:"Valeur monétaire ou de quantité appliquée dans un contexte économique : prix unitaire, montant de coût, valeur résiduelle. Composante de base des calculs financiers IFC.",
+    heritage:["IfcAppliedValue"],
+    attrs:["Name","Description","AppliedValue","UnitBasis","ApplicableDate","FixedUntilDate"],
+    ex:["→ Prix unitaire béton armé fondations : 285 €/m³","→ Valeur résiduelle immeuble à 30 ans : 35% du coût initial","→ Loyer de référence zone A bis : 14,5 €/m²/mois"]},
+
+  projectOrderRecord:{fr:"Enregistrement d'ordre",ifc:"IfcProjectOrderRecord",cat:"plan",ver:"IFC2x3",
+    desc:"Enregistrement d'un ordre ou d'une instruction émis dans le cadre du projet, avec son historique de validation. Trace la chaîne de décision et les modifications contractuelles.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcControl","IfcProjectOrderRecord"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","Records","PredefinedType"],
+    ex:["→ Registre des ordres de service — 23 OS émis sur l'opération","→ Suivi des ordres de changement OC-001 à OC-015","→ Journal des bons de commande travaux supplémentaires"]},
 
   actor:{fr:'Acteur',ifc:'IfcActor',cat:'actor',ver:'IFC2x3',
     desc:"Une personne ou une organisation jouant un rôle dans le projet — conception, construction, propriété ou exploitation.",
@@ -9692,16 +9784,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-05</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-06</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--am)">68%</div>
+        <div class="cov-stat-num" style="color:var(--gr)">70%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">443 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:68%;background:var(--am)"></div></div>
+        <div class="cov-stat-sub">458 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:70%;background:var(--gr)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
@@ -9726,8 +9818,8 @@ function toggleTheme(){
           <tr><td>Éléments de bâtiment</td><td>~28 / 38</td><td>74%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Relations IFC (IfcRel*)</td><td>~34 / 42</td><td>81%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Systèmes MEP (IFC2x3 + IFC4)</td><td>~154 / 170</td><td>91%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Planification / Coût</td><td>~8 / 40</td><td>20%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
-          <tr><td>Acteurs &amp; Documents</td><td>~12 / 20</td><td>60%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
+          <tr><td>Planification / Coût</td><td>~28 / 40</td><td>70%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Acteurs &amp; Documents</td><td>~22 / 24</td><td>92%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Propriétés / Quantités</td><td>~30 / 35</td><td>86%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Matériaux (propriétés physiques)</td><td>5 / 5</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Séries temporelles</td><td>6 / 6</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
