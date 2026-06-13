@@ -142,6 +142,7 @@ tr:hover td{background:var(--bg)}
   <a href="#conformite">Conformité</a>
   <a href="#manquants">Entités manquantes</a>
   <a href="#enums">Énumérations</a>
+  <a href="#multiver">Feuille de route IFC4+</a>
   <a href="#features">Propositions</a>
 </nav>
 
@@ -415,9 +416,110 @@ tr:hover td{background:var(--bg)}
   </section>
 
   <!-- ══════════════════════════════════════
-       SECTION 5 — PROPOSITIONS
+       SECTION 5 — FEUILLE DE ROUTE MULTI-VERSION
   ════════════════════════════════════════ -->
-  <section id="features">
+  <section id="multiver">
+    <h2 class="section-title">
+      <span class="section-badge badge-purple">Feuille de route</span>
+      Extension multi-version IFC4 / IFC4.3
+    </h2>
+
+    <div class="callout" style="border-color:var(--pu);background:var(--pu-bg)">
+      <strong style="color:var(--pu)">Analyse réalisée le 13/06/2026</strong> par diff automatique des fichiers EXPRESS IFC2x3, IFC4 ADD2, IFC4x1 et IFC4x3 ADD2. Le badge de version <code>ver:</code> a été ajouté à toutes les entités existantes.
+    </div>
+
+    <div class="stats">
+      <div class="stat info"><div class="stat-num">653</div><div class="stat-label">Entités IFC2x3</div></div>
+      <div class="stat warn"><div class="stat-num">238</div><div class="stat-label">Nouvelles en IFC4</div></div>
+      <div class="stat warn"><div class="stat-num">24</div><div class="stat-label">Nouvelles en IFC4.1</div></div>
+      <div class="stat warn"><div class="stat-num">106</div><div class="stat-label">Nouvelles en IFC4.3</div></div>
+      <div class="stat ok"><div class="stat-num">1 021</div><div class="stat-label">Total entités uniques</div></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Entités nouvelles</th>
+          <th>Domaines clés</th>
+          <th>Valeur péda.</th>
+          <th>État</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>IFC2x3 TC1</strong></td>
+          <td>653 (base)</td>
+          <td>Bâtiment, MEP, Relations, Propriétés</td>
+          <td>★★★</td>
+          <td><span class="tag tag-content" style="background:var(--gr-bg);color:var(--gr);border-color:var(--gr-bd)">321 / 653 couverts</span></td>
+        </tr>
+        <tr>
+          <td><strong>IFC4 ADD2</strong></td>
+          <td>238 nouvelles<br><small style="color:var(--muted)">114 supprimées vs IFC2x3</small></td>
+          <td>Instances MEP concrètes (IfcBoiler, IfcFan…), IfcDoorType/WindowType, IfcProjectedCRS, matériaux composites, templates de propriétés</td>
+          <td>★★★</td>
+          <td><span class="prio-1">P1 — À injecter</span></td>
+        </tr>
+        <tr>
+          <td><strong>IFC4.1</strong></td>
+          <td>24 nouvelles</td>
+          <td>Alignement (IfcAlignment, IfcLinearPositioningElement, IfcReferent…) — infrastructure routière et ferroviaire</td>
+          <td>★★☆</td>
+          <td><span class="prio-2">P2 — À injecter</span></td>
+        </tr>
+        <tr>
+          <td><strong>IFC4.3 ADD2</strong> <em style="font-size:.6rem;color:var(--muted)">(ISO 19650)</em></td>
+          <td>106 nouvelles<br><small style="color:var(--muted)">31 supprimées vs IFC4.1</small></td>
+          <td>Infrastructure (IfcRoad, IfcRailway, IfcBridge, IfcFacility), signalisation (IfcSign, IfcSignal), géotechnique (IfcBorehole, IfcGeotechnicalStratum)</td>
+          <td>★★☆</td>
+          <td><span class="prio-2">P2 — À injecter</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:1.5rem 0 .75rem">
+      Entités IFC4 pédagogiques prioritaires (~80 entités)
+    </h3>
+    <div class="card" style="border-color:var(--sp-bd);background:var(--sp-bg)">
+      <div class="card-title" style="color:var(--sp)">Instances MEP concrètes — absentes de IFC2x3, essentielles en IFC4</div>
+      <div class="card-body">
+        <span class="mono" style="font-size:.62rem;line-height:2">
+          IfcActuator · IfcAirTerminal · IfcAirTerminalBox · IfcAlarm · IfcBoiler · IfcChiller · IfcCoil · IfcCompressor · IfcCondenser · IfcController · IfcCooledBeam · IfcCoolingTower · IfcDamper · IfcDuctFitting · IfcDuctSegment · IfcDuctSilencer · IfcElectricAppliance · IfcElectricDistributionBoard · IfcElectricDistributionBoardType · IfcElectricFlowStorageDevice · IfcElectricGenerator · IfcElectricMotor · IfcElectricTimeControl · IfcEvaporativeCooler · IfcEvaporator · IfcFan · IfcFilter · IfcFireSuppressionTerminal · IfcFlowInstrument · IfcFlowMeter · IfcHeatExchanger · IfcHumidifier · IfcInterceptor · IfcJunctionBox · IfcLamp · IfcLightFixture · IfcMotorConnection · IfcOutlet · IfcPipeFitting · IfcPipeSegment · IfcProtectiveDevice · IfcPump · IfcSanitaryTerminal · IfcSensor · IfcSpaceHeater · IfcStackTerminal · IfcSwitchingDevice · IfcTank · IfcTransformer · IfcValve · IfcWasteTerminal
+        </span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:.75rem;border-color:var(--am-bd);background:var(--am-bg)">
+      <div class="card-title" style="color:var(--am)">Autres entités IFC4 à valeur pédagogique</div>
+      <div class="card-body">
+        <span class="mono" style="font-size:.62rem;line-height:2">
+          IfcAudioVisualAppliance · IfcBuildingSystem · IfcCommunicationsAppliance · IfcDistributionCircuit · IfcDistributionSystem · IfcDoorType · IfcWindowType · IfcEvent · IfcExternalSpatialElement · IfcFurniture · IfcGeographicElement · IfcMedicalDevice · IfcProjectedCRS · IfcProjectLibrary · IfcPropertySetTemplate · IfcShadingDevice · IfcSolarDevice · IfcSpatialZone · IfcSystemFurnitureElement · IfcUnitaryEquipment · IfcVoidingFeature · IfcWorkCalendar
+        </span>
+      </div>
+    </div>
+
+    <h3 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:1.5rem 0 .75rem">
+      Entités IFC4.3 infrastructure prioritaires (~30 entités)
+    </h3>
+    <div class="card" style="border-color:var(--pu-bd);background:var(--pu-bg)">
+      <div class="card-title" style="color:var(--pu)">Infrastructure civile et ferroviaire — spécifiques IFC4.3</div>
+      <div class="card-body">
+        <span class="mono" style="font-size:.62rem;line-height:2">
+          IfcAlignment · IfcAlignmentHorizontal · IfcAlignmentVertical · IfcAlignmentCant · IfcBearing · IfcBearingType · IfcBridge · IfcBridgePart · IfcBuiltElement · IfcBuiltSystem · IfcCaissonFoundation · IfcCourse · IfcDeepFoundation · IfcDistributionBoard · IfcEarthworksCut · IfcEarthworksFill · IfcFacility · IfcFacilityPart · IfcGeographicCRS · IfcKerb · IfcMarineFacility · IfcNavigationElement · IfcPavement · IfcRail · IfcRailway · IfcRailwayPart · IfcRoad · IfcRoadPart · IfcSign · IfcSignal · IfcTrackElement · IfcVehicle
+        </span>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:1.25rem">
+      <strong>Implémentation réalisée (13/06/26) :</strong> champ <code>ver:'IFC2x3'</code> ajouté aux 321 entités existantes · badge de version affiché dans chaque fiche · fonction <code>verBadgeHtml()</code> extensible aux futures versions · mapping complet 1 021 entités → version d'apparition généré et documenté.
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECTION 6 — PROPOSITIONS
+  ════════════════════════════════════════ -->
+  <section id="features" style="margin-top:0">
     <h2 class="section-title">
       <span class="section-badge badge-purple">Propositions</span>
       Améliorations et nouvelles fonctionnalités
