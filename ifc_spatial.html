@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-07</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-08</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -2780,6 +2780,142 @@ const E = {
     heritage:["IfcMaterialList"],
     attrs:["Materials"],
     ex:["→ Fenêtre : verre feuilleté + aluminium laqué + EPDM","→ Portail métallique : acier galvanisé + inox + caoutchouc","→ Faux plafond suspendu : plaque PL + ossature acier + laine verre"]},
+
+  /* ── Types d'éléments manquants ── */
+  spaceType:{fr:"Type d'espace",ifc:"IfcSpaceType",cat:"space",ver:"IFC2x3",
+    desc:"Gabarit paramétrique d'espace définissant programme, surface cible, hauteur libre et performances (acoustique, thermique, éclairage). Exemple : bureau open-space, salle de réunion, cellule PMR.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcSpatialElementType","IfcSpaceType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["→ Type 'Bureau individuel' — S=12 m², h=2,70 m, Rw≥42 dB","→ Type 'Salle de réunion 10 pers.' — S=30 m², lumière naturelle requise","→ Type 'Cellule PMR' — S=16 m², douche italienne, barre d'appui"]},
+
+  buildingElementProxy:{fr:"Élément de bâtiment générique",ifc:"IfcBuildingElementProxy",cat:"arch",ver:"IFC2x3",
+    desc:"Élément de bâtiment sans classification précise dans le schéma IFC2x3. Utilisé pour les objets atypiques ou propriétaires non couverts par les entités spécialisées. Permet l'export d'objets inconnus sans perte d'information géométrique.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcBuildingElementProxy"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","CompositionType"],
+    ex:["→ Équipement propriétaire exporté depuis logiciel BIM sans mapping IFC","→ Objet architectural atypique : claustra courbe suspendu","→ Dispositif technique non classifié : nacelle de nettoyage façade"]},
+
+  buildingElementProxyType:{fr:"Type d'élément générique",ifc:"IfcBuildingElementProxyType",cat:"arch",ver:"IFC2x3",
+    desc:"Type paramétrique d'un élément de bâtiment générique non classifié. Sert de gabarit pour les éléments propriétaires récurrents dans un projet sans correspondance dans le schéma IFC standard.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuildingElementType","IfcBuildingElementProxyType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["→ Type 'Brise-soleil mobile' — famille personnalisée non normée","→ Type 'Nez de marche lumineux' — profil aluminium LED intégré","→ Type 'Grille de ventilation décorative' — objet propriétaire"]},
+
+  elementAssembly:{fr:"Assemblage d'éléments",ifc:"IfcElementAssembly",cat:"arch",ver:"IFC2x3",
+    desc:"Regroupement d'éléments formant une unité fonctionnelle préfabriquée ou montée sur chantier : escalier préfab, mur ossature bois, ferme de charpente, passerelle. Contient ses composants via IfcRelAggregates.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcElementAssembly"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","AssemblyPlace","PredefinedType"],
+    ex:["→ Ferme de charpente métallique — triangulée 18 m — préfabriquée","→ Module salle de bains — préfab volume avec plomberie intégrée","→ Passerelle piétonne — structure + garde-corps + revêtement"]},
+
+  elementAssemblyType:{fr:"Type d'assemblage",ifc:"IfcElementAssemblyType",cat:"arch",ver:"IFC4",
+    desc:"Gabarit paramétrique d'assemblage d'éléments préfabriqués. Définit la configuration type d'une ferme, d'un module ou d'une structure répétitive.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcElementAssemblyType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["→ Type 'Ferme triangulée L=18m' — charpente acier standard","→ Type 'Module sanitaire PMR' — salle de bains préfabriquée","→ Type 'Baie vitrée structurelle' — vitrage + profils aluminium assemblés"]},
+
+  /* ── Géométrie de représentation étendue ── */
+  facetedBrep:{fr:"BRep à facettes",ifc:"IfcFacetedBrep",cat:"geo",ver:"IFC2x3",
+    desc:"Représentation géométrique d'un solide par ses faces planes (facettes polygonales). Format le plus courant pour l'échange de géométrie 3D complexe entre logiciels BIM : import/export IFC de formes libres.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcSolidModel","IfcManifoldSolidBrep","IfcFacetedBrep"],
+    attrs:["Outer"],
+    ex:["→ Façade courbe triangulée — 2 400 facettes triangulaires","→ Volume de terrain modélisé par MNT facetté","→ Objet 3D importé de Rhino — BRep à facettes quadrangulaires"]},
+
+  repmap:{fr:"Carte de représentation",ifc:"IfcRepresentationMap",cat:"geo",ver:"IFC2x3",
+    desc:"Définition d'une géométrie réutilisable avec son propre système de coordonnées. Permet l'instanciation multiple d'une même géométrie (via IfcMappedItem) sans duplication — fondamental pour les objets répétés (poteaux, fenêtres, mobilier).",
+    heritage:["IfcRepresentationMap"],
+    attrs:["MappedCoordinateOrigin","MappedRepresentation"],
+    ex:["→ Géométrie type poteau HEB200 — instanciée 48 fois","→ Symbole fenêtre — réutilisé sur 120 occurrences","→ Bloc mobilier — chaise de bureau placée 240 fois"]},
+
+  mappeditem:{fr:"Instance de représentation",ifc:"IfcMappedItem",cat:"geo",ver:"IFC2x3",
+    desc:"Instance d'une IfcRepresentationMap avec une transformation spécifique (translation, rotation, échelle). Permet de placer la même géométrie type en de nombreux endroits sans dupliquer les données.",
+    heritage:["IfcRepresentationItem","IfcMappedItem"],
+    attrs:["MappingSource","MappingTarget"],
+    ex:["→ Poteau HEB200 instancié en (X=3,5, Y=0, Z=0) rotation 0°","→ Fenêtre type PF60 placée sur façade nord — 12 instances","→ Siège de bureau positionné dans open-space — 45 instances"]},
+
+  boundingbox:{fr:"Boîte englobante",ifc:"IfcBoundingBox",cat:"geo",ver:"IFC2x3",
+    desc:"Parallélépipède rectangle englobant un objet, défini par son coin inférieur et ses dimensions (X, Y, Z). Représentation approximative légère pour les previews, la détection de collision rapide et les LOD bas.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcBoundingBox"],
+    attrs:["Corner","XDim","YDim","ZDim"],
+    ex:["→ Boîte 10×5×3,5 m — emprise d'un bâtiment pour plan de masse","→ BBox façade-rideau — 18×6×4,2 m pour LOD 100","→ Gabarit équipement CVC — 1,2×0,8×1,5 m pour réservation technique"]},
+
+  revolvedAreaSolid:{fr:"Solide de révolution",ifc:"IfcRevolvedAreaSolid",cat:"geo",ver:"IFC2x3",
+    desc:"Solide obtenu par révolution d'un profil 2D autour d'un axe. Utilisé pour les colonnes rondes, dômes, bassins circulaires et toute géométrie de révolution.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcSolidModel","IfcSweptAreaSolid","IfcRevolvedAreaSolid"],
+    attrs:["SweptArea","Position","Axis","Angle"],
+    ex:["→ Colonne ionique — profil tore + cannelures tourné 360°","→ Dôme basilique — coupole générée par arc de cercle R=8 m","→ Bassin circulaire fontaine — profil section tourné 360°"]},
+
+  closedShell:{fr:"Coque fermée",ifc:"IfcClosedShell",cat:"geo",ver:"IFC2x3",
+    desc:"Enveloppe surfacique fermée délimitant un volume solide. Composant d'un IfcFacetedBrep — l'ensemble des faces qui ferment complètement le solide.",
+    heritage:["IfcRepresentationItem","IfcTopologicalRepresentationItem","IfcConnectedFaceSet","IfcClosedShell"],
+    attrs:["CfsFaces"],
+    ex:["→ Enveloppe d'un volume de mur — 6 faces fermées","→ Coque d'un acrotère — profil fermé 3D","→ Surface fermée d'un pilastre — représentation BRep"]},
+
+  polyline:{fr:"Polyligne",ifc:"IfcPolyline",cat:"geo",ver:"IFC2x3",
+    desc:"Courbe composée de segments de droite reliant une série de points cartésiens. Représentation géométrique la plus simple et la plus légère — contours de dalles, limites de zones, axes de parois.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcCurve","IfcBoundedCurve","IfcPolyline"],
+    attrs:["Points"],
+    ex:["→ Contour de dalle rectangulaire — 4 points + fermeture","→ Axe de gaine technique en plan — polyligne 8 segments","→ Emprise de zone parking — polyligne 6 sommets"]},
+
+  trimmedCurve:{fr:"Courbe tronquée",ifc:"IfcTrimmedCurve",cat:"geo",ver:"IFC2x3",
+    desc:"Portion d'une courbe (arc de cercle, portion d'ellipse) définie par ses paramètres de début et de fin. Permet de représenter des arcs de cercle dans les contours de dalles ou les tracés en plan.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcCurve","IfcBoundedCurve","IfcTrimmedCurve"],
+    attrs:["BasisCurve","Trim1","Trim2","SenseAgreement","MasterRepresentation"],
+    ex:["→ Arc de cercle R=5m, angle 90° — angle arrondi de dalle","→ Demi-ellipse — contour d'une toiture en berceau","→ Arc d'escalier en colimaçon — portion de cercle par volée"]},
+
+  compositeCurve:{fr:"Courbe composite",ifc:"IfcCompositeCurve",cat:"geo",ver:"IFC2x3",
+    desc:"Courbe formée de segments successifs (droites, arcs, clothoïdes) raccordés. Représente les contours complexes d'éléments architecturaux : façades courbes, tracés de couloir en plan.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcCurve","IfcCompositeCurve"],
+    attrs:["Segments","SelfIntersect"],
+    ex:["→ Contour de dalle mixte — droites + arcs de cercle","→ Tracé en plan d'un couloir courbe — 3 arcs + 2 droites","→ Profil d'une piscine — contour composite arrondi"]},
+
+  /* ── Relations d'assignation ── */
+  relassignstogroup:{fr:"Assignation à un groupe",ifc:"IfcRelAssignsToGroup",cat:"prop",ver:"IFC2x3",
+    desc:"Relation assignant des objets à un groupe IFC (IfcGroup). Permet de regrouper logiquement des éléments hétérogènes : lots de travaux, zones fonctionnelles, systèmes.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssigns","IfcRelAssignsToGroup"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatedObjectsType","RelatingGroup"],
+    ex:["→ Lot 3 Menuiseries → 48 portes + 72 fenêtres","→ Zone nord — 12 locaux + 3 couloirs + 2 escaliers","→ Système de chauffage — chaudière + 35 radiateurs + 280 m tuyaux"]},
+
+  relassignstoproduct:{fr:"Assignation à un produit",ifc:"IfcRelAssignsToProduct",cat:"prop",ver:"IFC2x3",
+    desc:"Relation assignant des objets à un produit IFC comme contexte ou type de référence. Permet de lier des acteurs, tâches ou ressources à l'élément physique qu'ils concernent.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssigns","IfcRelAssignsToProduct"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatedObjectsType","RelatingProduct"],
+    ex:["→ Tâche 'pose fenêtres' → IfcWindow type PF60","→ Ressource main d'œuvre vitrier → IfcWindowType","→ Acteur fournisseur → IfcDoorStyle"]},
+
+  relassignstoresource:{fr:"Assignation à une ressource",ifc:"IfcRelAssignsToResource",cat:"prop",ver:"IFC2x3",
+    desc:"Relation assignant des objets à une ressource de construction (main d'œuvre, matériau, équipement). Formalise le lien entre éléments à construire et moyens nécessaires.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssigns","IfcRelAssignsToResource"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatedObjectsType","RelatingResource"],
+    ex:["→ 48 portes → ressource main d'œuvre menuisier 4h/porte","→ 180 m² carrelage → ressource matériau grès cérame","→ 35 poteaux béton → ressource coffrage récupérable"]},
+
+  relassignstoprocess:{fr:"Assignation à un processus",ifc:"IfcRelAssignsToProcess",cat:"prop",ver:"IFC2x3",
+    desc:"Relation assignant des objets à une tâche ou procédure de construction. Lie les éléments physiques aux opérations qui les concernent : pose, inspection, démolition.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssigns","IfcRelAssignsToProcess"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatedObjectsType","RelatingProcess","QuantityInProcess"],
+    ex:["→ Tâche 'coulage béton RDC' → dalles + poteaux + poutres niveau 0","→ Procédure 'inspection annuelle' → 24 détecteurs de fumée","→ Tâche 'démolition cloisons' → 45 m² de parois existantes"]},
+
+  relassignstocontrol:{fr:"Assignation à un contrôle",ifc:"IfcRelAssignsToControl",cat:"prop",ver:"IFC2x3",
+    desc:"Relation assignant des objets à un élément de contrôle ou de gestion de projet (permis, ordre, planification). Lie des éléments physiques aux documents administratifs les concernant.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssigns","IfcRelAssignsToControl"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatedObjectsType","RelatingControl"],
+    ex:["→ Permis de construire → bâtiment entier","→ Ordre de service n°5 → travaux modification façade ouest","→ Planification tâche 12 → murs RDC à construire"]},
+
+  /* ── Unités de mesure ── */
+  siunit:{fr:"Unité SI",ifc:"IfcSIUnit",cat:"prop",ver:"IFC2x3",
+    desc:"Unité du Système International de mesure dans un fichier IFC : mètre, kilogramme, seconde, kelvin, pascal... Définie par sa dimension physique et un préfixe optionnel (kilo, milli, centi).",
+    heritage:["IfcNamedUnit","IfcSIUnit"],
+    attrs:["Dimensions","UnitType","Prefix","Name"],
+    ex:["→ LENGTHUNIT : mètre (m) — unité de longueur","→ AREAUNIT : mètre carré (m²) — unité de surface","→ PRESSUREUNIT : Pascal (Pa) — résistance au vent"]},
+
+  convunit:{fr:"Unité de conversion",ifc:"IfcConversionBasedUnit",cat:"prop",ver:"IFC2x3",
+    desc:"Unité dérivée d'une unité SI par un facteur de conversion : centimètre, degré Celsius, bar, kN… Permet d'exprimer les valeurs dans des unités pratiques tout en restant compatible avec le SI.",
+    heritage:["IfcNamedUnit","IfcConversionBasedUnit"],
+    attrs:["Dimensions","UnitType","Name","ConversionFactor"],
+    ex:["→ Centimètre = 0,01 m — surfaces en cm²","→ Degré Celsius = K − 273,15 — températures","→ Bar = 100 000 Pa — pression de réseau hydraulique"]},
+
+  unitassignment:{fr:"Affectation des unités du projet",ifc:"IfcUnitAssignment",cat:"prop",ver:"IFC2x3",
+    desc:"Ensemble des unités de mesure utilisées dans un projet IFC : longueur, surface, volume, masse, temps, température... Défini une seule fois au niveau de IfcProject — toutes les valeurs du fichier s'y réfèrent.",
+    heritage:["IfcUnitAssignment"],
+    attrs:["Units"],
+    ex:["→ Projet en mètres, m², m³, kg, secondes, kelvin","→ Unités mixtes : longueur en mm, surfaces en m², volumes en m³","→ Unités impériales : feet, square feet, cubic feet, pounds"]},
 
   /* ── Matériaux — Propriétés ── */
   matprops:{fr:"Propriétés générales de matériau",ifc:"IfcMaterialProperties",cat:"prop",ver:'IFC2x3',
@@ -9912,16 +10048,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-07</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-08</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--gr)">73%</div>
+        <div class="cov-stat-num" style="color:var(--gr)">77%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">479 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:73%;background:var(--gr)"></div></div>
+        <div class="cov-stat-sub">501 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:77%;background:var(--gr)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
@@ -9952,7 +10088,7 @@ function toggleTheme(){
           <tr><td>Matériaux (propriétés physiques)</td><td>5 / 5</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Séries temporelles</td><td>6 / 6</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Structurel (FEM + charges)</td><td>~30 / ~55</td><td>55%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Géométrie &amp; Style</td><td>0 / ~280</td><td>0%</td><td><span class="cov-tag cov-tag-hs">Hors scope</span></td></tr>
+          <tr><td>Géométrie &amp; Représentation</td><td>~18 / ~280</td><td>6%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
         </tbody>
       </table>
     </div>
