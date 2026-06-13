@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-06</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-07</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -2652,6 +2652,134 @@ const E = {
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcGroup","IfcStructuralResultGroup"],
     attrs:["GlobalId","OwnerHistory","Name","Description","TheoryType","ResultForLoadGroup","IsLinear"],
     ex:["Résultats ELU combinaison 1,35G+1,5Q — enveloppe de moments fléchissants","Résultats ELS quasi-permanente — flèches sous charges de service","Résultats analyse sismique — mode propres et déplacements spectraux"]},
+
+  /* ── Éléments structuraux complémentaires ── */
+  member:{fr:"Membrure structurelle",ifc:"IfcMember",cat:"struct",ver:"IFC2x3",
+    desc:"Élément structurel linéaire générique ne relevant pas d'une catégorie spécifique : lisse, listeau, contreventement, diagonale, entrait. Catégorie fourre-tout pour les éléments de charpente secondaires.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcMember"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Lisse basse bardage aluminium — fixation potelets tous les 1,50 m","→ Diagonale contreventement acier HEA160 — portique pignon","→ Entrait de ferme bois — poutre de tirant triangulation"]},
+
+  plate:{fr:"Plaque structurelle",ifc:"IfcPlate",cat:"struct",ver:"IFC2x3",
+    desc:"Élément structurel plan mince : plaque de gousset, nervure, platine d'assemblage, tôle de contreventement. Distinct de IfcSlab (plancher) par son rôle structurel secondaire ou d'assemblage.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcPlate"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Platine d'encastrement poteau HEB200 — plaque 20 mm + 4 goujons","→ Gousset de contreventement — tôle 8 mm soudée en diagonale","→ Platine de pied de poteaux — assemblage boulonné sur fondation"]},
+
+  structcurveconn:{fr:"Connexion linéaire (FEM)",ifc:"IfcStructuralCurveConnection",cat:"struct",ver:"IFC2x3",
+    desc:"Liaison de type linéaire entre éléments dans le modèle d'analyse structurelle FEM : liaison rotule sur ligne, ligne d'appui, bord libre. Représente les conditions aux limites appliquées le long d'une arête.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcStructuralItem","IfcStructuralConnection","IfcStructuralCurveConnection"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","AppliedCondition","Axis"],
+    ex:["→ Appui continu sur mur porteur — liaison courbe en pied de voile","→ Bord libre de dalle — condition de moment nul sur arête","→ Liaison rotule filante entre poutre et dalle — rotation libre Mx"]},
+
+  structsurfconn:{fr:"Connexion surfacique (FEM)",ifc:"IfcStructuralSurfaceConnection",cat:"struct",ver:"IFC2x3",
+    desc:"Liaison de type surfacique dans le modèle FEM : appui plan, condition aux limites sur une face d'un élément surfacique (voile, dalle). Définit les degrés de liberté bloqués sur une surface.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcStructuralItem","IfcStructuralConnection","IfcStructuralSurfaceConnection"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","AppliedCondition"],
+    ex:["→ Appui sur sol élastique (Winkler) — surface de fondation","→ Condition d'encastrement total — base de voile béton armé","→ Appui simple sur périphérie dalle — liaison Rz uniquement"]},
+
+  structload:{fr:"Charge structurelle (base)",ifc:"IfcStructuralLoad",cat:"struct",ver:"IFC2x3",
+    desc:"Classe abstraite mère de toutes les définitions de charges dans le modèle d'analyse structurelle IFC. Ne s'instancie pas directement : utiliser les sous-types selon la nature de la charge.",
+    heritage:["IfcStructuralLoad"],
+    attrs:["Name"],
+    ex:["→ Classe mère de IfcStructuralLoadSingleForce, IfcStructuralLoadLinearForce","→ Toute charge IFC hérite de cette classe abstraite","→ Portée générique pour les actions et déplacements imposés"]},
+
+  structloadsingleforce:{fr:"Force ponctuelle (FEM)",ifc:"IfcStructuralLoadSingleForce",cat:"struct",ver:"IFC2x3",
+    desc:"Charge concentrée appliquée en un nœud du modèle FEM : force dans les 3 directions (Fx, Fy, Fz) et moments dans les 3 axes (Mx, My, Mz). Action élémentaire de base du calcul de structure.",
+    heritage:["IfcStructuralLoad","IfcStructuralLoadOrResult","IfcStructuralLoadSingleForce"],
+    attrs:["Name","ForceX","ForceY","ForceZ","MomentX","MomentY","MomentZ"],
+    ex:["→ Réaction d'appui pied de poteau : Fz=280 kN, Mx=12 kN·m","→ Effort tranchant nœud de charpente : Fy=45 kN","→ Moment de connexion poutre-poteau : My=85 kN·m"]},
+
+  structloadlinearforce:{fr:"Charge linéaire répartie (FEM)",ifc:"IfcStructuralLoadLinearForce",cat:"struct",ver:"IFC2x3",
+    desc:"Charge répartie linéairement sur un élément poutre du modèle FEM : charge par mètre de longueur (kN/m) dans les 3 directions et moments répartis. Représentation des charges permanentes et d'exploitation sur poutres.",
+    heritage:["IfcStructuralLoad","IfcStructuralLoadOrResult","IfcStructuralLoadLinearForce"],
+    attrs:["Name","LinearForceX","LinearForceY","LinearForceZ","LinearMomentX","LinearMomentY","LinearMomentZ"],
+    ex:["→ Charge permanente plancher sur poutre IPE300 : 12,5 kN/m","→ Neige sur arbalétrier : 3,2 kN/m composante verticale","→ Poussée vent sur façade filant : 1,8 kN/m latéral"]},
+
+  structloadplanarforce:{fr:"Charge surfacique (FEM)",ifc:"IfcStructuralLoadPlanarForce",cat:"struct",ver:"IFC2x3",
+    desc:"Charge répartie sur une surface du modèle FEM : pression en kN/m² dans les 3 directions. Représente les charges surfaciques sur dalles, voiles et coques : poids propre, surcharge d'exploitation, pression hydrostatique.",
+    heritage:["IfcStructuralLoad","IfcStructuralLoadOrResult","IfcStructuralLoadPlanarForce"],
+    attrs:["Name","PlanarForceX","PlanarForceY","PlanarForceZ"],
+    ex:["→ Surcharge d'exploitation bureau 2,5 kN/m² sur dalle","→ Pression eau 0 à 25 kN/m² sur voile de sous-sol","→ Pression vent 0,9 kN/m² sur voile pignon"]},
+
+  structloadtemp:{fr:"Charge thermique (FEM)",ifc:"IfcStructuralLoadTemperature",cat:"struct",ver:"IFC2x3",
+    desc:"Action thermique dans le modèle FEM : variation uniforme de température et gradient thermique entre faces. Génère des dilatations et contraintes thermiques dans les éléments structuraux.",
+    heritage:["IfcStructuralLoad","IfcStructuralLoadOrResult","IfcStructuralLoadTemperature"],
+    attrs:["Name","DeltaTConstant","DeltaTBasisCurve","DeltaTGradientY","DeltaTGradientZ"],
+    ex:["→ Dilatation thermique pont : ΔT=±30°C uniforme","→ Gradient thermique voile BS : +20°C face extérieure / +5°C intérieure","→ Retrait endogène béton : ΔT équivalent -15°C sur 28 jours"]},
+
+  structloadsingledispl:{fr:"Déplacement imposé (FEM)",ifc:"IfcStructuralLoadSingleDisplacement",cat:"struct",ver:"IFC2x3",
+    desc:"Déplacement ou rotation imposé en un nœud du modèle FEM : tassement d'appui, déformation imposée, condition initiale. Simule un appui déformable ou un mouvement de fondation.",
+    heritage:["IfcStructuralLoad","IfcStructuralLoadOrResult","IfcStructuralLoadSingleDisplacement"],
+    attrs:["Name","DisplacementX","DisplacementY","DisplacementZ","RotationalDisplacementRX","RotationalDisplacementRY","RotationalDisplacementRZ"],
+    ex:["→ Tassement différentiel appui intermédiaire : Δz=12 mm","→ Déplacement sismique imposé en base : Δx=25 mm","→ Rotation imposée about My=0,003 rad — essai de chargement"]},
+
+  structaction:{fr:"Action structurelle (FEM)",ifc:"IfcStructuralAction",cat:"struct",ver:"IFC2x3",
+    desc:"Classe abstraite représentant une action (charge) appliquée sur un élément du modèle FEM. Lie une définition de charge (IfcStructuralLoad) à un élément porteur (IfcStructuralItem).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcStructuralItem","IfcStructuralActivity","IfcStructuralAction"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","AppliedLoad","GlobalOrLocal","DestabilizingLoad"],
+    ex:["→ Classe mère de IfcStructuralPointAction, IfcStructuralLinearAction","→ Toute charge FEM appliquée hérite de cette classe","→ Référence la charge et l'élément sur lequel elle s'applique"]},
+
+  structpointaction:{fr:"Action ponctuelle (FEM)",ifc:"IfcStructuralPointAction",cat:"struct",ver:"IFC2x3",
+    desc:"Charge concentrée appliquée en un nœud d'un élément structurel dans le modèle FEM. Cas concret de IfcStructuralAction pour une force ponctuelle (IfcStructuralLoadSingleForce).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcStructuralItem","IfcStructuralActivity","IfcStructuralAction","IfcStructuralPointAction"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","AppliedLoad","GlobalOrLocal","DestabilizingLoad"],
+    ex:["→ Charge de poteau sur poutre : 180 kN à x=3,6 m","→ Force de vent sur poteau de façade : 12 kN en tête","→ Effort de précontrainte : 850 kN ancrage en about de poutre"]},
+
+  structlinearaction:{fr:"Action linéaire répartie (FEM)",ifc:"IfcStructuralLinearAction",cat:"struct",ver:"IFC2x3",
+    desc:"Charge répartie le long d'un élément linéaire (poutre, membrure) dans le modèle FEM. Lie une IfcStructuralLoadLinearForce à un IfcStructuralCurveMember.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcStructuralItem","IfcStructuralActivity","IfcStructuralAction","IfcStructuralLinearAction"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","AppliedLoad","GlobalOrLocal","DestabilizingLoad","ProjectedOrTrue"],
+    ex:["→ Charge permanente 14 kN/m sur poutre principale","→ Charge exploitation 5 kN/m sur nervure plancher","→ Poids propre charpente 2,8 kN/m sur arbalétrier"]},
+
+  structplanaractionvar:{fr:"Action surfacique variable (FEM)",ifc:"IfcStructuralPlanarActionVarying",cat:"struct",ver:"IFC2x3",
+    desc:"Charge surfacique à intensité variable sur un élément plan du modèle FEM : pression hydrostatique croissante avec la profondeur, neige avec redistribution. Définit la variation spatiale de la charge.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcStructuralItem","IfcStructuralActivity","IfcStructuralAction","IfcStructuralPlanarAction","IfcStructuralPlanarActionVarying"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","AppliedLoad","GlobalOrLocal","SubsequentAppliedLoads","VaryingAppliedLoadLocation"],
+    ex:["→ Pression hydrostatique voile de piscine : 0 à 30 kN/m² profondeur 3 m","→ Neige redistribuée sur toiture : 0 au faîtage, 2,4 kN/m² à l'égout","→ Pression des terres sur voile de sous-sol : triangulaire 0 à 45 kN/m²"]},
+
+  relconnstructactivity:{fr:"Lien charge-élément (FEM)",ifc:"IfcRelConnectsStructuralActivity",cat:"struct",ver:"IFC2x3",
+    desc:"Relation entre une action ou réaction structurelle (IfcStructuralActivity) et l'élément porteur (IfcStructuralItem) ou la connexion (IfcStructuralConnection) sur lequel elle s'applique.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelConnectsStructuralActivity"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatingElement","RelatedStructuralActivity"],
+    ex:["→ Membrure IPE300 ← charge linéaire 12,5 kN/m","→ Nœud A3 ← force ponctuelle Fz=280 kN","→ Dalle niveau R+2 ← pression 2,5 kN/m² exploitation"]},
+
+  relconnstructmember:{fr:"Lien membre-connexion (FEM)",ifc:"IfcRelConnectsStructuralMember",cat:"struct",ver:"IFC2x3",
+    desc:"Relation entre un élément structurel (IfcStructuralMember) et ses connexions (IfcStructuralConnection) aux extrémités ou en des points intermédiaires. Définit la topologie du modèle FEM.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelConnectsStructuralMember"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatingStructuralMember","RelatedStructuralConnection","AppliedCondition","AdditionalConditions","SupportedLength","ConditionCoordinateSystem"],
+    ex:["→ Poutre IPE360 connectée au nœud A3 (encastrement) et au nœud B3 (rotule)","→ Membrure diagonale liée aux nœuds d'un contreventement en treillis","→ Voile béton armé relié à sa base et sa tête via connexions surfaciques"]},
+
+  /* ── Matériaux IFC2x3 ── */
+  material:{fr:"Matériau",ifc:"IfcMaterial",cat:"prop",ver:"IFC2x3",
+    desc:"Matériau homogène défini par son nom et ses propriétés physiques. Entité de base du système de matériaux IFC : béton, acier, bois, aluminium, verre… Associé aux éléments via IfcRelAssociatesMaterial.",
+    heritage:["IfcMaterial"],
+    attrs:["Name"],
+    ex:["→ Béton C30/37 — résistance caractéristique fck=30 MPa","→ Acier S355 — limite élastique fy=355 MPa","→ Bois massif GL32h — classe de résistance en flexion 32 MPa"]},
+
+  materiallayer:{fr:"Couche de matériau",ifc:"IfcMaterialLayer",cat:"prop",ver:"IFC2x3",
+    desc:"Couche homogène d'un matériau au sein d'une paroi composite, définie par son matériau et son épaisseur. Constituant de base d'un IfcMaterialLayerSet (composition de paroi).",
+    heritage:["IfcMaterialLayer"],
+    attrs:["Material","LayerThickness","IsVentilated"],
+    ex:["→ Laine de roche 120 mm — couche isolation mur extérieur","→ Plaque plâtre BA13 — couche finition cloison","→ Béton armé 200 mm — couche structurelle dalle"]},
+
+  materiallayerset:{fr:"Composition de paroi",ifc:"IfcMaterialLayerSet",cat:"prop",ver:"IFC2x3",
+    desc:"Ensemble ordonné de couches de matériaux (IfcMaterialLayer) définissant la composition d'une paroi, d'un plancher ou d'une toiture. Permet le calcul thermique et acoustique de la paroi composite.",
+    heritage:["IfcMaterialLayerSet"],
+    attrs:["MaterialLayers","LayerSetName"],
+    ex:["→ Mur ext. : plaque PL13 + laine 120mm + bloc béton 200mm + enduit 15mm","→ Plancher : carrelage 10mm + chape 60mm + isolant 40mm + dalle BA 200mm","→ Toiture terrasse : gravier + étanchéité + isolant 120mm + dalle BA 200mm"]},
+
+  materiallayersetusage:{fr:"Utilisation de composition",ifc:"IfcMaterialLayerSetUsage",cat:"prop",ver:"IFC2x3",
+    desc:"Paramètre d'application d'un IfcMaterialLayerSet à un élément spécifique : sens de stratification, décalage par rapport à l'axe de référence. Lien entre la composition de paroi et l'élément constructif.",
+    heritage:["IfcMaterialLayerSetUsage"],
+    attrs:["ForLayerSet","LayerSetDirection","DirectionSense","OffsetFromReferenceLine"],
+    ex:["→ Mur : stratification AXIS2, sens positif, décalage 0 — axe au nu intérieur","→ Dalle : stratification AXIS3, décalage -100mm depuis l'axe neutre","→ Toit : stratification vers l'extérieur depuis le nu supérieur de dalle"]},
+
+  materiallist:{fr:"Liste de matériaux",ifc:"IfcMaterialList",cat:"prop",ver:"IFC2x3",
+    desc:"Ensemble non ordonné de matériaux composant un élément dont la géométrie multi-matériaux n'est pas définie couche par couche. Utilisé pour les éléments mixtes ou les objets mobiliers.",
+    heritage:["IfcMaterialList"],
+    attrs:["Materials"],
+    ex:["→ Fenêtre : verre feuilleté + aluminium laqué + EPDM","→ Portail métallique : acier galvanisé + inox + caoutchouc","→ Faux plafond suspendu : plaque PL + ossature acier + laine verre"]},
 
   /* ── Matériaux — Propriétés ── */
   matprops:{fr:"Propriétés générales de matériau",ifc:"IfcMaterialProperties",cat:"prop",ver:'IFC2x3',
@@ -9784,16 +9912,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-06</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-07</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--gr)">70%</div>
+        <div class="cov-stat-num" style="color:var(--gr)">73%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">458 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:70%;background:var(--gr)"></div></div>
+        <div class="cov-stat-sub">479 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:73%;background:var(--gr)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
@@ -9823,7 +9951,7 @@ function toggleTheme(){
           <tr><td>Propriétés / Quantités</td><td>~30 / 35</td><td>86%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Matériaux (propriétés physiques)</td><td>5 / 5</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Séries temporelles</td><td>6 / 6</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Structurel (résultats)</td><td>4 / ~55</td><td>7%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
+          <tr><td>Structurel (FEM + charges)</td><td>~30 / ~55</td><td>55%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Géométrie &amp; Style</td><td>0 / ~280</td><td>0%</td><td><span class="cov-tag cov-tag-hs">Hors scope</span></td></tr>
         </tbody>
       </table>
