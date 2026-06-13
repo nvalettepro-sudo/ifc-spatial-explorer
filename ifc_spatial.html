@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-02</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-03</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -3615,6 +3615,503 @@ const E = {
         "→ Un IfcPipeSegmentType hérite de IfcFlowSegmentType lui-même fils de IfcDistributionElementType",
         "→ La hiérarchie de types MEP reflète la hiérarchie d'instances : même arbre, niveau 'type'"]},
 
+  /* ══════════════════════════════════════════
+     INSTANCES MEP IFC4 — apparues en IFC4 ADD2
+     En IFC2x3 seuls les *Type existaient.
+     En IFC4 les instances concrètes sont créées.
+  ══════════════════════════════════════════ */
+
+  /* ── Conversion d'énergie ── */
+  boiler:{fr:"Chaudière",ifc:"IfcBoiler",cat:"mep",ver:"IFC4",
+    desc:"Équipement de production de chaleur par combustion (gaz, fioul, bois) ou résistance électrique. La chaudière transfère la chaleur à un fluide caloporteur (eau chaude, vapeur) distribué aux émetteurs. Apparu en IFC4 comme instance concrète — en IFC2x3 seul IfcBoilerType existait.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcBoiler"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Chaudière gaz condensation 24 kW — chauffage et ECS logement collectif","Chaudière biomasse granulés 150 kW — réseau de chaleur petit tertiaire","Chaudière vapeur 10 bar — process industriel agroalimentaire"]},
+
+  chiller:{fr:"Groupe froid / refroidisseur de liquide",ifc:"IfcChiller",cat:"mep",ver:"IFC4",
+    desc:"Équipement de production de froid par cycle frigorifique à compression. Refroidit un fluide (eau glacée) distribué aux terminaux CVC. Types : à compression électrique, à absorption (chaleur), à condensation par air ou par eau. Apparu en IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcChiller"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Groupe froid à vis 200 kW — production eau glacée 6/12°C tertiaire","Chiller à absorption gaz 350 kW — cogénération récupération chaleur","Groupe froid air/eau 40 kW — climatisation bureau 500 m²"]},
+
+  coil:{fr:"Batterie (échangeur à ailettes)",ifc:"IfcCoil",cat:"mep",ver:"IFC4",
+    desc:"Échangeur thermique à tubes et ailettes intégré dans une gaine ou une CTA. Chauffe ou refroidit l'air soufflé par circulation d'eau chaude/glacée ou de fluide frigorigène. Types : batterie eau chaude, batterie eau glacée, batterie électrique, batterie DX.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcCoil"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Batterie eau glacée CTA 50 kW — refroidissement air neuf été","Batterie eau chaude préchauffage 15 kW — protection gel CTA","Batterie DX split canal 8 kW — climatisation locale salle serveur"]},
+
+  condenser:{fr:"Condenseur",ifc:"IfcCondenser",cat:"mep",ver:"IFC4",
+    desc:"Composant du circuit frigorifique qui dissipe la chaleur du fluide frigorigène vers l'environnement. Condenseur à air (rejet direct), à eau (tour de refroidissement), ou évaporatif. Instance concrète apparue en IFC4 — IfcCondenserType existait en IFC2x3.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcCondenser"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Condenseur à air split-system 5 kW — rejet toiture logement","Condenseur à eau groupe froid 200 kW — couplé tour refroidissement","Condenseur évaporatif 80 kW — efficacité renforcée en climat sec"]},
+
+  cooledBeam:{fr:"Poutre froide",ifc:"IfcCooledBeam",cat:"mep",ver:"IFC4",
+    desc:"Terminal CVC intégré au plafond, combinant rayonnement thermique et convection par échangeur eau-air. Active (avec air primaire soufflé) ou passive (convection naturelle). Confort acoustique supérieur aux ventilo-convecteurs. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcCooledBeam"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Poutre froide active 2400mm bureau open-space — 60 m³/h air primaire","Poutre froide passive salle de réunion — induction naturelle silencieuse","Poutre froide réversible chaud/froid — confort été et hiver"]},
+
+  coolingTower:{fr:"Tour de refroidissement",ifc:"IfcCoolingTower",cat:"mep",ver:"IFC4",
+    desc:"Équipement de rejet thermique par évaporation d'eau ou par échange air/eau. Refroidit l'eau de condensation des groupes froids. Types : ouverte (contact direct air/eau), fermée (circuit séparé), hybride. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcCoolingTower"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Tour ouverte 500 kW rejet — groupe froid tertiaire 2000 m²","Tour fermée 200 kW — hôpital, contrainte légionellose réduite","Tour hybride datacenter — fonctionnement sec en hiver"]},
+
+  evaporativeCooler:{fr:"Refroidisseur évaporatif",ifc:"IfcEvaporativeCooler",cat:"mep",ver:"IFC4",
+    desc:"Équipement refroidissant l'air par évaporation d'eau. Direct (l'air traité traverse un médium humide) ou indirect (échangeur séparant l'air traité de l'air évaporatif). Très efficace en climat sec. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcEvaporativeCooler"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Refroidisseur direct 10 000 m³/h — entrepôt logistique climat méditerranéen","Refroidisseur indirect datacenter — PUE < 1,2","Adiabatic cooling CTA — pré-refroidissement air extérieur canicule"]},
+
+  evaporator:{fr:"Évaporateur",ifc:"IfcEvaporator",cat:"mep",ver:"IFC4",
+    desc:"Composant du circuit frigorifique absorbant la chaleur du milieu à refroidir en vaporisant le fluide frigorigène. Évaporateur à détente directe (DX), noyé, à plaques ou tube-calandre. Cœur du groupe froid ou du climatiseur. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcEvaporator"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Évaporateur DX split mural — refroidissement direct local","Évaporateur noyé groupe centrifuge — production eau glacée 6°C","Évaporateur à plaques chambre froide -18°C — congélation"]},
+
+  heatExchanger:{fr:"Échangeur de chaleur",ifc:"IfcHeatExchanger",cat:"mep",ver:"IFC4",
+    desc:"Équipement transférant la chaleur entre deux fluides sans mélange. Types : à plaques (brasées ou à joints), tube-calandre, à tubes et ailettes. Utilisé pour récupération de chaleur, découplage de réseaux, production ECS, préchauffage. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcHeatExchanger"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Échangeur à plaques 100 kW — découplage réseau chauffage urbain / installation","Échangeur tube-calandre 500 kW — récupération chaleur process industriel","Échangeur sanitaire ECS 40 kW — production eau chaude sanitaire instantanée"]},
+
+  airToAirHeatRecovery:{fr:"Récupérateur de chaleur air/air",ifc:"IfcAirToAirHeatRecovery",cat:"mep",ver:"IFC4",
+    desc:"Équipement récupérant la chaleur de l'air extrait pour préchauffer (ou pré-refroidir) l'air neuf. Types : rotatif (hygroscopique), à plaques (flux croisés ou contra-flux), caloduc. Intégré dans les CTA double flux. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcAirToAirHeatRecovery"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Échangeur rotatif CTA η=85% — tertiaire BBC RT2012","Récupérateur à plaques η=75% — logement collectif VMC double flux","Caloduc récupération η=60% — cuisine collective, isolation odeurs"]},
+
+  spaceHeater:{fr:"Émetteur de chauffage",ifc:"IfcSpaceHeater",cat:"mep",ver:"IFC4",
+    desc:"Terminal de chauffage diffusant la chaleur dans un espace par convection, rayonnement ou les deux. Radiateur eau chaude, plancher chauffant, convecteur électrique, panneau radiant. Instance IFC4 (IfcSpaceHeaterType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcSpaceHeater"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Radiateur acier panneau type 22 H=600mm L=1200mm — 1200 W","Plancher chauffant basse température 35°C — confort par rayonnement","Convecteur électrique 1500 W — chauffage d'appoint salle de bain"]},
+
+  transformer:{fr:"Transformateur",ifc:"IfcTransformer",cat:"elec",ver:"IFC4",
+    desc:"Équipement convertissant la tension électrique par induction électromagnétique. Transformateur HTA/BT (poste de transformation), transformateur d'isolement, autotransformateur. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcTransformer"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Transformateur HTA/BT 630 kVA — poste de livraison immeuble tertiaire","Transformateur isolation 10 kVA — blocs opératoires IT médical","Autotransformateur 400/230V — alimentation équipements monophasés 10 kW"]},
+
+  elecMotor:{fr:"Moteur électrique",ifc:"IfcElectricMotor",cat:"elec",ver:"IFC4",
+    desc:"Machine convertissant l'énergie électrique en énergie mécanique par induction ou par aimants permanents. Entraîne pompes, ventilateurs, compresseurs, convoyeurs. Types : asynchrone, synchrone à aimants permanents, EC (electronically commutated). Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcElectricMotor"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Moteur asynchrone 11 kW IE3 — pompe primaire réseau chauffage","Moteur EC 750 W intégré — ventilateur CTA débit variable","Moteur synchrone aimants 22 kW — compresseur scroll climatisation"]},
+
+  elecGenerator:{fr:"Générateur électrique",ifc:"IfcElectricGenerator",cat:"elec",ver:"IFC4",
+    desc:"Machine convertissant une énergie mécanique ou chimique en énergie électrique. Groupe électrogène secours (moteur diesel + alternateur), alternateur de cogénération, onduleur photovoltaïque. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcElectricGenerator"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Groupe électrogène secours 200 kVA — alimentation TGBT secouru datacenter","Cogénérateur gaz 100 kWe — production simultanée chaleur et électricité","Onduleur réseau PV 50 kW — injection surplus réseau EDF"]},
+
+  motorConnection:{fr:"Couplage moteur-charge",ifc:"IfcMotorConnection",cat:"mep",ver:"IFC4",
+    desc:"Dispositif mécanique de liaison entre le moteur et son équipement entraîné (pompe, ventilateur). Accouplement direct, accouplement élastique, courroie trapézoïdale, réducteur. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcMotorConnection"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Accouplement élastique moteur-pompe — désalignement toléré 0,3°","Courroie trapézoïdale ventilateur — rapport 1/1,4 remplacement annuel","Couplage direct variateur-compresseur scroll — rendement maximal"]},
+
+  burner:{fr:"Brûleur",ifc:"IfcBurner",cat:"mep",ver:"IFC4",
+    desc:"Équipement assurant la combustion du combustible (gaz naturel, fioul, biogaz) pour produire de la chaleur. S'intègre dans une chaudière, un four ou un générateur d'air chaud. Types : atmosphérique, à ventilation forcée, pré-mélange. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcBurner"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Brûleur gaz modulation 20-120 kW — chaudière tertiaire","Brûleur biogaz 200 kW — valorisation méthanisation agricole","Brûleur fioul secours 80 kW — basculement automatique en cas de coupure gaz"]},
+
+  burnerType:{fr:"Type de brûleur",ifc:"IfcBurnerType",cat:"mep",ver:"IFC4",
+    desc:"Définition paramétrique d'une famille de brûleurs partageant les mêmes caractéristiques de combustion et de puissance. Regroupe les instances IfcBurner d'un même modèle.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcEnergyConversionDeviceType","IfcBurnerType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type brûleur gaz pré-mélange 20-120 kW — familles de chaudières condensation","Type brûleur biogaz 50-200 kW — générateurs chaleur agricoles","Type brûleur atmosphérique TG30 — chaudières murales résidentielles"]},
+
+  engine:{fr:"Moteur thermique",ifc:"IfcEngine",cat:"mep",ver:"IFC4",
+    desc:"Moteur à combustion interne ou turbine produisant de l'énergie mécanique à partir d'un combustible. Entraîne un générateur électrique (groupe électrogène), une pompe ou un compresseur. Types : diesel, gaz, vapeur. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcEngine"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Moteur diesel 6 cylindres 200 kW — groupe électrogène secours datacenter","Turbine gaz 1 MW — cogénération immeuble tertiaire","Moteur gaz 500 kW — génération électrique et récupération chaleur"]},
+
+  engineType:{fr:"Type de moteur thermique",ifc:"IfcEngineType",cat:"mep",ver:"IFC4",
+    desc:"Définition paramétrique d'une famille de moteurs thermiques partageant même combustible, puissance et rendement. Regroupe les instances IfcEngine d'un même modèle ou fabricant.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcEnergyConversionDeviceType","IfcEngineType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type moteur diesel Cummins QSB7 — groupe électrogène 200 kW","Type turbine gaz Capstone C200 — micro-turbine cogénération","Type moteur gaz MAN E2842 — centrale de cogénération tertiaire"]},
+
+  solarDevice:{fr:"Dispositif solaire",ifc:"IfcSolarDevice",cat:"mep",ver:"IFC4",
+    desc:"Équipement captant l'énergie solaire pour la convertir en chaleur (capteur solaire thermique) ou en électricité (panneau photovoltaïque). Types : SOLARCOLLECTOR (thermique), SOLARPANEL (PV). Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcSolarDevice"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Capteur solaire thermique 2 m² — production ECS maison individuelle","Panneau PV monocristallin 400 Wc — toiture tertiaire 50 kWc","Capteur plan vitré 20 m² — chauffage appoint école RT2020"]},
+
+  solarDeviceType:{fr:"Type de dispositif solaire",ifc:"IfcSolarDeviceType",cat:"mep",ver:"IFC4",
+    desc:"Famille paramétrique de capteurs solaires thermiques ou panneaux photovoltaïques, définissant les performances communes à toutes les instances d'un même modèle (rendement, puissance crête, dimensions).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcEnergyConversionDeviceType","IfcSolarDeviceType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type capteur plan SunPower SP20 — η=82%, 2 m²","Type panneau bifacial 550 Wc — optimiseur DC intégré","Type capteur sous vide 1,5 m² — Tout+chaud rendement hivernal"]},
+
+  tubeBundle:{fr:"Faisceau tubulaire",ifc:"IfcTubeBundle",cat:"mep",ver:"IFC4",
+    desc:"Échangeur de chaleur à faisceau de tubes — ensemble de tubes parallèles dans une enveloppe (calandre). Transfert thermique entre fluide intérieur (tubes) et fluide extérieur (calandre). Utilisé en production d'eau chaude, condenseurs, refroidisseurs d'huile. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcTubeBundle"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Faisceau tube-calandre 500 kW — condenseur groupe froid industriel","Faisceau multitube ECS 80 kW — production instantanée eau chaude sanitaire","Refroidisseur d'huile faisceau 30 kW — groupe hydraulique presses"]},
+
+  tubeBundleType:{fr:"Type de faisceau tubulaire",ifc:"IfcTubeBundleType",cat:"mep",ver:"IFC4",
+    desc:"Famille paramétrique d'échangeurs faisceau tubulaire, définissant puissance d'échange, nature des fluides et dimensions communes à toutes les instances d'un même modèle.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcEnergyConversionDeviceType","IfcTubeBundleType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type faisceau 1 passe 500 kW — eau/eau condenseur industriel","Type faisceau 2 passes ECS 80 kW — échangeur sanitaire collectif","Type faisceau huile/eau 30 kW — refroidissement hydraulique"]},
+
+  /* ── Régulation et contrôle ── */
+  actuator:{fr:"Actionneur",ifc:"IfcActuator",cat:"mep",ver:"IFC4",
+    desc:"Organe de commande mécanique ou électrique pilotant une vanne, un registre, un volet ou un actionneur de sécurité. Reçoit un signal de commande (électrique, pneumatique, hydraulique) et produit un mouvement. Instance concrète IFC4 (IfcActuatorType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionControlElement","IfcActuator"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Actionneur électrique vanne 3 voies — régulation débit batterie CTA","Actionneur pneumatique registre coupe-feu — sécurité incendie","Actionneur hydraulique vanne papillon DN200 — réseau sprinkler"]},
+
+  alarm:{fr:"Alarme",ifc:"IfcAlarm",cat:"mep",ver:"IFC4",
+    desc:"Équipement de signalisation sonore ou visuelle d'une situation anormale. Déclencheur d'alarme incendie (sirène, flash), alarme intrusion, alarme technique GTB. Instance IFC4 (IfcAlarmType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionControlElement","IfcAlarm"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Sirène flash 90 dB — alarme incendie niveau R+2","Déclencheur manuel bris de glace — issue de secours","Alarme sonore GTB — défaut groupe froid salle serveur"]},
+
+  controller:{fr:"Régulateur / automate",ifc:"IfcController",cat:"mep",ver:"IFC4",
+    desc:"Équipement de régulation ou d'automatisme pilotant un système technique : régulateur de température, automate programmable (PLC), contrôleur de débit. Reçoit des mesures de capteurs et commande des actionneurs. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionControlElement","IfcController"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Régulateur PID température pièce — consigne 19°C ±0,5°C","Automate CVC GTB — gestion centralisée 50 sous-stations","Contrôleur débit VAV — régulation débit air soufflé par zone"]},
+
+  sensor:{fr:"Capteur / sonde",ifc:"IfcSensor",cat:"mep",ver:"IFC4",
+    desc:"Équipement de mesure d'une grandeur physique (température, pression, débit, CO₂, humidité, présence). Envoie un signal électrique ou numérique au régulateur. Instance IFC4 (IfcSensorType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionControlElement","IfcSensor"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Sonde température ambiante 0-50°C — régulation chauffage pièce","Capteur CO₂ 0-2000 ppm — régulation ventilation salle de réunion","Débitmètre électromagnétique DN50 — comptage énergie thermique"]},
+
+  flowInstrument:{fr:"Instrument de mesure de flux",ifc:"IfcFlowInstrument",cat:"mep",ver:"IFC4",
+    desc:"Instrument mesurant un paramètre de flux dans un réseau (débit, pression, température, qualité). Manomètre, thermomètre, débitmètre, analyseur de qualité d'eau. Différent de IfcSensor : l'instrument de flux est intégré dans la tuyauterie ou la gaine. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionControlElement","IfcFlowInstrument"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Manomètre DN15 — lecture pression réseau gaz 0-100 mbar","Thermomètre plongeur — mesure température eau chaude réseau","Analyseur pH en ligne — contrôle qualité eau circuit refroidissement"]},
+
+  flowMeter:{fr:"Compteur de débit",ifc:"IfcFlowMeter",cat:"mep",ver:"IFC4",
+    desc:"Équipement de mesure et comptage du débit volumique ou massique dans un réseau. Compteur d'énergie thermique, compteur d'eau, compteur de gaz, débitmètre. Permet la facturation et le suivi des consommations. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionControlElement","IfcFlowMeter"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Compteur énergie thermique DN25 — sous-comptage logement collectif","Compteur eau froide DN20 — individualisation charges eau","Compteur gaz G4 — raccordement logement RT2020"]},
+
+  unitaryControlElement:{fr:"Élément de contrôle unitaire",ifc:"IfcUnitaryControlElement",cat:"mep",ver:"IFC4",
+    desc:"Ensemble intégré de commande et régulation d'un système CVC ou de bâtiment — thermostat d'ambiance, panneau de commande multizone, télécommande filaire de climatisation. Combine interface utilisateur et régulation locale. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionControlElement","IfcUnitaryControlElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Thermostat programmable filaire — commande chauffage 7 plages/jour","Panneau de commande 4 zones CVC — open-space tertiaire","Télécommande infrarouge climatiseur — plafond salle de réunion"]},
+
+  unitaryControlElementType:{fr:"Type d'élément de contrôle unitaire",ifc:"IfcUnitaryControlElementType",cat:"mep",ver:"IFC4",
+    desc:"Famille paramétrique d'éléments de commande et régulation unitaires (thermostats, télécommandes, panneaux de commande) partageant les mêmes fonctionnalités.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionControlElementType","IfcUnitaryControlElementType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type thermostat Honeywell T6861 — programmable 7 jours filaire","Type panneau KNX 4 zones — commande éclairage et CVC","Type télécommande Daikin BRC7C812 — pilotage multisplit"]},
+
+  /* ── Contrôleurs de flux ── */
+  damper:{fr:"Registre / clapet",ifc:"IfcDamper",cat:"mep",ver:"IFC4",
+    desc:"Organe de régulation ou d'obturation dans un réseau de gaines. Registre de réglage (débit variable), registre coupe-feu CF (sécurité incendie), clapet anti-retour, clapet de surpression. Instance IFC4 (IfcDamperType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcDamper"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Registre VAV 400×200 — débit variable salle de réunion 50-300 m³/h","Registre coupe-feu CF90 — traversée de cloison coupe-feu","Clapet anti-retour DN150 — réseau eau glacée groupe froid"]},
+
+  valve:{fr:"Vanne",ifc:"IfcValve",cat:"mep",ver:"IFC4",
+    desc:"Organe d'obturation, de régulation ou de sécurité sur un réseau de tuyauteries. Vanne d'arrêt (à sphère, à papillon, à opercule), vanne de régulation (3 voies, 2 voies), soupape de sécurité, clapet. Instance IFC4 (IfcValveType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcValve"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Vanne 3 voies DN20 — régulation débit batterie chaude CTA","Vanne papillon DN150 lentille caoutchouc — isolement réseau EP","Soupape sécurité 7 bar — protection ballon ECS"]},
+
+  protectiveDevice:{fr:"Dispositif de protection électrique",ifc:"IfcProtectiveDevice",cat:"elec",ver:"IFC4",
+    desc:"Équipement protégeant un circuit électrique contre les surintensités, les courts-circuits et les défauts d'isolement. Disjoncteur, fusible, interrupteur différentiel (DDR), parafoudre. Instance IFC4 (IfcProtectiveDeviceType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcProtectiveDevice"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Disjoncteur différentiel 16A/30mA — circuit prise bureau","Fusible NH 200A gG — protection tête de colonne","Parafoudre T2 40 kA — protection TGBT contre foudre"]},
+
+  protectiveDeviceTrippingUnit:{fr:"Déclencheur de protection",ifc:"IfcProtectiveDeviceTrippingUnit",cat:"elec",ver:"IFC4",
+    desc:"Organe de déclenchement intégré ou associé à un disjoncteur ou à un relai de protection. Déclencheur thermique-magnétique, électronique, différentiel. Paramètre les seuils de déclenchement en courant et en temps.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcProtectiveDeviceTrippingUnit"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Déclencheur électronique Ir=0,4-1×In — disjoncteur 630A motorisé","Déclencheur différentiel 30mA type AC — RCCB logement","Relai de protection différentielle toroïde — départ moteur 75 kW"]},
+
+  protectiveDeviceTrippingUnitType:{fr:"Type de déclencheur de protection",ifc:"IfcProtectiveDeviceTrippingUnitType",cat:"elec",ver:"IFC4",
+    desc:"Famille paramétrique de déclencheurs de protection partageant le même principe de fonctionnement (thermique-magnétique, différentiel, électronique) et les mêmes plages de réglage.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcFlowControllerType","IfcProtectiveDeviceTrippingUnitType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type déclencheur TM 10-40A courbe C — disjoncteurs modulaires","Type module différentiel 300mA type A — disjoncteurs moteurs","Type déclencheur électronique LSI 250-630A — disjoncteurs compacts"]},
+
+  switchingDevice:{fr:"Appareil de coupure et commutation",ifc:"IfcSwitchingDevice",cat:"elec",ver:"IFC4",
+    desc:"Équipement établissant, maintenant ou interrompant un circuit électrique. Contacteur, interrupteur, inverseur de source, démarreur, variateur intégré. Instance IFC4 (IfcSwitchingDeviceType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcSwitchingDevice"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Contacteur 63A — commande départ moteur pompe","Inverseur de source ATS — basculement réseau / groupe électrogène","Démarreur progressif 22 kW — démarrage compresseur sans à-coup"]},
+
+  elecTimeControl:{fr:"Horloge / minuterie électrique",ifc:"IfcElectricTimeControl",cat:"elec",ver:"IFC4",
+    desc:"Appareil commandant l'alimentation électrique d'un circuit en fonction du temps (horloge programmable, minuterie, relai temporisé). Commande d'éclairage, de chauffage, de pompes de circulation, d'enseignes. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcElectricTimeControl"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Horloge programmable 7 jours — commande éclairage extérieur","Minuterie escalier 1-7 min — extinction automatique parties communes","Relai temporisé 0-10 min — arrêt différé ventilation salle de réunion"]},
+
+  airTerminalBox:{fr:"Boîte à débit variable (VAV)",ifc:"IfcAirTerminalBox",cat:"mep",ver:"IFC4",
+    desc:"Boîte régulatrice de débit d'air placée entre le réseau principal et les bouches de soufflage. Ajuste le débit selon la demande locale (variation de pression ou débit variable). Types : pression constante, débit variable (VAV), boîte induction. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcAirTerminalBox"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["VAV bureau 50-300 m³/h — régulation locale température/présence","Boîte CAV salle de réunion 400 m³/h — débit constant","Boîte induction 4 inducteurs — répartition périphérie façade"]},
+
+  /* ── Appareils terminaux ── */
+  airTerminal:{fr:"Bouche et diffuseur d'air",ifc:"IfcAirTerminal",cat:"mep",ver:"IFC4",
+    desc:"Terminal de distribution d'air dans un local — bouche de soufflage, grille de reprise, diffuseur plafond, buse, plénums. Répartit l'air traité dans l'espace avec le jet adapté (portée, angle, bruit). Instance IFC4 (IfcAirTerminalType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcAirTerminal"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Diffuseur carré plafond 600×600 — soufflage 200 m³/h bureau","Grille de reprise 400×200 — réseau retour air vicié","Buse orientable longue portée — soufflage hall 15 m"]},
+
+  outlet:{fr:"Prise de courant / sortie fluide",ifc:"IfcOutlet",cat:"elec",ver:"IFC4",
+    desc:"Point de connexion terminal d'un réseau électrique, de données ou de fluide. Prise de courant, prise RJ45, prise téléphonique, prise VDI, robinet de puisage, prise gaz. Instance IFC4 (IfcOutletType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcOutlet"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Prise 2P+T 16A — alimentation poste de travail","Prise RJ45 Cat.6A — réseau informatique bureau","Robinet de puisage DN15 — point d'eau local ménage"]},
+
+  lamp:{fr:"Source lumineuse / lampe",ifc:"IfcLamp",cat:"elec",ver:"IFC4",
+    desc:"Source lumineuse électrique — lampe à incandescence, fluorescente, LED, halogène, sodium haute pression. Composant d'un luminaire (IfcLightFixture). Instance IFC4 (IfcLampType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcLamp"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Tube LED T8 18W 1200mm — remplacement fluorescent bureau","Lampe sodium HP 250W — éclairage parking souterrain","Lampe metal-iodure 70W — mise en valeur façade patrimoniale"]},
+
+  lightFixture:{fr:"Luminaire",ifc:"IfcLightFixture",cat:"elec",ver:"IFC4",
+    desc:"Appareil d'éclairage complet intégrant la source lumineuse (IfcLamp) et son système optique. Luminaire encastré, saillie, suspendu, applique, projecteur extérieur, réglette. Instance IFC4 (IfcLightFixtureType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcLightFixture"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Luminaire LED encastré 600×600 36W — bureau 500 lx DALI","Projecteur LED 100W — éclairage parking extérieur 10 m mat","Applique étanche IP65 LED 18W — couloir sous-sol"]},
+
+  elecAppliance:{fr:"Appareil électrique",ifc:"IfcElectricAppliance",cat:"elec",ver:"IFC4",
+    desc:"Équipement électrique consommateur utilisé par les occupants — lave-linge, lave-vaisselle, réfrigérateur, four, hotte, sèche-linge, machine à café. Instance IFC4 (IfcElectricApplianceType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcElectricAppliance"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Lave-vaisselle 12 couverts — kitchenette bureau","Réfrigérateur 200 L A+++ — salle de pause","Four électrique encastré 60 cm — cuisine logement R+3"]},
+
+  elecDistributionBoard:{fr:"Tableau de distribution électrique",ifc:"IfcElectricDistributionBoard",cat:"elec",ver:"IFC4",
+    desc:"Armoire ou coffret regroupant les appareillages de protection, de commutation et de mesure d'une installation électrique. TGBT, tableau divisionnaire, tableau appartement. En IFC4 remplace IfcElectricDistributionPoint d'IFC2x3 et intègre une sémantique plus riche.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcElectricDistributionBoard"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["TGBT 630A — tableau général basse tension immeuble tertiaire 5000 m²","Tableau divisionnaire R+2 125A — alimentation bureaux et éclairage","Tableau appartement 45A — distribution logement T4 60 m²"]},
+
+  elecDistributionBoardType:{fr:"Type de tableau de distribution",ifc:"IfcElectricDistributionBoardType",cat:"elec",ver:"IFC4",
+    desc:"Famille paramétrique de tableaux de distribution partageant les mêmes caractéristiques constructives — forme, courant nominal, degré de protection, nombre de rangées.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcFlowControllerType","IfcElectricDistributionBoardType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type TGBT forme 2 630A IP55 — tertiaire","Type tableau encastré 125A 3 rangées IP30 — logement","Type armoire réseau 19 pouces 12U — salle serveur"]},
+
+  elecFlowStorageDevice:{fr:"Stockage d'énergie électrique",ifc:"IfcElectricFlowStorageDevice",cat:"elec",ver:"IFC4",
+    desc:"Équipement stockant l'énergie électrique pour la restituer ultérieurement. Batterie de secours UPS, batterie de stockage photovoltaïque, banc de condensateurs. Instance IFC4 (IfcElectricFlowStorageDeviceType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowStorageDevice","IfcElectricFlowStorageDevice"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Batterie lithium 10 kWh — stockage PV résidentiel","UPS 40 kVA 30 min — alimentation sécurisée salle serveur","Banc condensateurs 200 kVAr — compensation énergie réactive TGBT"]},
+
+  sanitaryTerminal:{fr:"Appareil sanitaire",ifc:"IfcSanitaryTerminal",cat:"mep",ver:"IFC4",
+    desc:"Équipement terminal du réseau plomberie recevant ou évacuant l'eau à l'usage des occupants. Lavabo, WC, douche, baignoire, évier, urinoir, lave-mains. Instance IFC4 (IfcSanitaryTerminalType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcSanitaryTerminal"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Lavabo céramique suspendu 60 cm — bureau PMR","WC suspendu avec bâti-support — logement collectif","Douche italienne 90×90 — chambre hôtel 4 étoiles"]},
+
+  wasteTerminal:{fr:"Terminal d'évacuation",ifc:"IfcWasteTerminal",cat:"mep",ver:"IFC4",
+    desc:"Terminal du réseau d'évacuation des eaux usées ou eaux pluviales — siphon de sol, goulotte, avaloir, trop-plein, siphon de cour. Instance IFC4 (IfcWasteTerminalType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcWasteTerminal"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Siphon de sol DN50 inox — local technique WC","Avaloir grille fonte DN100 — cour intérieure EP","Trop-plein de sécurité DN32 — bac de rétention produits chimiques"]},
+
+  stackTerminal:{fr:"Terminal de ventilation des colonnes",ifc:"IfcStackTerminal",cat:"mep",ver:"IFC4",
+    desc:"Dispositif en tête des colonnes d'évacuation permettant leur mise à l'air libre et empêchant l'aspiration des siphons. Chapeau de ventilation, clapet aérateur, anti-reflux. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcStackTerminal"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Chapeau de ventilation PVC DN100 — tête colonne chute eaux usées","Clapet aérateur admittance d'air — colonne tertiaire sans chien assis","Anti-reflux DN125 — jonction colonne / ventilation secondaire"]},
+
+  gasTerminal:{fr:"Terminal de distribution de gaz",ifc:"IfcGasTerminal",cat:"mep",ver:"IFC4",
+    desc:"Point terminal du réseau de distribution de gaz naturel, butane, propane ou gaz médical. Robinet de gaz, prise de gaz médicaux (O₂, air, vide), robinet de tirage-poussage. Instance IFC4 (IfcGasTerminalType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcGasTerminal"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Robinet gaz cuisine DN15 — raccordement cuisinière logement","Prise O₂ médicale — tête de lit chambre hôpital","Robinet tirage-poussage DN20 — alimentation chaudière gaz tertiaire"]},
+
+  fireSuppressionTerminal:{fr:"Terminal d'extinction incendie",ifc:"IfcFireSuppressionTerminal",cat:"mep",ver:"IFC4",
+    desc:"Terminal du réseau de protection incendie déclenchant l'agent extincteur sur détection. Sprinkler (tête d'extincteur automatique), diffuseur déluge, buse CO₂, tête mousse. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcFireSuppressionTerminal"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Sprinkler pendant 68°C K=80 — stockage palettisé","Tête déluge DN20 — transformateur HTA","Buse CO₂ — local onduleurs informatique"]},
+
+  medicalDevice:{fr:"Dispositif médical",ifc:"IfcMedicalDevice",cat:"mep",ver:"IFC4",
+    desc:"Équipement médical installé dans une infrastructure de santé — lit médicalisé, table d'opération, équipement de diagnostic (scanner, IRM), appareil de stérilisation. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcMedicalDevice"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Table d'opération électro-hydraulique — bloc chirurgical","Autoclave 134°C 12 L — stérilisation centrale","Station de travail de soins motorisée — chambre patient réanimation"]},
+
+  medicalDeviceType:{fr:"Type de dispositif médical",ifc:"IfcMedicalDeviceType",cat:"mep",ver:"IFC4",
+    desc:"Famille paramétrique de dispositifs médicaux partageant les mêmes caractéristiques fonctionnelles et dimensions pour un modèle donné.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcFlowTerminalType","IfcMedicalDeviceType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type lit médicalisé 2 plans motorisé — chambre USC","Type table op. ortho — bloc chirurgie osseuse","Type autoclave B 23 L — cabinet dentaire"]},
+
+  humidifier:{fr:"Humidificateur",ifc:"IfcHumidifier",cat:"mep",ver:"IFC4",
+    desc:"Équipement ajoutant de la vapeur d'eau à l'air soufflé pour maintenir l'hygrométrie. À vapeur d'eau (électrode, résistance), à eau froide (ultrasonique, centrifuge, atomiseur), à injection directe. Intégré dans une CTA ou autonome. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTreatmentDevice","IfcHumidifier"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Humidificateur vapeur 50 kg/h — CTA salle blanche 40-60% HR","Humidificateur ultrasonique 10 kg/h — salle serveur 45% HR","Humidificateur adiabatique 30 kg/h — entrepôt pharmaceutique"]},
+
+  interceptor:{fr:"Intercepteur / séparateur",ifc:"IfcInterceptor",cat:"mep",ver:"IFC4",
+    desc:"Équipement de traitement des effluents liquides par séparation physique. Séparateur d'hydrocarbures (parkings), bac à graisses (cuisines), débourbeur, séparateur de fécules. Instance IFC4 (IfcInterceptorType a été injecté précédemment).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTreatmentDevice","IfcInterceptor"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Séparateur hydrocarbures classe I 10 l/s — parking 100 places","Bac à graisses 300 L inox — cuisine collective 200 couverts","Débourbeur 2000 L béton — traitement EP toiture végétalisée"]},
+
+  filter:{fr:"Filtre",ifc:"IfcFilter",cat:"mep",ver:"IFC4",
+    desc:"Équipement retenant les particules, impuretés ou contaminants d'un fluide (air ou eau). Filtre à air (G4, M5, F7, H13), filtre à eau, filtre à huile, filtre charbon actif. Instance IFC4 (IfcFilterType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTreatmentDevice","IfcFilter"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Filtre à poches M5 — préfiltre CTA tertiaire","Filtre HEPA H13 — plénum salle blanche ISO 7","Filtre à eau tamis 100 μm — protection compteur eau froide"]},
+
+  ductSilencer:{fr:"Silencieux de gaine",ifc:"IfcDuctSilencer",cat:"mep",ver:"IFC4",
+    desc:"Atténuateur acoustique installé dans un réseau de gaines pour réduire la transmission du bruit des équipements CVC (ventilateurs, registres) vers les locaux. Circulaire ou rectangulaire, à cellules parallèles ou splitter. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTreatmentDevice","IfcDuctSilencer"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Silencieux circulaire DN315 L=1000mm — soufflage bureau NR35","Silencieux rectangulaire 400×200 L=600mm — retour air vicié","Silencieux splitter 1200×600 — gaine principale soufflage CTA 10 000 m³/h"]},
+
+  /* ── Segments, raccords, stockage ── */
+  pipeSegment:{fr:"Tronçon de tuyauterie",ifc:"IfcPipeSegment",cat:"mep",ver:"IFC4",
+    desc:"Segment linéaire d'un réseau de tuyauteries — tronçon droit de tuyau. Fluides : eau chaude, eau glacée, gaz, vapeur, eau pluviale, sprinkler. Matériaux : acier, cuivre, PVC, PE, fonte, inox. Instance IFC4 (IfcPipeSegmentType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowSegment","IfcPipeSegment"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Tuyau acier galvanisé DN32 L=1,2m — réseau EF","Tuyau cuivre DN22 L=0,8m — réseau ECS","Tube PVC pression DN110 — réseau EU gravitaire"]},
+
+  pipeFitting:{fr:"Raccord de tuyauterie",ifc:"IfcPipeFitting",cat:"mep",ver:"IFC4",
+    desc:"Pièce de forme du réseau de tuyauteries — coude, té, réduction, manchon, croix. Change la direction, divise ou regroupe les flux dans le réseau. Instance IFC4 (IfcPipeFittingType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowFitting","IfcPipeFitting"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Coude 90° DN32 acier galvanisé — réseau eau chaude","Té égal DN50 cuivre — piquage colonne ECS","Réduction concentrique DN50/DN32 — passage de diamètre réseau chauffage"]},
+
+  ductSegment:{fr:"Tronçon de gaine",ifc:"IfcDuctSegment",cat:"mep",ver:"IFC4",
+    desc:"Segment linéaire d'un réseau de gaines de ventilation ou de climatisation. Gaine rectangulaire, circulaire ou ovale en acier galvanisé, inox, PVC rigide ou spiralé. Instance IFC4 (IfcDuctSegmentType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowSegment","IfcDuctSegment"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Gaine rectangulaire 400×200 L=2m acier galv. — réseau soufflage","Gaine spiralée DN315 L=1,5m — extraction WC","Gaine inox DN200 L=1m — cuisine collective extraction graisse"]},
+
+  ductFitting:{fr:"Pièce spéciale de gaine",ifc:"IfcDuctFitting",cat:"mep",ver:"IFC4",
+    desc:"Pièce de forme d'un réseau de gaines — coude, té, réduction, manchette, hausse, plénum de raccordement. Instance IFC4 (IfcDuctFittingType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowFitting","IfcDuctFitting"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Coude 90° 400×200 rayon R=D — réseau soufflage","Té de piquage 400×200/200×150 — départ vers zone","Réduction concentrique 400×200/300×150 — changement section"]},
+
+  cableSegment:{fr:"Câble électrique",ifc:"IfcCableSegment",cat:"elec",ver:"IFC4",
+    desc:"Tronçon linéaire de câble électrique ou de conducteur. Câble puissance (cuivre, aluminium), câble courant faible (signalisation, données), câble fibre optique. Instance IFC4 (IfcCableSegmentType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowSegment","IfcCableSegment"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Câble U1000 R2V 3×2,5mm² — circuit éclairage","Câble XVB 5×16mm² — départ moteur pompe 11 kW","Câble FTP Cat.6A 4P — réseau données bureau"]},
+
+  cableCarrierSegment:{fr:"Chemin de câbles",ifc:"IfcCableCarrierSegment",cat:"elec",ver:"IFC4",
+    desc:"Support linéaire de chemins de câbles — chemin de câbles (plateau, fil, échelle), conduit encastré, goulotte. Supporte et organise les câbles électriques et de données. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowSegment","IfcCableCarrierSegment"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Chemin de câbles fil 200mm L=3m — faux-plafond bureau","Conduit IRL 20mm L=3m — encastré cloison","Goulotte PVC 100×60 L=2m — en saillie atelier"]},
+
+  cableCarrierFitting:{fr:"Pièce de chemin de câbles",ifc:"IfcCableCarrierFitting",cat:"elec",ver:"IFC4",
+    desc:"Accessoire de changement de direction ou de jonction d'un chemin de câbles — coude horizontal ou vertical, té, jonction, réduction. Instance IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowFitting","IfcCableCarrierFitting"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Coude plat 90° chemin de câbles 200mm — changement direction horizontal","Té de dérivation 300/200mm — piquage vers armoire","Jonction 200mm — raccordement deux longueurs chemin de câbles"]},
+
+  cableFitting:{fr:"Accessoire de câble",ifc:"IfcCableFitting",cat:"elec",ver:"IFC4",
+    desc:"Accessoire de raccordement ou de terminaison de câble électrique — cosse, domino, connecteur, presse-étoupe, épissure de câble HTA. Apparu en IFC4 (non présent en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowFitting","IfcCableFitting"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Cosse à sertir cuivre 16mm² — terminaison câble tableau","Presse-étoupe M25 IP68 — entrée câble armoire extérieure","Manchon épissure HTA 24kV — jonction câble souterrain"]},
+
+  cableFittingType:{fr:"Type d'accessoire de câble",ifc:"IfcCableFittingType",cat:"elec",ver:"IFC4",
+    desc:"Famille paramétrique d'accessoires de câble (cosses, connecteurs, presse-étoupes) partageant les mêmes caractéristiques électriques et dimensionnelles.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcFlowFittingType","IfcCableFittingType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type cosse à sertir 16mm² cuivre — terminaisons câbles puissance","Type presse-étoupe M25 IP68 — traversées armoires extérieures","Type manchon jonction HTA 24kV — câbles souterrains"]},
+
+  tank:{fr:"Ballon / réservoir",ifc:"IfcTank",cat:"mep",ver:"IFC4",
+    desc:"Récipient de stockage d'un fluide (eau, carburant, gaz liquéfié, produit chimique). Ballon d'eau chaude sanitaire, réservoir incendie, bac à fioul, cuve de rétention. Instance IFC4 (IfcTankType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowStorageDevice","IfcTank"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Ballon ECS 300 L électrique — logement collectif","Réservoir incendie 60 m³ béton — réserve sprinkler","Cuve fioul enterrée 10 000 L — chaufferie groupe électrogène"]},
+
+  pump:{fr:"Pompe",ifc:"IfcPump",cat:"mep",ver:"IFC4",
+    desc:"Équipement mettant en mouvement un fluide liquide dans un réseau par énergie mécanique. Pompe centrifuge (circulation eau chaude/glacée), pompe doseuse (traitement eau), pompe de relevage (eaux usées). Instance IFC4 (IfcPumpType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowMovingDevice","IfcPump"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Circulateur eau chaude 2,5 m³/h Hmt=6m — chauffage logement","Pompe relevage eaux usées 15 m³/h — sous-sol parking","Pompe doseuse 2 L/h — traitement légionellose réseau ECS"]},
+
+  fan:{fr:"Ventilateur",ifc:"IfcFan",cat:"mep",ver:"IFC4",
+    desc:"Machine mettant en mouvement de l'air ou des gaz dans un réseau de ventilation. Ventilateur centrifuge (CTA, extracteur), hélice (tour de refroidissement, condenseur à air), en ligne (caisson de ventilation). Instance IFC4 (IfcFanType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowMovingDevice","IfcFan"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Ventilateur centrifuge 10 000 m³/h — soufflage CTA double flux","Extracteur caisson 2 000 m³/h — extraction WC collectifs","Hélice tour de refroidissement Ø800 — condenseur à air 200 kW"]},
+
+  compressor:{fr:"Compresseur",ifc:"IfcCompressor",cat:"mep",ver:"IFC4",
+    desc:"Machine comprimant un fluide gazeux (air, fluide frigorigène, gaz technique). Compresseur à vis (groupe froid), scroll (split-system), alternatif (air comprimé), centrifuge (grand groupe froid). Instance IFC4 (IfcCompressorType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowMovingDevice","IfcCompressor"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Compresseur scroll R410A 15 kW — split-system bureau","Compresseur à vis R134a 200 kW — groupe froid tertiaire","Compresseur alternatif air 7 bar 22 kW — air comprimé atelier"]},
+
+  junctionBox:{fr:"Boîte de dérivation",ifc:"IfcJunctionBox",cat:"elec",ver:"IFC4",
+    desc:"Boîtier permettant la jonction et dérivation de câbles électriques. Connexion de câbles sous encastré, en saillie ou en faux-plafond. Instance IFC4 (IfcJunctionBoxType existait en IFC2x3).",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowFitting","IfcJunctionBox"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Boîte dérivation IP55 10×10 cm — faux-plafond bureau","Coffret de jonction IP67 — extérieur façade","Boîte encastrée Ø67mm — dérivation encastré cloison"]},
+
+  /* ── Équipements audiovisuel, communication, ombrage ── */
+  audioVisualAppliance:{fr:"Équipement audiovisuel",ifc:"IfcAudioVisualAppliance",cat:"elec",ver:"IFC4",
+    desc:"Équipement de diffusion sonore ou visuelle — projecteur, écran, système de sonorisation, tableau interactif, système de visioconférence. Apparu en IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcAudioVisualAppliance"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Vidéoprojecteur 6000 lm — salle de conférence 80 places","Écran LED 85'' 4K — salle de réunion direction","Système visioconférence PTZ — open-space 30 postes"]},
+
+  audioVisualApplianceType:{fr:"Type d'équipement audiovisuel",ifc:"IfcAudioVisualApplianceType",cat:"elec",ver:"IFC4",
+    desc:"Famille paramétrique d'équipements audiovisuels (projecteurs, écrans, systèmes de son) partageant les mêmes caractéristiques techniques.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcFlowTerminalType","IfcAudioVisualApplianceType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type vidéoprojecteur Epson EB-L615U — salles de réunion standard","Type écran 75'' Samsung QM75 — salles de visio","Type sono Bose AM10 — salles de formation"]},
+
+  communicationsAppliance:{fr:"Équipement de communication",ifc:"IfcCommunicationsAppliance",cat:"elec",ver:"IFC4",
+    desc:"Équipement de télécommunication et de réseau de données — téléphone IP, switch réseau, borne Wi-Fi, interphone, système d'appel malade. Apparu en IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTerminal","IfcCommunicationsAppliance"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Téléphone IP PoE — poste de travail open-space","Borne Wi-Fi 802.11ax plafond — couverture salle de réunion","Switch 24 ports PoE+ — armoire réseau R+2"]},
+
+  communicationsApplianceType:{fr:"Type d'équipement de communication",ifc:"IfcCommunicationsApplianceType",cat:"elec",ver:"IFC4",
+    desc:"Famille paramétrique d'équipements de communication (téléphones, bornes Wi-Fi, switches) partageant les mêmes spécifications techniques.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcFlowTerminalType","IfcCommunicationsApplianceType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type téléphone IP Cisco 8851 — standard tertiaire","Type AP Wi-Fi Cisco Aironet 2800 — couverture intérieure","Type switch Cisco 2960-24TT — armoires réseau"]},
+
+  shadingDevice:{fr:"Dispositif d'ombrage",ifc:"IfcShadingDevice",cat:"arch",ver:"IFC4",
+    desc:"Équipement de protection solaire intégré au bâtiment — store vénitien, store à lamelles orientables, brise-soleil, casquette, lame de façade. Réduit les apports solaires et l'éblouissement. Apparu en IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcShadingDevice"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Store vénitien 80mm extérieur motorisé — façade sud bureau","Brise-soleil fixe aluminium horizontal — retombée 60cm","Lame de façade orientable — gradient 20° à 80° selon ensoleillement"]},
+
+  shadingDeviceType:{fr:"Type de dispositif d'ombrage",ifc:"IfcShadingDeviceType",cat:"arch",ver:"IFC4",
+    desc:"Famille paramétrique de dispositifs d'ombrage (stores, brise-soleil, lames) partageant les mêmes caractéristiques géométriques et de performance solaire.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcBuildingElementType","IfcShadingDeviceType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type store extérieur 80mm Somfy — façades sud et ouest","Type brise-soleil lame aluminium 150mm — catalogue façade","Type casquette béton 60cm — bandeau horizontal niveaux R+1 à R+5"]},
+
+  unitaryEquipment:{fr:"Équipement CVC unitaire",ifc:"IfcUnitaryEquipment",cat:"mep",ver:"IFC4",
+    desc:"Équipement CVC autonome combinant plusieurs fonctions dans une seule unité — unité de toiture (rooftop), centrale de traitement d'air compacte, climatiseur split, pompe à chaleur réversible. Apparu en IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcUnitaryEquipment"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Rooftop 50 kW tout air — hall commercial 1000 m²","Climatiseur split 7 kW réversible — bureau individuel","Pompe à chaleur air/eau 12 kW COP=4,2 — maison individuelle RT2020"]},
+
+  vibrationIsolator:{fr:"Antivibrateur / silent-bloc",ifc:"IfcVibrationIsolator",cat:"mep",ver:"IFC4",
+    desc:"Dispositif amortissant les vibrations et bruits structurels transmis par les équipements techniques (pompes, ventilateurs, groupes froids). Silent-bloc, support élastique, platine anti-vibratoire, suspension à ressorts. Apparu en IFC4.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcElementComponent","IfcVibrationIsolator"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
+    ex:["Silent-bloc 60 Shore — support pompe 11 kW","Platine anti-vibratoire 4 silent-blocs — CTA 2000 kg","Suspension ressorts 30 Hz — groupe froid toiture tertiaire"]},
+
+  vibrationIsolatorType:{fr:"Type d'antivibrateur",ifc:"IfcVibrationIsolatorType",cat:"mep",ver:"IFC4",
+    desc:"Famille paramétrique d'antivibrations (silent-blocs, ressorts, platines) partageant les mêmes caractéristiques de raideur, d'atténuation et de charge admissible.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcVibrationIsolatorType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    ex:["Type silent-bloc 60 Shore charge 50-200 kg — pompes et ventilateurs","Type platine ressorts 4 points f0=3Hz — CTAs lourdes","Type suspension caoutchouc-métal M12 — petit matériel CVC"]},
 
 };
 
@@ -8943,16 +9440,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités officielles · v13/06/26-02</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-03</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--am)">49%</div>
+        <div class="cov-stat-num" style="color:var(--am)">62%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">321 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:49%;background:var(--am)"></div></div>
+        <div class="cov-stat-sub">402 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:62%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
@@ -8976,7 +9473,7 @@ function toggleTheme(){
         <tbody>
           <tr><td>Éléments de bâtiment</td><td>~28 / 38</td><td>74%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Relations IFC (IfcRel*)</td><td>~34 / 42</td><td>81%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Systèmes MEP</td><td>~74 / 90</td><td>82%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Systèmes MEP (IFC2x3 + IFC4)</td><td>~154 / 170</td><td>91%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Planification / Coût</td><td>~8 / 40</td><td>20%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
           <tr><td>Acteurs &amp; Documents</td><td>~12 / 20</td><td>60%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
           <tr><td>Propriétés / Quantités</td><td>~30 / 35</td><td>86%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
