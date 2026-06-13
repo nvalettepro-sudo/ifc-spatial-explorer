@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-09</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-10</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -2877,7 +2877,105 @@ const E = {
     attrs:["Polygon"],
     ex:["→ Contour rectangulaire 4 points — limite d'une face murale","→ Profil en L 6 points — section de poutre en cornière","→ Contour irrégulier 8 points — dalle de forme complexe"]},
 
-  /* ── Unités & quantités ── */
+  /* ── Topologie étendue ── */
+  faceOuterBound:{fr:"Limite extérieure de face",ifc:"IfcFaceOuterBound",cat:"geo",ver:"IFC2x3",
+    desc:"Contour extérieur d'une face polygonale dans une représentation BRep. Délimite la frontière externe de la surface. Peut être complété par des IfcFaceBound pour les trous et découpes intérieures.",
+    heritage:["IfcRepresentationItem","IfcTopologicalRepresentationItem","IfcFaceBound","IfcFaceOuterBound"],
+    attrs:["Bound","Orientation"],
+    ex:["→ Contour extérieur d'une dalle avec trémie — 4 sommets extérieurs","→ Limite de face de voile béton — rectangle 4 points","→ Contour extérieur de toiture complexe — polygone 8 points"]},
+
+  faceBound:{fr:"Limite de face (trou)",ifc:"IfcFaceBound",cat:"geo",ver:"IFC2x3",
+    desc:"Contour intérieur d'une face représentant un trou ou une découpe. Utilisé conjointement avec IfcFaceOuterBound pour modéliser les faces percées : dalles avec trémies, voiles avec baies.",
+    heritage:["IfcRepresentationItem","IfcTopologicalRepresentationItem","IfcFaceBound"],
+    attrs:["Bound","Orientation"],
+    ex:["→ Trémie escalier dans dalle BA — contour intérieur 4 points","→ Baie de fenêtre dans voile — trou rectangulaire","→ Percement de passage de gaine — trou circulaire approximé"]},
+
+  openShell:{fr:"Coque ouverte",ifc:"IfcOpenShell",cat:"geo",ver:"IFC2x3",
+    desc:"Enveloppe surfacique non fermée (avec bords libres). Représente des surfaces à géométrie ouverte : portion de façade, surface de toiture partielle, nappe de terrain.",
+    heritage:["IfcRepresentationItem","IfcTopologicalRepresentationItem","IfcConnectedFaceSet","IfcOpenShell"],
+    attrs:["CfsFaces"],
+    ex:["→ Surface de façade rideau — nappe sans périphérie fermée","→ Portion de terrain modélisée — surface MNT partielle","→ Développé de voûte — surface cylindrique ouverte"]},
+
+  edge:{fr:"Arête",ifc:"IfcEdge",cat:"geo",ver:"IFC2x3",
+    desc:"Connexion topologique entre deux sommets (IfcVertex) dans une représentation BRep. Représente une arête d'un solide ou d'une surface dans le modèle topologique.",
+    heritage:["IfcRepresentationItem","IfcTopologicalRepresentationItem","IfcEdge"],
+    attrs:["EdgeStart","EdgeEnd"],
+    ex:["→ Arête horizontale d'un volume de mur","→ Arête de pli d'une toiture inclinée","→ Arête d'intersection de deux surfaces"]},
+
+  vertex:{fr:"Sommet",ifc:"IfcVertex",cat:"geo",ver:"IFC2x3",
+    desc:"Point topologique d'extrémité d'une arête dans un modèle BRep. Représente un coin ou nœud de la topologie d'un solide.",
+    heritage:["IfcRepresentationItem","IfcTopologicalRepresentationItem","IfcVertex"],
+    attrs:[],
+    ex:["→ Coin d'un volume de mur — jonction de 3 arêtes","→ Sommet d'une toiture — point de faîtage","→ Nœud d'une structure en treillis BRep"]},
+
+  shellBasedSurfaceModel:{fr:"Modèle surfacique à coques",ifc:"IfcShellBasedSurfaceModel",cat:"geo",ver:"IFC2x3",
+    desc:"Représentation géométrique d'un objet par un ensemble de coques (ouvertes ou fermées). Alternative au BRep solide pour les éléments décrits par leurs surfaces plutôt que par un volume fermé.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcGeometricSet","IfcShellBasedSurfaceModel"],
+    attrs:["SbsmBoundary"],
+    ex:["→ Surface de façade rideau — ensemble de coques planes","→ Couverture de parking — nappe de coques inclinées","→ Terrain naturel — ensemble de surfaces triangulées"]},
+
+  /* ── Géométrie courbe ── */
+  circle:{fr:"Cercle",ifc:"IfcCircle",cat:"geo",ver:"IFC2x3",
+    desc:"Courbe circulaire définie par son centre (placement) et son rayon. Utilisée pour les arcs de cercle (via IfcTrimmedCurve), les contours de dalles rondes, les colonnes circulaires et les ouvertures rondes.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcCurve","IfcConic","IfcCircle"],
+    attrs:["Position","Radius"],
+    ex:["→ Poteau circulaire Ø400 mm — cercle R=0,20 m","→ Ouverture ronde Ø300 dans voile — percement circulaire","→ Dalle circulaire patio R=4,5 m — contour par arc 360°"]},
+
+  line:{fr:"Droite infinie",ifc:"IfcLine",cat:"geo",ver:"IFC2x3",
+    desc:"Droite géométrique définie par un point d'origine et un vecteur directeur. Utilisée comme courbe de base pour les segments (via IfcTrimmedCurve) et les repères de positionnement.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcCurve","IfcLine"],
+    attrs:["Pnt","Dir"],
+    ex:["→ Axe de mur linéaire — droite de référence","→ Ligne de niveau de plancher — droite horizontale","→ Axe de poutre — droite de neutralité"]},
+
+  ellipse:{fr:"Ellipse",ifc:"IfcEllipse",cat:"geo",ver:"IFC2x3",
+    desc:"Courbe elliptique définie par son centre et ses deux demi-axes. Utilisée pour les ouvertures elliptiques, les toitures en forme d'ellipse ou les contours de rampe hélicoïdale.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcCurve","IfcConic","IfcEllipse"],
+    attrs:["Position","SemiAxis1","SemiAxis2"],
+    ex:["→ Baie ogivale — demi-ellipse verticale","→ Plan d'implantation amphithéâtre — ellipse 30×20 m","→ Contour d'une ouïe de ventilation — ellipse 600×400 mm"]},
+
+  offsetCurve2D:{fr:"Courbe décalée 2D",ifc:"IfcOffsetCurve2D",cat:"geo",ver:"IFC2x3",
+    desc:"Courbe obtenue en décalant une courbe de référence d'une distance constante. Utilisée pour générer les contours parallèles : nu fini de paroi à partir de l'axe, retrait de vitrage depuis le bord.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcCurve","IfcOffsetCurve2D"],
+    attrs:["BasisCurve","Distance","SelfIntersect"],
+    ex:["→ Nu fini d'une paroi = axe décalé d'e/2","→ Limite de baie = nu de voile + retrait 50 mm","→ Trace de pare-feu = axe de mur + 150 mm côté protégé"]},
+
+  plane:{fr:"Plan infini",ifc:"IfcPlane",cat:"geo",ver:"IFC2x3",
+    desc:"Surface plane infinie définie par son système de coordonnées local (origine + axes). Utilisée comme surface de référence pour les opérations booléennes de découpe et comme plan de coupe.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcSurface","IfcElementarySurface","IfcPlane"],
+    attrs:["Position"],
+    ex:["→ Plan de coupe horizontal — plan de niveau pour coupe de dalle","→ Surface de découpe booléenne — plan de refend d'un volume","→ Référence de nivellement — plan Z=0 (TN)"]},
+
+  geometricSet:{fr:"Ensemble géométrique",ifc:"IfcGeometricSet",cat:"geo",ver:"IFC2x3",
+    desc:"Collection d'éléments géométriques hétérogènes (points, courbes, surfaces) formant une représentation composite. Utilisé pour les représentations symboliques, les annotations géométriques ou les données de réference.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcGeometricSet"],
+    attrs:["Elements"],
+    ex:["→ Représentation de maillage filaire — ensemble de courbes","→ Nuage de points de sondage — ensemble de points","→ Axes de référence d'un bâtiment — ensemble de droites"]},
+
+  /* ── Propriétés avancées ── */
+  propboundedval:{fr:"Propriété à valeur bornée",ifc:"IfcPropertyBoundedValue",cat:"prop",ver:"IFC2x3",
+    desc:"Propriété IFC définie par une plage de valeurs (minimum, maximum) et une valeur par défaut. Utilisée pour les exigences à fourchette : température entre 19°C et 26°C, charge admissible 200-500 kg/m².",
+    heritage:["IfcProperty","IfcSimpleProperty","IfcPropertyBoundedValue"],
+    attrs:["Name","Description","UpperBoundValue","LowerBoundValue","Unit"],
+    ex:["→ Température ambiante : 19°C ≤ T ≤ 26°C","→ Humidité relative : 40% ≤ HR ≤ 60%","→ Résistance au feu : EI 30 ≤ REI ≤ EI 120"]},
+
+  proporenumval:{fr:"Propriété à valeur énumérée",ifc:"IfcPropertyEnumeratedValue",cat:"prop",ver:"IFC2x3",
+    desc:"Propriété IFC dont la valeur est choisie dans une liste finie d'options. Utilisée pour les classifications, les statuts ou les caractéristiques qualitatives : type de revêtement, classe de feu, statut de maintenance.",
+    heritage:["IfcProperty","IfcSimpleProperty","IfcPropertyEnumeratedValue"],
+    attrs:["Name","Description","EnumerationValues","EnumerationReference"],
+    ex:["→ Classe de réaction au feu : {A1, A2, B, C, D, E, F}","→ Statut maintenance : {Neuf, Bon, Usagé, Défaillant, Hors service}","→ Type de vitrage : {Clair, Feuilleté, Trempé, Contrôle solaire}"]},
+
+  propreference:{fr:"Propriété référence",ifc:"IfcPropertyReferenceValue",cat:"prop",ver:"IFC2x3",
+    desc:"Propriété IFC dont la valeur est une référence vers un autre objet IFC (matériau, document, personne, organisation). Permet de lier des données structurées à une propriété.",
+    heritage:["IfcProperty","IfcSimpleProperty","IfcPropertyReferenceValue"],
+    attrs:["Name","Description","UsageName","PropertyReference"],
+    ex:["→ Référence FT fabricant → IfcDocumentReference","→ Matériau de référence → IfcMaterial béton C30/37","→ Responsable maintenance → IfcPerson chef de maintenance"]},
+
+  /* ── Quantités de base ── */
+  elemquantity:{fr:"Quantités d'élément",ifc:"IfcElementQuantity",cat:"prop",ver:"IFC2x3",
+    desc:"Ensemble de mesures physiques associées à un élément IFC : surface, volume, longueur, poids, nombre. Rattaché via IfcRelDefinesByProperties pour le métré automatique et les devis quantitatifs.",
+    heritage:["IfcRoot","IfcPropertyDefinition","IfcPropertySetDefinition","IfcElementQuantity"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","MethodOfMeasurement","Quantities"],
+    ex:["→ Mur : longueur 4,80 m + surface nette 11,5 m² + volume 2,3 m³","→ Fenêtre : hauteur 1,40 m + largeur 1,20 m + surface 1,68 m²","→ Plancher : surface brute 85 m² + surface nette 78 m² + volume 17 m³"]},
   unitassignment:{fr:"Affectation des unités",ifc:"IfcUnitAssignment",cat:"prop",ver:"IFC2x3",
     desc:"Ensemble des unités de mesure du projet IFC. Défini une fois au niveau de IfcProject — longueur, surface, volume, masse, temps, température, angle. Toutes les valeurs numériques du fichier s'y réfèrent implicitement.",
     heritage:["IfcUnitAssignment"],
@@ -9977,16 +10075,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-09</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-10</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--gr)">75%</div>
+        <div class="cov-stat-num" style="color:var(--gr)">78%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">491 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:75%;background:var(--gr)"></div></div>
+        <div class="cov-stat-sub">507 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:78%;background:var(--gr)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
