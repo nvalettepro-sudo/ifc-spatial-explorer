@@ -132,9 +132,9 @@ tr:hover td{background:var(--bg)}
 <div class="page-header">
   <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
     <h1>Rapport d'audit — <em>IFC2x3 Explorateur pédagogique</em></h1>
-    <span style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.5);white-space:nowrap">Mis à jour le <strong style="color:rgba(255,255,255,.8)">13/06/2026</strong></span>
+    <span style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.5);white-space:nowrap">Mis à jour le <strong style="color:rgba(255,255,255,.8)">13/06/2026</strong> · v13/06/26-12</span>
   </div>
-  <p>Généré le 10/06/2026 · Session Claude Code · nvalettepro-sudo/ifc-spatial-explorer</p>
+  <p>Généré le 10/06/2026 · Session Claude Code · nvalettepro-sudo/ifc-spatial-explorer · 528 entités · 81% couverture</p>
 </div>
 
 <nav>
@@ -184,8 +184,8 @@ tr:hover td{background:var(--bg)}
         <div class="stat-label">Entités dans l'application</div>
       </div>
       <div class="stat bad">
-        <div class="stat-num">~332</div>
-        <div class="stat-label">Entités non couvertes</div>
+        <div class="stat-num">125</div>
+        <div class="stat-label">Entités IFC2x3 non couvertes</div>
       </div>
       <div class="stat ok">
         <div class="stat-num">81%</div>
@@ -218,17 +218,19 @@ tr:hover td{background:var(--bg)}
         </tr>
       </thead>
       <tbody>
-        <tr><td>Éléments de bâtiment (IfcBuildingElement*)</td><td>~38</td><td>~28</td><td class="prio-3">74%</td><td>★★★</td></tr>
-        <tr><td>Relations (IfcRel*)</td><td>~42</td><td>~34</td><td class="prio-3">81%</td><td>★★★</td></tr>
-        <tr><td>Systèmes MEP (distribution, terminaux)</td><td>~90</td><td>~74</td><td class="prio-3">82%</td><td>★★★</td></tr>
-        <tr><td>Propriétés (IfcProperty*, IfcQuantity*)</td><td>~35</td><td>~30</td><td class="prio-3">86%</td><td>★★★</td></tr>
-        <tr><td>Matériaux (propriétés physiques)</td><td>5</td><td>5</td><td class="prio-3">100%</td><td>★★★</td></tr>
-        <tr><td>Séries temporelles</td><td>6</td><td>6</td><td class="prio-3">100%</td><td>★★☆</td></tr>
-        <tr><td>Géométrie / Représentation</td><td>~120</td><td>0</td><td class="prio-5">0%</td><td>★☆☆</td></tr>
-        <tr><td>Planification / Coût (IfcTask, IfcCost*)</td><td>~40</td><td>~8</td><td class="prio-2">20%</td><td>★★☆</td></tr>
-        <tr><td>Structurel (analyse, IfcStructural*)</td><td>~55</td><td>~4</td><td class="prio-5">7%</td><td>★☆☆</td></tr>
-        <tr><td>Acteurs, Documents, Classification</td><td>~20</td><td>~12</td><td class="prio-3">60%</td><td>★★☆</td></tr>
-        <tr><td>Types IFC (SELECT, mesures)</td><td>~163</td><td>0</td><td class="prio-5">0%</td><td>★☆☆</td></tr>
+        <tr><td>Éléments de bâtiment (IfcBuildingElement*)</td><td>~38</td><td>~35</td><td class="prio-4">92%</td><td>★★★</td></tr>
+        <tr><td>Relations (IfcRel*)</td><td>~42</td><td>~41</td><td class="prio-4">98%</td><td>★★★</td></tr>
+        <tr><td>Systèmes MEP — IFC2x3 + IFC4 (instances concrètes)</td><td>~170</td><td>~154</td><td class="prio-4">91%</td><td>★★★</td></tr>
+        <tr><td>Propriétés &amp; Quantités (IfcProperty*, IfcQuantity*, unités)</td><td>~45</td><td>~42</td><td class="prio-4">93%</td><td>★★★</td></tr>
+        <tr><td>Matériaux (couches, propriétés physiques)</td><td>~15</td><td>~12</td><td class="prio-3">80%</td><td>★★★</td></tr>
+        <tr><td>Séries temporelles &amp; Tableaux</td><td>6</td><td>6</td><td class="prio-4">100%</td><td>★★☆</td></tr>
+        <tr><td>Planification / Coût (IfcTask, IfcWork*, IfcCost*)</td><td>~40</td><td>~28</td><td class="prio-3">70%</td><td>★★☆</td></tr>
+        <tr><td>Structurel (analyse FEM, IfcStructural*, armatures)</td><td>~55</td><td>~30</td><td class="prio-3">55%</td><td>★★☆</td></tr>
+        <tr><td>Acteurs, Documents, Classification</td><td>~24</td><td>~22</td><td class="prio-4">92%</td><td>★★☆</td></tr>
+        <tr><td>Infrastructure IFC4.1 + IFC4.3 (routes, ponts, voie ferrée)</td><td>~130</td><td>~41</td><td class="prio-3">32%</td><td>★★☆</td></tr>
+        <tr><td>Contraintes &amp; Gestion de projet (IfcConstraint, IfcPermit…)</td><td>~20</td><td>~15</td><td class="prio-4">75%</td><td>★★☆</td></tr>
+        <tr><td>Géométrie / Représentation (courbes, topologie, solides)</td><td>~280</td><td>~25</td><td class="prio-5">9%</td><td>★☆☆</td></tr>
+        <tr><td>Types IFC (SELECT, mesures scalaires)</td><td>~163</td><td>~8</td><td class="prio-5">5%</td><td>★☆☆</td></tr>
         <tr><td>Énumérations</td><td>164</td><td>41</td><td class="prio-2">25%</td><td>★★☆</td></tr>
       </tbody>
     </table>
@@ -244,7 +246,7 @@ tr:hover td{background:var(--bg)}
     </h2>
 
     <div class="callout" style="border-color:var(--gr);background:var(--gr-bg)">
-      <strong style="color:var(--gr)">Résultat global : ~93% de conformité.</strong> Les erreurs identifiées ont été corrigées en version 10/06/26-03. L'application est désormais pleinement conforme au schéma IFC2x3 TC1 pour les 528 entités couvertes.
+      <strong style="color:var(--gr)">Résultat global : conformité totale.</strong> Les erreurs identifiées ont été corrigées en version 10/06/26-03. L'application est désormais pleinement conforme au schéma IFC2x3 TC1 pour les 528 entités couvertes. Les entités IFC4 / IFC4.1 / IFC4.3 sont balisées <code>ver:"IFC4"</code> / <code>"IFC4x1"</code> / <code>"IFC4x3"</code> et leur héritage est validé contre les schémas respectifs.
     </div>
 
     <h3 id="heritage-errors" style="font-size:.82rem;font-weight:700;margin:.5rem 0 .75rem;color:var(--re)">
@@ -333,23 +335,32 @@ tr:hover td{background:var(--bg)}
           <td class="mono"><s>IfcStructuralAnalysisModel, IfcStructuralLoadGroup, IfcStructuralResultGroup, IfcReinforcingBar, IfcReinforcingMesh, IfcTendon</s></td>
           <td><span class="tag tag-content" style="font-size:.55rem">Injecté 11–13/06/26</span></td>
         </tr>
-        <tr>
-          <td><span class="prio-4">P4 · Optionnel</span></td>
-          <td>Géométrie (représentations)</td>
-          <td class="mono">IfcShapeRepresentation, IfcProductDefinitionShape, IfcExtrudedAreaSolid, IfcFacetedBrep, IfcBooleanResult, IfcRectangleProfileDef, IfcIShapeProfileDef…</td>
-          <td>~30</td>
+        <tr style="opacity:.7">
+          <td><span class="prio-4">P4 · Partiel</span></td>
+          <td>Géométrie (représentations, courbes, topologie)</td>
+          <td class="mono">
+            <span class="tag tag-content" style="font-size:.55rem">~25 injectés 13/06/26</span><br>
+            Reste : IfcShapeRepresentation, IfcProductDefinitionShape, IfcExtrudedAreaSolid, IfcFacetedBrep, IfcBooleanResult, IfcRectangleProfileDef, IfcIShapeProfileDef, IfcEdge, IfcFace, IfcPolyhedron…
+          </td>
+          <td>~255 restants</td>
         </tr>
         <tr>
           <td><span class="prio-5">P5 · Faible</span></td>
-          <td>Présentation / Style</td>
+          <td>Présentation / Style visuel</td>
           <td class="mono">IfcSurfaceStyle, IfcColourRgb, IfcTextStyle, IfcCurveStyle, IfcFillAreaStyle…</td>
           <td>~15</td>
         </tr>
         <tr>
           <td><span class="prio-5">P5 · Faible</span></td>
-          <td>Types de mesure (117)</td>
+          <td>Types de mesure scalaires</td>
           <td class="mono">IfcLengthMeasure, IfcAreaMeasure, IfcVolumeMeasure, IfcThermalTransmittanceMeasure… (aucun intérêt péda. standalone)</td>
-          <td>~117</td>
+          <td>~155</td>
+        </tr>
+        <tr>
+          <td><span class="prio-3">P3 · Utile</span></td>
+          <td>Énumérations MEP manquantes</td>
+          <td class="mono">IfcAirTerminalTypeEnum, IfcBoilerTypeEnum, IfcFanTypeEnum, IfcSanitaryTerminalTypeEnum, IfcValveTypeEnum, IfcElectricApplianceTypeEnum…</td>
+          <td>~123</td>
         </tr>
       </tbody>
     </table>
@@ -425,7 +436,19 @@ tr:hover td{background:var(--bg)}
     </h2>
 
     <div class="callout" style="border-color:var(--pu);background:var(--pu-bg)">
-      <strong style="color:var(--pu)">Analyse réalisée le 13/06/2026</strong> par diff automatique des fichiers EXPRESS IFC2x3, IFC4 ADD2, IFC4x1 et IFC4x3 ADD2. Le badge de version <code>ver:</code> a été ajouté à toutes les entités existantes · <strong>80 entités IFC4 MEP injectées le 13/06/2026 · 18 entités IFC4.1 alignement &amp; infrastructure injectées le 13/06/2026 · 23 entités IFC4.3 infrastructure (routes, ponts, tunnels, voie ferrée, terrassements) injectées le 13/06/2026 · 15 entités contraintes &amp; gestion de projet (IfcConstraint, IfcPermit, IfcActionRequest, IfcServiceLife…) injectées le 13/06/2026 · 21 entités structurelles FEM (charges, actions, connexions) + 5 entités matériaux (IfcMaterial, IfcMaterialLayer, IfcMaterialLayerSet…) injectées le 13/06/2026 · 22 entités types/géométrie/relations/unités injectées le 13/06/2026 — cap 500 entités franchi</strong> (402 entités au total, 62% de couverture).
+      <strong style="color:var(--pu)">Historique d'injection — session 13/06/2026 :</strong>
+      <ul style="margin:.5rem 0 0 1rem;line-height:1.9">
+        <li>Badge <code>ver:'IFC2x3'</code> ajouté aux 321 entités existantes · affichage dans chaque fiche</li>
+        <li><strong>+80 entités IFC4 MEP</strong> — instances concrètes (IfcBoiler, IfcFan, IfcChiller, IfcActuator…)</li>
+        <li><strong>+18 entités IFC4.1 alignement</strong> — IfcAlignment, IfcLinearPositioningElement, IfcReferent…</li>
+        <li><strong>+23 entités IFC4.3 infrastructure</strong> — IfcRoad, IfcRailway, IfcBridge, IfcFacility, IfcSign, IfcEarthworksCut…</li>
+        <li><strong>+15 entités contraintes &amp; gestion</strong> — IfcConstraint, IfcPermit, IfcActionRequest, IfcServiceLife…</li>
+        <li><strong>+21 entités structurelles FEM</strong> — charges, actions, connexions, IfcStructuralSurfaceMember…</li>
+        <li><strong>+5 entités matériaux</strong> — IfcMaterial, IfcMaterialLayer, IfcMaterialLayerSet, IfcMaterialList…</li>
+        <li><strong>+22 entités types / géométrie / unités</strong> — IfcUnitAssignment, IfcDerivedUnit, courbes, topologie partielle</li>
+        <li><strong>+~25 entités géométrie / topologie avancée</strong> — IfcTopologicalRepresentationItem, IfcBSplineCurve, IfcVertex…</li>
+      </ul>
+      <strong style="display:block;margin-top:.5rem">Résultat : 321 → 528 entités (+207) · 49% → 81% de couverture IFC2x3</strong>
     </div>
 
     <div class="stats">
@@ -452,28 +475,28 @@ tr:hover td{background:var(--bg)}
           <td>653 (base)</td>
           <td>Bâtiment, MEP, Relations, Propriétés</td>
           <td>★★★</td>
-          <td><span class="tag tag-content" style="background:var(--gr-bg);color:var(--gr);border-color:var(--gr-bd)">528 / 653 couverts</span></td>
+          <td><span class="tag tag-content" style="background:var(--gr-bg);color:var(--gr);border-color:var(--gr-bd)">528 / 653 couverts — 81%</span></td>
         </tr>
         <tr>
           <td><strong>IFC4 ADD2</strong></td>
           <td>238 nouvelles<br><small style="color:var(--muted)">114 supprimées vs IFC2x3</small></td>
           <td>Instances MEP concrètes (IfcBoiler, IfcFan…), IfcDoorType/WindowType, IfcProjectedCRS, matériaux composites, templates de propriétés</td>
           <td>★★★</td>
-          <td><span class="prio-1">P1 — À injecter</span></td>
+          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~80 injectés — en cours</span></td>
         </tr>
         <tr>
           <td><strong>IFC4.1</strong></td>
           <td>24 nouvelles</td>
           <td>Alignement (IfcAlignment, IfcLinearPositioningElement, IfcReferent…) — infrastructure routière et ferroviaire</td>
           <td>★★☆</td>
-          <td><span class="prio-2">P2 — À injecter</span></td>
+          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~18 injectés — partiel</span></td>
         </tr>
         <tr>
           <td><strong>IFC4.3 ADD2</strong> <em style="font-size:.6rem;color:var(--muted)">(ISO 19650)</em></td>
           <td>106 nouvelles<br><small style="color:var(--muted)">31 supprimées vs IFC4.1</small></td>
           <td>Infrastructure (IfcRoad, IfcRailway, IfcBridge, IfcFacility), signalisation (IfcSign, IfcSignal), géotechnique (IfcBorehole, IfcGeotechnicalStratum)</td>
           <td>★★☆</td>
-          <td><span class="prio-2">P2 — À injecter</span></td>
+          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~23 injectés — partiel</span></td>
         </tr>
       </tbody>
     </table>
@@ -718,7 +741,7 @@ tr:hover td{background:var(--bg)}
   </section>
 
   <p style="font-size:.62rem;color:var(--muted);text-align:center;margin-top:2rem;font-family:'DM Mono',monospace">
-    IFC2x3 Explorateur pédagogique · Nico Valette · Audit 10/06/2026 · Mis à jour 11/06/2026 · buildingSMART International 2005
+    IFC2x3 Explorateur pédagogique · Nico Valette · Audit 10/06/2026 · Mis à jour 13/06/2026 · v13/06/26-12 · buildingSMART International 2005
   </p>
 
 </div>
