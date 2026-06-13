@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-10</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-11</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -3011,6 +3011,138 @@ const E = {
     heritage:["IfcPhysicalSimpleQuantity","IfcQuantityWeight"],
     attrs:["Name","Description","Unit","WeightValue"],
     ex:["→ Poids ferme charpente métallique : 2 850 kg","→ Masse armatures RDC : 4,2 t","→ Charge permanente plancher haut : 5,8 kN/m²"]},
+
+  /* ── Unités & mesure ── */
+  measurewithunit:{fr:"Mesure avec unité",ifc:"IfcMeasureWithUnit",cat:"prop",ver:"IFC2x3",
+    desc:"Association d'une valeur numérique à son unité de mesure explicite. Utilisée quand l'unité diffère de l'unité par défaut du projet — par exemple exprimer une résistance thermique en m²·K/W dans un fichier en mètres.",
+    heritage:["IfcMeasureWithUnit"],
+    attrs:["ValueComponent","UnitComponent"],
+    ex:["→ Résistance thermique : 4,20 m²·K/W","→ Conductivité thermique : 0,035 W/m·K","→ Coefficient Uw : 1,10 W/m²·K"]},
+
+  dimexponents:{fr:"Exposants dimensionnels",ifc:"IfcDimensionalExponents",cat:"prop",ver:"IFC2x3",
+    desc:"Définit les exposants des 7 dimensions physiques du SI (longueur, masse, temps, courant, température, quantité, intensité lumineuse) permettant de caractériser n'importe quelle grandeur physique dérivée.",
+    heritage:["IfcDimensionalExponents"],
+    attrs:["LengthExponent","MassExponent","TimeExponent","ElectricCurrentExponent","ThermodynamicTemperatureExponent","AmountOfSubstanceExponent","LuminousIntensityExponent"],
+    ex:["→ Vitesse : L¹M⁰T⁻¹ — m/s","→ Pression : L⁻¹M¹T⁻² — Pa = N/m²","→ Puissance : L²M¹T⁻³ — W = J/s"]},
+
+  namedunit:{fr:"Unité nommée (base)",ifc:"IfcNamedUnit",cat:"prop",ver:"IFC2x3",
+    desc:"Classe abstraite mère de toutes les unités de mesure nommées dans IFC : IfcSIUnit, IfcConversionBasedUnit. Définit les attributs communs — type de grandeur physique et exposants dimensionnels.",
+    heritage:["IfcNamedUnit"],
+    attrs:["Dimensions","UnitType"],
+    ex:["→ Classe mère de IfcSIUnit et IfcConversionBasedUnit","→ Toute unité IFC porte un UnitType (LENGTHUNIT, AREAUNIT, etc.)","→ Permet la requête générique de toutes les unités du projet"]},
+
+  /* ── Relations IFC manquantes ── */
+  reloccupiesspaces:{fr:"Occupation d'espace",ifc:"IfcRelOccupiesSpaces",cat:"prop",ver:"IFC2x3",
+    desc:"Relation liant un acteur (personne, organisation) aux espaces qu'il occupe. Permet de modéliser l'affectation des locaux aux occupants, services ou départements dans la gestion du patrimoine.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssigns","IfcRelOccupiesSpaces"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatedObjectsType","RelatingActor"],
+    ex:["→ Service RH → Bureaux R+1 : 12 postes de travail","→ Direction → Bureau directionnel 35 m² R+3","→ Service informatique → Salle serveurs + 3 bureaux techniciens"]},
+
+  relassignstolevel:{fr:"Assignation à un niveau",ifc:"IfcRelAssignsToControl",cat:"prop",ver:"IFC2x3",
+    desc:"Relation assignant des objets à un programme ou niveau hiérarchique de contrôle (planning, budget, permis). Relie les éléments physiques aux documents de gestion du projet qui les encadrent.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssigns","IfcRelAssignsToControl"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatingControl"],
+    ex:["→ Budget lot charpente → éléments structuraux R+2","→ Phase 2 permis → extensions bâtiment B","→ Planning maintenance → 45 équipements CVC bâtiment"]},
+
+  relspaceboundary2ndlevel:{fr:"Limite d'espace 2e niveau",ifc:"IfcRelSpaceBoundary2ndLevel",cat:"prop",ver:"IFC2x3",
+    desc:"Limite d'espace de second niveau (2b) pour le calcul thermique selon EN ISO 10211 et les simulations énergétiques. Distingue les limites virtuelles des limites physiques et précise le type de contact (adjacent, extérieur, sol).",
+    heritage:["IfcRoot","IfcRelationship","IfcRelConnects","IfcRelAssociates","IfcRelSpaceBoundary","IfcRelSpaceBoundary2ndLevel"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatingSpace","RelatedBuildingElement","ConnectionGeometry","PhysicalOrVirtualBoundary","InternalOrExternalBoundary","CorrespondingBoundary"],
+    ex:["→ Mur RDC/extérieur — limite 2b avec géométrie connexion précise","→ Dalle inter-niveaux — limite 2b avec résistance de contact","→ Limite virtuelle entre deux zones thermiques adjacentes"]},
+
+  relconnectswitheccentricity:{fr:"Connexion avec excentricité",ifc:"IfcRelConnectsWithEccentricity",cat:"struct",ver:"IFC2x3",
+    desc:"Connexion entre éléments structuraux avec décalage (excentricité) par rapport aux axes neutres. Permet de modéliser les assemblages où les axes des éléments ne se croisent pas en un même point.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelConnects","IfcRelConnectsElements","IfcRelConnectsWithEccentricity"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatingElement","RelatedElement","ConnectionGeometry","ConnectionConstraint"],
+    ex:["→ Poutre secondaire décalée par rapport à l'axe de la poutre principale","→ Platine boulonnée en face de poteau — excentricité de liaison","→ Console soudée avec décalage e=80 mm — moment additionnel calculé"]},
+
+  /* ── Géométrie complémentaire ── */
+  geometriccurveset:{fr:"Ensemble de courbes géométriques",ifc:"IfcGeometricCurveSet",cat:"geo",ver:"IFC2x3",
+    desc:"Collection de courbes et de points formant un dessin 2D ou une représentation filaire 3D. Utilisé pour les représentations schématiques, les plans de référence et les annotations géométriques.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcGeometricSet","IfcGeometricCurveSet"],
+    attrs:["Elements"],
+    ex:["→ Axes de portiques en plan — ensemble de lignes","→ Réseau de canalisations schématique — courbes en plan","→ Axes de référence de structure — grille filaire 3D"]},
+
+  cartesiantransformationoperator3d:{fr:"Transformation 3D",ifc:"IfcCartesianTransformationOperator3D",cat:"geo",ver:"IFC2x3",
+    desc:"Opérateur de transformation géométrique en 3D : translation, rotation et mise à l'échelle. Utilisé dans IfcMappedItem pour placer des instances d'une géométrie type dans l'espace.",
+    heritage:["IfcGeometricRepresentationItem","IfcCartesianTransformationOperator","IfcCartesianTransformationOperator3D"],
+    attrs:["Axis1","Axis2","LocalOrigin","Scale","Axis3"],
+    ex:["→ Placement poteau : origine (3.5,0,0) + rotation 0° + échelle 1","→ Instance fenêtre : origine (12.3,0,1.0) + rotation 90°","→ Bloc mobilier : position + orientation + mise à l'échelle 1:1"]},
+
+  sweptAreaSolid:{fr:"Solide par balayage (base)",ifc:"IfcSweptAreaSolid",cat:"geo",ver:"IFC2x3",
+    desc:"Classe abstraite mère des solides obtenus par balayage d'un profil 2D le long d'une trajectoire. Sous-types : IfcExtrudedAreaSolid (extrusion droite), IfcRevolvedAreaSolid (révolution).",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcSolidModel","IfcSweptAreaSolid"],
+    attrs:["SweptArea","Position"],
+    ex:["→ Classe mère abstraite de IfcExtrudedAreaSolid et IfcRevolvedAreaSolid","→ Tout solide balayé IFC hérite de cette classe","→ Profil 2D + trajectoire = volume 3D"]},
+
+  halfSpaceSolid:{fr:"Demi-espace",ifc:"IfcHalfSpaceSolid",cat:"geo",ver:"IFC2x3",
+    desc:"Demi-espace infini délimité par un plan. Utilisé dans les opérations booléennes pour découper des solides : IfcBooleanClippingResult utilise des demi-espaces pour créer des chanfreins, des pentes de toiture et des coupes obliques.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcSolidModel","IfcHalfSpaceSolid"],
+    attrs:["BaseSurface","AgreementFlag"],
+    ex:["→ Découpe oblique d'un linteau — demi-espace incliné","→ Coupe de mur à la pente de toit — intersection avec demi-espace","→ Chanfrein de fond de semelle — demi-espace à 45°"]},
+
+  polygonalFaceSet:{fr:"Maillage polygonal",ifc:"IfcPolygonalFaceSet",cat:"geo",ver:"IFC4",
+    desc:"Représentation géométrique efficace d'un solide ou d'une surface par un ensemble de faces polygonales indexées. Format IFC4 privilégié pour les maillages complexes : MNT, objets organiques, géométrie importée.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcTessellatedItem","IfcTessellatedFaceSet","IfcPolygonalFaceSet"],
+    attrs:["Coordinates","Closed","Faces","PnIndex"],
+    ex:["→ Terrain naturel — maillage TIN 5 000 triangles","→ Façade paramétrique — 800 panneaux polygonaux","→ Objet MEP complexe importé — mesh à 1 200 faces"]},
+
+  indexedPolyCurve:{fr:"Polycourbe indexée",ifc:"IfcIndexedPolyCurve",cat:"geo",ver:"IFC4",
+    desc:"Courbe composite définie par une liste indexée de points et de segments (droits ou arcs). Format IFC4 compact remplaçant IfcCompositeCurve pour les contours de profils et les courbes de plan.",
+    heritage:["IfcRepresentationItem","IfcGeometricRepresentationItem","IfcCurve","IfcBoundedCurve","IfcIndexedPolyCurve"],
+    attrs:["Points","Segments","SelfIntersect"],
+    ex:["→ Contour de dalle mixte — droites et arcs indexés","→ Profil de fenêtre avec coins arrondis — polycourbe 8 segments","→ Axe de mur courbe — polycourbe avec 3 arcs et 2 droites"]},
+
+  /* ── Éléments de bâtiment complémentaires ── */
+  shadowingDevice:{fr:"Dispositif d'ombrage",ifc:"IfcShadingDevice",cat:"arch",ver:"IFC2x3",
+    desc:"Élément architectural destiné à protéger du soleil : brise-soleil, casquette, auvent, lame orientable. Influe sur les apports solaires passifs et le confort visuel. Distinct de IfcShadingDevice IFC4 qui en est le pendant multi-version.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcShadingDevice"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Brise-soleil fixe horizontal — casquette béton saillie 80 cm","→ Lames orientables aluminium — façade sud tertiaire","→ Auvent vitré sur entrée — protection pluie + soleil estival"]},
+
+  civilElement:{fr:"Élément de génie civil",ifc:"IfcCivilElement",cat:"struct",ver:"IFC4",
+    desc:"Classe générique pour les éléments de génie civil non couverts par les entités spécialisées d'infrastructure. Utilisé en IFC4 pour les ouvrages atypiques : murs de soutènement, gabions, rideaux de palplanches.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcCivilElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
+    ex:["→ Mur de soutènement en gabions — 15 m de longueur, H=3 m","→ Rideau de palplanches HZ775 — 48 pièces, ancrage 12 m","→ Ouvrage de tête de galerie — maçonnerie cyclopéenne"]},
+
+  civilElementType:{fr:"Type d'élément de génie civil",ifc:"IfcCivilElementType",cat:"struct",ver:"IFC4",
+    desc:"Type paramétrique d'élément de génie civil. Sert de gabarit pour les éléments d'infrastructure non classifiés dans les entités IFC4.3 spécialisées.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcCivilElementType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag"],
+    ex:["→ Type 'Gabion 1×1×2m' — panier métallique rempli pierres","→ Type 'Palplanche HZ775' — acier S430, longueur 12 m","→ Type 'Semelle cyclopéenne' — béton maigre + moellons"]},
+
+  /* ── Produits et ressources complémentaires ── */
+  product:{fr:"Produit (base)",ifc:"IfcProduct",cat:"gen",ver:"IFC2x3",
+    desc:"Classe abstraite représentant tout objet physique ou spatial du monde réel pouvant être placé dans l'espace. Mère de IfcElement, IfcSpatialElement et IfcAnnotation — le nœud central de la hiérarchie IFC.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
+    ex:["→ Classe mère abstraite de tous les éléments physiques IFC","→ Ancêtre de IfcWall, IfcSpace, IfcBeam, IfcDoor…","→ Tout IfcProduct peut être placé via IfcObjectPlacement"]},
+
+  object:{fr:"Objet (base)",ifc:"IfcObject",cat:"gen",ver:"IFC2x3",
+    desc:"Classe abstraite représentant une occurrence d'un concept réel : élément physique, ressource, processus, acteur. Mère de IfcProduct, IfcResource, IfcProcess et IfcActor dans la hiérarchie IFC.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType"],
+    ex:["→ Classe mère abstraite commune à tous les objets IFC","→ Ancêtre de IfcProduct, IfcActor, IfcResource, IfcProcess","→ Tout IfcObject peut recevoir des propriétés et des types"]},
+
+  typeobject:{fr:"Type d'objet (base)",ifc:"IfcTypeObject",cat:"gen",ver:"IFC2x3",
+    desc:"Classe abstraite définissant un gabarit ou un type réutilisable. Mère de IfcTypeProduct — partage des propriétés communes à toutes les instances du même type.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets"],
+    ex:["→ Classe mère abstraite de IfcWallType, IfcDoorStyle, IfcFanType…","→ Un IfcTypeObject regroupe Psets communs à toutes ses instances","→ Ex : IfcWallType 'Mur_ext_DB20' — définit Pset_WallCommon partagé"]},
+
+  typeproduct:{fr:"Type de produit (base)",ifc:"IfcTypeProduct",cat:"gen",ver:"IFC2x3",
+    desc:"Classe abstraite mère de tous les types d'éléments physiques : IfcElementType, IfcSpatialElementType. Définit la géométrie de référence (RepresentationMaps) partagée par toutes les instances.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag"],
+    ex:["→ Classe mère abstraite de IfcBuildingElementType, IfcSpatialElementType","→ La géométrie RepresentationMap est partagée entre instances","→ Ex : IfcWindowType avec géométrie type instanciée 120 fois"]},
+
+  elementtype:{fr:"Type d'élément (base)",ifc:"IfcElementType",cat:"gen",ver:"IFC2x3",
+    desc:"Classe abstraite mère de tous les types d'éléments physiques construits : IfcBuildingElementType, IfcDistributionElementType, IfcElementComponentType. Permet la définition de familles BIM réutilisables.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","ElementType"],
+    ex:["→ Classe mère de IfcWallType, IfcBeamType, IfcPipeSegmentType…","→ L'attribut ElementType stocke le nom de famille (ex. 'Mur Béton E=20')","→ Permet le lien instance/type via IfcRelDefinesByType"]},
+
   constrprodres:{fr:"Ressource produit de construction",ifc:"IfcConstructionProductResource",cat:"plan",ver:'IFC2x3',
     desc:"Ressource représentant un produit ou matériau de construction nécessaire à la réalisation d'une tâche. Distinct de IfcConstructionMaterialResource (matières premières en vrac) : ici il s'agit de produits finis ou semi-finis — fenêtres, appareils sanitaires, équipements techniques.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcResource","IfcConstructionResource","IfcConstructionProductResource"],
@@ -10075,16 +10207,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-10</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-11</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--gr)">78%</div>
+        <div class="cov-stat-num" style="color:var(--gr)">81%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">507 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:78%;background:var(--gr)"></div></div>
+        <div class="cov-stat-sub">528 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:81%;background:var(--gr)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
