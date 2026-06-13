@@ -923,7 +923,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">11/06/26-05</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-01</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -2636,6 +2636,93 @@ const E = {
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcGroup","IfcStructuralLoadGroup"],
     attrs:["PredefinedType","ActionType","ActionSource","Coefficient"],
     ex:["Groupe G — charges permanentes (poids propre + superstructure)","Groupe Q — charges d'exploitation (250 daN/m² bureaux)","Groupe E — action sismique zone 2"]},
+
+  structresultgroup:{fr:"Groupe de résultats structurels",ifc:"IfcStructuralResultGroup",cat:"struct",
+    desc:"Ensemble de résultats issus d'un calcul de structure : déplacements, efforts, contraintes. Permet de regrouper les sorties d'un même cas de charge ou d'une combinaison d'actions pour les consulter ou les comparer.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcGroup","IfcStructuralResultGroup"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","TheoryType","ResultForLoadGroup","IsLinear"],
+    ex:["Résultats ELU combinaison 1,35G+1,5Q — enveloppe de moments fléchissants","Résultats ELS quasi-permanente — flèches sous charges de service","Résultats analyse sismique — mode propres et déplacements spectraux"]},
+
+  /* ── Matériaux — Propriétés ── */
+  matprops:{fr:"Propriétés générales de matériau",ifc:"IfcMaterialProperties",cat:"prop",
+    desc:"Classe abstraite de base pour toutes les familles de propriétés physiques d'un matériau IFC. Regroupe les familles de données descriptives, mécaniques, thermiques ou optiques associées à un IfcMaterial. Ne s'instancie pas directement — utiliser IfcExtendedMaterialProperties ou une sous-classe spécialisée.",
+    heritage:["IfcMaterialProperties"],
+    attrs:["Material"],
+    ex:["→ Classe parente de IfcMechanicalMaterialProperties, IfcThermalMaterialProperties",
+        "→ Associée à un IfcMaterial via l'attribut Material",
+        "→ Permet d'attacher n'importe quel jeu de propriétés physiques à un matériau"]},
+
+  matpropsext:{fr:"Propriétés étendues de matériau",ifc:"IfcExtendedMaterialProperties",cat:"prop",
+    desc:"Ensemble ouvert de propriétés nommées attaché à un matériau IFC. Permet d'ajouter des données non couvertes par les sous-classes spécialisées (mécaniques, thermiques, optiques). Chaque propriété est une paire nom/valeur définie librement par l'auteur du modèle.",
+    heritage:["IfcMaterialProperties","IfcExtendedMaterialProperties"],
+    attrs:["Material","ExtendedProperties","Name","Description"],
+    ex:["Résistance feu REI 90 — propriété étendue d'un béton C30/37","Classe de réaction au feu A1 — propriété étendue d'un acier","Émission COV < 10 µg/m³ — propriété qualité d'air d'un enduit"]},
+
+  matpropsmec:{fr:"Propriétés mécaniques de matériau",ifc:"IfcMechanicalMaterialProperties",cat:"prop",
+    desc:"Propriétés mécaniques normalisées d'un matériau : module d'Young (E), coefficient de Poisson (ν), limite d'élasticité (fy), résistance à la rupture (fu), masse volumique. Données indispensables pour les calculs de structure et de dimensionnement.",
+    heritage:["IfcMaterialProperties","IfcMechanicalMaterialProperties"],
+    attrs:["Material","DynamicViscosity","YoungModulus","ShearModulus","PoissonRatio","ThermalExpansionCoefficient"],
+    ex:["Acier S235 : E=210 000 MPa, fy=235 MPa, ν=0,3","Béton C25/30 : E=31 000 MPa, f'c=25 MPa","Bois GL24h : E=11 600 MPa parallèle au fil, 390 MPa perpendiculaire"]},
+
+  matpropsther:{fr:"Propriétés thermiques de matériau",ifc:"IfcThermalMaterialProperties",cat:"prop",
+    desc:"Propriétés thermiques d'un matériau : conductivité λ (W/m·K), chaleur massique cp (J/kg·K), résistivité à la vapeur µ. Données fondamentales pour les calculs de performance énergétique, de pont thermique et de confort d'été.",
+    heritage:["IfcMaterialProperties","IfcThermalMaterialProperties"],
+    attrs:["Material","SpecificHeatCapacity","BoilingPoint","FreezingPoint","ThermalConductivity"],
+    ex:["Laine de roche λ=0,036 W/m·K, µ=1","Béton λ=1,75 W/m·K, cp=1000 J/kg·K","Polystyrène expansé λ=0,038 W/m·K, µ=30-70"]},
+
+  matpropsopt:{fr:"Propriétés optiques de matériau",ifc:"IfcOpticalMaterialProperties",cat:"prop",
+    desc:"Propriétés optiques d'un matériau : facteur de transmission lumineuse τ, facteur de réflexion ρ, indice de réfraction n, facteur solaire g. Données utiles pour la simulation d'éclairage naturel, le calcul des apports solaires et le choix des vitrages.",
+    heritage:["IfcMaterialProperties","IfcOpticalMaterialProperties"],
+    attrs:["Material","VisibleTransmittance","SolarTransmittance","ThermalIrTransmittance","ThermalIrEmissivityBack","ThermalIrEmissivityFront","VisibleReflectanceBack","VisibleReflectanceFront"],
+    ex:["Vitrage 4/16/4 : τv=0,72, g=0,62, Uw=1,1 W/m²K","Vitrage contrôle solaire : τv=0,50, g=0,32","Store intérieur réflecteur ρ=0,60 — réduction des apports solaires été"]},
+
+  /* ── Construction Resources (complément) ── */
+  constrprodres:{fr:"Ressource produit de construction",ifc:"IfcConstructionProductResource",cat:"plan",
+    desc:"Ressource représentant un produit ou matériau de construction nécessaire à la réalisation d'une tâche. Distinct de IfcConstructionMaterialResource (matières premières en vrac) : ici il s'agit de produits finis ou semi-finis — fenêtres, appareils sanitaires, équipements techniques.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcResource","IfcConstructionResource","IfcConstructionProductResource"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ResourceIdentifier","ResourceGroup","ResourceConsumption","BaseQuantity"],
+    ex:["Fenêtres aluminium triple vitrage — 48 unités LOT menuiseries","Radiateurs acier panneau type 22 — 35 unités chauffage","Appareils sanitaires gamme A — 12 WC + 8 lavabos + 4 douches"]},
+
+  /* ── Séries temporelles ── */
+  timeseries:{fr:"Série temporelle (base)",ifc:"IfcTimeSeries",cat:"prop",
+    desc:"Classe abstraite représentant une séquence de valeurs associées à des instants ou des intervalles de temps. Sert à modéliser les données de mesure, de consommation ou de performance dans le temps (courbes de charge, profils d'occupation). Sous-types : IfcRegularTimeSeries, IfcIrregularTimeSeries.",
+    heritage:["IfcTimeSeries"],
+    attrs:["Name","Description","StartTime","EndTime","TimeSeriesDataType","DataOrigin","UserDefinedDataOrigin","Unit"],
+    ex:["→ Classe parente de IfcRegularTimeSeries et IfcIrregularTimeSeries",
+        "→ Courbe de charge électrique du bâtiment — données de comptage",
+        "→ Profil de température extérieure annuelle — données météo"]},
+
+  regulartimeseries:{fr:"Série temporelle régulière",ifc:"IfcRegularTimeSeries",cat:"prop",
+    desc:"Série de valeurs espacées à intervalles de temps réguliers (pas fixe). Utilisée pour les données d'énergie, de confort ou de mesure continue : consommation électrique horaire, température intérieure quart-heure, débit d'eau demi-heure.",
+    heritage:["IfcTimeSeries","IfcRegularTimeSeries"],
+    attrs:["Name","Description","StartTime","EndTime","TimeSeriesDataType","DataOrigin","Unit","TimeStep","Values"],
+    ex:["Consommation électrique horaire — 8760 valeurs sur un an, pas 1h","Température ambiante 15 min — 35 040 mesures annuelles","Débit VMC hebdomadaire — pas 30 min, courbe d'occupation"]},
+
+  irregulartimeseries:{fr:"Série temporelle irrégulière",ifc:"IfcIrregularTimeSeries",cat:"prop",
+    desc:"Série de valeurs à des instants quelconques, non uniformément espacés. Adaptée aux mesures événementielles, aux alarmes ou aux relevés de compteurs sporadiques où le pas de temps n'est pas constant.",
+    heritage:["IfcTimeSeries","IfcIrregularTimeSeries"],
+    attrs:["Name","Description","StartTime","EndTime","TimeSeriesDataType","DataOrigin","Unit","Values"],
+    ex:["Historique d'alarmes GTB — déclenchements à heures variables","Relevés manuels de compteur eau — mensuels avec dates variables","Journal d'interventions maintenance — dates d'événements irrégulières"]},
+
+  timeseriessched:{fr:"Calendrier de série temporelle",ifc:"IfcTimeSeriesSchedule",cat:"prop",
+    desc:"Associe une série temporelle à un calendrier de planification. Permet de définir des profils récurrents (profil de puissance hebdomadaire, planning d'occupation mensuel) et de les relier à des tâches ou des ressources dans le modèle IFC.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcControl","IfcTimeSeriesSchedule"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableDates","TimeSeriesScheduleType","TimeSeries"],
+    ex:["Profil de chauffage hebdomadaire — régulation selon calendrier d'occupation","Courbe de charge type été/hiver — simulation énergétique","Planning d'éclairage par zone — contrôle GTB hebdomadaire"]},
+
+  ifctable:{fr:"Table de données",ifc:"IfcTable",cat:"prop",
+    desc:"Structure tabulaire de données nommées dans le modèle IFC. Contient des lignes (IfcTableRow) organisées en colonnes. Utilisée pour les tableaux de correspondance, les barèmes de prix, les tableaux de performances ou tout ensemble de données structurées.",
+    heritage:["IfcTable"],
+    attrs:["Name","Rows"],
+    ex:["Tableau des surfaces par niveau et par usage","Barème de résistance thermique par type de paroi","Tableau de correspondance codes pièces / désignations"]},
+
+  tablerow:{fr:"Ligne de table",ifc:"IfcTableRow",cat:"prop",
+    desc:"Ligne individuelle d'un IfcTable. Contient une liste ordonnée de valeurs correspondant aux colonnes de la table. Peut être une ligne de données (IsHeading=false) ou une ligne d'en-tête (IsHeading=true) décrivant les intitulés de colonnes.",
+    heritage:["IfcTableRow"],
+    attrs:["RowCells","IsHeading"],
+    ex:["Ligne de données : ['Bureau 101', 'R+1', '24,5 m²', 'Bureaux']",
+        "Ligne d'en-tête : ['Pièce', 'Niveau', 'Surface', 'Usage']",
+        "Ligne bilan : ['TOTAL', '-', '2 450 m²', '-']"]},
 
   /* ── Grille de référence ── */
   grid:{fr:"Grille de référence",ifc:"IfcGrid",cat:"space",
@@ -8836,16 +8923,16 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>11/06/2026</strong> · buildingSMART International 2005 · 653 entités officielles · v11/06/26-05</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités officielles · v13/06/26-01</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--am)">47%</div>
+        <div class="cov-stat-num" style="color:var(--am)">49%</div>
         <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">308 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:47%;background:var(--am)"></div></div>
+        <div class="cov-stat-sub">321 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:49%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
@@ -8872,7 +8959,10 @@ function toggleTheme(){
           <tr><td>Systèmes MEP</td><td>~74 / 90</td><td>82%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Planification / Coût</td><td>~8 / 40</td><td>20%</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
           <tr><td>Acteurs &amp; Documents</td><td>~12 / 20</td><td>60%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
-          <tr><td>Propriétés / Quantités</td><td>~17 / 35</td><td>49%</td><td><span class="cov-tag cov-tag-p2">P2 — en cours</span></td></tr>
+          <tr><td>Propriétés / Quantités</td><td>~30 / 35</td><td>86%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Matériaux (propriétés physiques)</td><td>5 / 5</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Séries temporelles</td><td>6 / 6</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Structurel (résultats)</td><td>4 / ~55</td><td>7%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
           <tr><td>Géométrie &amp; Style</td><td>0 / ~280</td><td>0%</td><td><span class="cov-tag cov-tag-hs">Hors scope</span></td></tr>
         </tbody>
       </table>
