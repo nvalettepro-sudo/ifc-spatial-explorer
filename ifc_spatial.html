@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-13</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-14</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -971,7 +971,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       autocomplete="off" spellcheck="false">
     <button class="search-clear" id="search-clear-mob" onclick="clearSearch()">✕</button>
   </div>
-  <div class="mob-menu-actions">
+  <!-- Résultats inline (mobile uniquement) — s'affichent sous la barre pendant la frappe -->
+  <div id="mob-inline-results" style="display:none;max-height:55vh;overflow-y:auto;margin:0 -.75rem;padding:0 .75rem"></div>
+  <div class="mob-menu-actions" id="mob-menu-actions">
     <button class="btn" onclick="toggleTheme()" style="font-size:.85rem;padding:.3rem .6rem">☀ Thème</button>
     <button class="btn" onclick="showCov();closeMobMenu()">≡ Couverture</button>
     <button class="btn" onclick="showInfo();closeMobMenu()">? Guide</button>
@@ -8109,6 +8111,11 @@ function onSearch(val){
 
   if(q.length < 2){
     tab.style.display = 'none';
+    // Cacher les résultats inline du burger
+    const mobIR = document.getElementById('mob-inline-results');
+    const mobAct = document.getElementById('mob-menu-actions');
+    if(mobIR){ mobIR.style.display = 'none'; mobIR.innerHTML = ''; }
+    if(mobAct) mobAct.style.display = '';
     // Revenir à l'arborescence si on était sur résultats
     if(document.getElementById('tab-search').classList.contains('active')){
       switchTab('arbo');
@@ -8121,10 +8128,64 @@ function onSearch(val){
 
   badge.textContent = total > 99 ? '99+' : total;
   tab.style.display = '';
-  closeMobMenu();      // ferme le burger si ouvert (mobile)
-  mobilePanelBack();   // ramène l'aside (résultats) au premier plan
-  switchTab('search');
-  renderSearchResults(results, q);
+
+  const mobInlineResults = document.getElementById('mob-inline-results');
+  const mobActions = document.getElementById('mob-menu-actions');
+  const mobMenuOpen = document.getElementById('mob-menu').classList.contains('open');
+
+  if(mobMenuOpen && mobInlineResults){
+    // Mobile : afficher les résultats inline dans le burger (barre reste visible)
+    mobInlineResults.style.display = 'block';
+    if(mobActions) mobActions.style.display = 'none';
+    renderMobInlineResults(results, q, mobInlineResults);
+  } else {
+    // Desktop : afficher dans le panneau gauche
+    mobilePanelBack();
+    switchTab('search');
+    renderSearchResults(results, q);
+  }
+}
+
+function renderMobInlineResults(results, q, container){
+  const sq = q.toLowerCase();
+  function hl(txt){
+    if(!txt) return '';
+    const i = txt.toLowerCase().indexOf(sq);
+    if(i < 0) return txt.slice(0,60);
+    const pre = txt.slice(0, i);
+    const match = txt.slice(i, i + sq.length);
+    const post = txt.slice(i + sq.length, i + sq.length + 40);
+    return `${pre}<strong>${match}</strong>${post}…`;
+  }
+
+  const CAT_DOT = id => {
+    const en = E[id];
+    if(!en) return '';
+    const col = getCatColor(en.cat);
+    return `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col};margin-right:.4rem;flex-shrink:0"></span>`;
+  };
+
+  let html = '';
+  const ents = results.entities.slice(0, 12);
+  if(ents.length){
+    ents.forEach(({id, en}) => {
+      html += `<div onclick="showDetail('${id}');closeMobMenu()" style="display:flex;align-items:center;padding:.55rem .1rem;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:rgba(0,0,0,.08)">
+        ${CAT_DOT(id)}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.78rem;font-weight:600;color:var(--text)">${hl(en.fr)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted)">${en.ifc}</div>
+        </div>
+      </div>`;
+    });
+  }
+  if(results.entities.length > 12){
+    const more = results.entities.length - 12;
+    html += `<div onclick="closeMobMenu();mobilePanelBack();switchTab('search')" style="padding:.5rem .1rem;font-size:.68rem;color:var(--sp);text-align:center;cursor:pointer">+ ${more} autres résultats ›</div>`;
+  }
+  if(!results.entities.length && !results.enums.length && !results.attrs.length){
+    html = `<div style="padding:.75rem .1rem;font-size:.72rem;color:var(--muted);text-align:center">Aucun résultat pour « ${q} »</div>`;
+  }
+  container.innerHTML = html;
 }
 
 function runSearch(q){
@@ -8376,6 +8437,11 @@ function toggleMobMenu(){
 function closeMobMenu(){
   document.getElementById('mob-menu').classList.remove('open');
   document.getElementById('mob-overlay').classList.remove('open');
+  // Réafficher les boutons actions, cacher les résultats inline
+  const mobIR = document.getElementById('mob-inline-results');
+  const mobAct = document.getElementById('mob-menu-actions');
+  if(mobIR){ mobIR.style.display = 'none'; mobIR.innerHTML = ''; }
+  if(mobAct) mobAct.style.display = '';
 }
 
 function showAbstractDetail(name){
@@ -10205,7 +10271,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-13</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-14</div>
     </div>
 
     <!-- Stats globales -->
