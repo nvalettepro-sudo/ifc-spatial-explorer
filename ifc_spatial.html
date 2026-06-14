@@ -13142,9 +13142,10 @@ function renderFavs(){
 
 function _bsUrl(en){
   const v = en.ver||'IFC2x3';
-  if(v==='IFC4x3'||v==='IFC4x1') return 'https://ifc43-docs.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/'+en.ifc+'.htm';
-  if(v==='IFC4') return 'https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/';
-  return 'https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/';
+  const lc = en.ifc.toLowerCase();
+  if(v==='IFC4x3'||v==='IFC4x1') return `https://ifc43-docs.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${en.ifc}.htm`;
+  if(v==='IFC4') return `https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${lc}.htm`;
+  return `https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/link/${lc}.htm`;
 }
 
 function showDetail(id){
