@@ -233,10 +233,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .lv-space>.level-hd .fr{color:var(--ac)}
 
 /* Storey container (horizontal scroll) */
-.storeys-row{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.3rem}
-.storeys-row::-webkit-scrollbar{height:4px}
-.storeys-row::-webkit-scrollbar-track{background:transparent}
-.storeys-row::-webkit-scrollbar-thumb{background:var(--am-bd);border-radius:2px}
 .lv-stry{min-width:200px;flex:1}
 
 /* Collapsible storey */
@@ -643,13 +639,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 [data-theme="dark"] .ver-filter-btn{background:var(--card2,#252525);color:var(--muted);border-color:var(--border)}
 [data-theme="dark"] .ver-filter-btn.active-ver{background:var(--sp,#4A9FE0);color:#fff;border-color:var(--sp,#4A9FE0)}
 
-/* Arborescence spatiale — nœuds */
-.arbo-node{display:inline-flex;align-items:baseline;gap:.3rem;cursor:pointer;padding:.15rem .4rem;border-radius:5px;transition:background .15s;max-width:100%}
-.arbo-node:hover{background:var(--hover,rgba(0,0,0,.05))}
-[data-theme="dark"] .arbo-node:hover{background:rgba(255,255,255,.06)}
-.arbo-prefix{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--border);flex-shrink:0}
-.arbo-fr{font-weight:600;font-size:.8rem}
-.arbo-ifc{font-family:'DM Mono',monospace;font-size:.67rem;color:var(--muted);flex-shrink:0}
 
 /* Cat badge */
 .cat-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.62rem;padding:.2rem .6rem;border-radius:99px;font-weight:500;margin-bottom:.5rem}
@@ -945,7 +934,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">14/06/26-09</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">14/06/26-10</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -5553,7 +5542,7 @@ let verFilter = 'all';
 function setVerFilter(ver){
   verFilter = ver;
   // Mettre à jour le bouton actif
-  document.querySelectorAll('.ver-filter-btn').forEach(b => b.classList.remove('active-ver'));
+  document.querySelectorAll('#ver-filters .ver-filter-btn').forEach(b => b.classList.remove('active-ver'));
   const btn = document.getElementById('vf-' + ver);
   if(btn) btn.classList.add('active-ver');
   // Réappliquer les filtres
@@ -5582,7 +5571,7 @@ function filterCatalogue(q){
   });
   const counter = document.getElementById('cat-counter');
   if(counter){
-    const label = verFilter === 'all' ? 'toutes versions' : verFilter === 'IFC4x' ? 'IFC 4 + 4.1 + 4.3' : verFilter;
+    const label = verFilter === 'all' ? 'toutes versions' : (VER_LABELS[verFilter] || verFilter);
     counter.textContent = `${visibleTotal} entité${visibleTotal>1?'s':''} · ${label} · clic → fiche détaillée`;
   }
 }
@@ -8231,7 +8220,7 @@ function hierRowHtml(name, node){
   const toggle = hasChildren ? `<span class="hier-arrow">›</span>` : '';
 
   const dot = en
-    ? `<span class="hier-dot" style="background:var(--sp)"></span>`
+    ? `<span class="hier-dot" style="background:${getCatColor(en.cat)}"></span>`
     : `<span class="hier-dot-abs"></span>`;
 
   const frPart = (en || ac)
@@ -13240,7 +13229,7 @@ function resetStoreys(){
 /* ══════════════════════════════════════════
    ARBORESCENCE SPATIALE IFC MULTI-VERSION
 ══════════════════════════════════════════ */
-const VER_LABELS = {IFC2x3:'IFC 2x3', IFC4:'IFC 4', IFC4x1:'IFC 4.1', IFC4x3:'IFC 4.3'};
+const VER_LABELS = {IFC2x3:'IFC 2x3', IFC4:'IFC 4', IFC4x:'IFC 4 + 4.1 + 4.3', IFC4x1:'IFC 4.1', IFC4x3:'IFC 4.3'};
 
 const SPATIAL_TREES = {
   IFC2x3:{
@@ -13256,9 +13245,9 @@ const SPATIAL_TREES = {
     roots:[{key:'project', children:[
       {key:'site', children:[
         {key:'building', children:[{key:'storey', children:[{key:'space',children:[]}]}]},
-        {key:'alignment', newVer:'IFC4x1', note:'axe géométrique de l\'infrastructure', children:[
-          {key:'linearPositioningElement', newVer:'IFC4x1', children:[
-            {key:'referent', newVer:'IFC4x1', note:'point de référence sur l\'alignement', children:[]}
+        {key:'alignment', note:'axe géométrique de l\'infrastructure', children:[
+          {key:'linearPositioningElement', children:[
+            {key:'referent', note:'point de référence sur l\'alignement', children:[]}
           ]}
         ]}
       ]}
@@ -13269,16 +13258,16 @@ const SPATIAL_TREES = {
     roots:[{key:'project', children:[
       {key:'site', children:[
         {key:'building', children:[{key:'storey', children:[{key:'space',children:[]}]}]},
-        {key:'facility', newVer:'IFC4x3', note:'ouvrage générique', children:[
-          {key:'facilityPart', newVer:'IFC4x3', children:[
-            {key:'facilityPartCommon', newVer:'IFC4x3', children:[]}
+        {key:'facility', note:'ouvrage générique', children:[
+          {key:'facilityPart', children:[
+            {key:'facilityPartCommon', children:[]}
           ]}
         ]},
-        {key:'road', newVer:'IFC4x3', children:[{key:'roadPart', newVer:'IFC4x3', children:[]}]},
-        {key:'bridge', newVer:'IFC4x3', children:[{key:'bridgePart', newVer:'IFC4x3', children:[]}]},
-        {key:'railway', newVer:'IFC4x3', children:[{key:'railwayPart', newVer:'IFC4x3', children:[]}]},
-        {key:'tunnel', newVer:'IFC4x3', children:[{key:'tunnelPart', newVer:'IFC4x3', children:[]}]},
-        {key:'marina', newVer:'IFC4x3', children:[]}
+        {key:'road', children:[{key:'roadPart', children:[]}]},
+        {key:'bridge', children:[{key:'bridgePart', children:[]}]},
+        {key:'railway', children:[{key:'railwayPart', children:[]}]},
+        {key:'tunnel', children:[{key:'tunnelPart', children:[]}]},
+        {key:'marina', children:[]}
       ]}
     ]}]
   }
@@ -13299,8 +13288,8 @@ function renderArboNode(node){
   if(!en) return '';
   const hasChildren = node.children && node.children.length > 0;
   const dot = `<span class="hier-dot" style="background:${getCatColor(en.cat)}"></span>`;
-  const newBadge = node.newVer
-    ? `<span class="hier-badge" style="background:var(--sp,#1D5FA5);color:#fff;border-color:transparent">${VER_LABELS[node.newVer]||node.newVer}</span>`
+  const newBadge = (en.ver && en.ver !== 'IFC2x3')
+    ? `<span class="hier-badge" style="background:var(--sp,#1D5FA5);color:#fff;border-color:transparent">${VER_LABELS[en.ver]||en.ver}</span>`
     : '';
   const noteAttr = node.note ? ` title="${node.note}"` : '';
   const childrenHtml = hasChildren
@@ -13321,7 +13310,6 @@ function renderArboTree(){
   document.getElementById('arbo-tree').innerHTML = config.roots.map(r=>renderArboNode(r)).join('');
 }
 
-renderStoreys();
 renderArboTree();
 renderCatalogue();
 renderHierTree();
@@ -13406,7 +13394,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>14/06/2026</strong> · buildingSMART International 2005 · 382 entités (IFC2x3 + IFC4 + IFC4.1 + IFC4.3) · v14/06/26-09</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>14/06/2026</strong> · buildingSMART International 2005 · 382 entités (IFC2x3 + IFC4 + IFC4.1 + IFC4.3) · v14/06/26-10</div>
     </div>
 
     <!-- Stats globales -->
