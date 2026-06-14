@@ -13099,6 +13099,13 @@ function verBadgeHtml(ver){
   return `<span class="ver-badge ${cls}" title="Apparu en ${label}">${label}</span>`;
 }
 
+function _bsUrl(en){
+  const v = en.ver||'IFC2x3';
+  if(v==='IFC4x3'||v==='IFC4x1') return 'https://ifc43-docs.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/'+en.ifc+'.htm';
+  if(v==='IFC4') return 'https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/';
+  return 'https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/';
+}
+
 function showDetail(id){
   _navHistory.push({t:'e',k:id}); _updateBackBtn();
   const prev = selected;
@@ -13194,6 +13201,7 @@ function showDetail(id){
     <div style="display:flex;align-items:center;gap:.3rem;flex-wrap:wrap">
       <div class="detail-ifc" style="margin:0">${en.ifc}</div>
       ${verBadgeHtml(en.ver)}
+      <a href="${_bsUrl(en)}" target="_blank" rel="noopener" style="font-size:.62rem;color:#4A9FE0;text-decoration:none;border:1px solid #4A9FE0;border-radius:4px;padding:.1rem .4rem;white-space:nowrap" title="Documentation buildingSMART officielle">buildingSMART ↗</a>
     </div>
     ${catBadge}
 
