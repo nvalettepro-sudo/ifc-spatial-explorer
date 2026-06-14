@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-14</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-15</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -10059,19 +10059,40 @@ function showDetail(id){
     return `<span class="her-item${isLast?' current':''}"${click}>${h}</span>${isLast?'':`<span class="her-arrow">→</span>`}`;
   }).join('');
 
-  // Attrs complets depuis ATTRS_BY_ENTITY
-  const fullAttrs = ATTRS_BY_ENTITY[id] || [];
-  const ownAttrs = fullAttrs.filter(a => a.f === en.ifc);
-  const inherited = fullAttrs
-    .filter(a => a.f !== en.ifc)
-    .sort((a, b) => {
-      const ia = INHERITED_ORDER.indexOf(a.n);
-      const ib = INHERITED_ORDER.indexOf(b.n);
-      if(ia === -1 && ib === -1) return 0;
-      if(ia === -1) return 1;
-      if(ib === -1) return -1;
-      return ia - ib;
-    });
+  // Attrs complets depuis ATTRS_BY_ENTITY — fallback vers en.attrs[] pour entités sans entrée détaillée
+  let fullAttrs = ATTRS_BY_ENTITY[id] || [];
+  let ownAttrs, inherited;
+  if(fullAttrs.length === 0 && en.attrs && en.attrs.length){
+    // Fallback : construire depuis en.attrs[] + en.heritage[]
+    // Les attrs INHERITED_ORDER viennent des parents, les autres sont propres à l'entité
+    const inheritedNames = new Set(['GlobalId','OwnerHistory','Name','Description','ObjectType','ObjectPlacement','Representation','Tag']);
+    // Attrs qui sont dans l'héritage (communs IFC)
+    const parentAttrs = en.attrs.filter(n => inheritedNames.has(n));
+    // Attrs propres = ceux non dans inheritedNames (ou si l'entité elle-même est une classe IFC de base)
+    const ownAttrNames = en.attrs.filter(n => !inheritedNames.has(n));
+    ownAttrs = ownAttrNames.map(n => ({n, f: en.ifc, o: false}));
+    inherited = parentAttrs
+      .map(n => ({n, f: en.heritage.find(h => h !== en.ifc) || en.ifc, o: false}))
+      .sort((a, b) => {
+        const ia = INHERITED_ORDER.indexOf(a.n), ib = INHERITED_ORDER.indexOf(b.n);
+        if(ia === -1 && ib === -1) return 0;
+        if(ia === -1) return 1; if(ib === -1) return -1;
+        return ia - ib;
+      });
+    fullAttrs = [...ownAttrs, ...inherited];
+  } else {
+    ownAttrs = fullAttrs.filter(a => a.f === en.ifc);
+    inherited = fullAttrs
+      .filter(a => a.f !== en.ifc)
+      .sort((a, b) => {
+        const ia = INHERITED_ORDER.indexOf(a.n);
+        const ib = INHERITED_ORDER.indexOf(b.n);
+        if(ia === -1 && ib === -1) return 0;
+        if(ia === -1) return 1;
+        if(ib === -1) return -1;
+        return ia - ib;
+      });
+  }
 
   function renderAttrRow(a){
     const info = ATTR_DICT[a.n] || {fr: a.n, def: ''};
@@ -10271,7 +10292,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-14</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-15</div>
     </div>
 
     <!-- Stats globales -->
