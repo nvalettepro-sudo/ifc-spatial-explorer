@@ -945,7 +945,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-06</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-07</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1021,9 +1021,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <!-- Arbre spatial -->
       <div id="arbo-tree"></div>
       <!-- Légende -->
-      <div style="margin-top:1.25rem;padding-top:.6rem;border-top:1px solid var(--border);display:flex;gap:.9rem;flex-wrap:wrap;font-size:.67rem;color:var(--muted)">
-        <span>▸ clic sur un nœud → fiche détaillée</span>
-        <span style="display:flex;align-items:center;gap:.3rem"><span style="background:var(--sp,#1D5FA5);color:#fff;padding:.05rem .3rem;border-radius:3px;font-size:.6rem">Nouveau</span> entité ajoutée dans cette version</span>
+      <div class="hier-legend">
+        <span class="hier-legend-item">▸ clic → fiche détaillée</span>
+        <span class="hier-legend-item"><span class="hier-badge" style="background:var(--sp,#1D5FA5);color:#fff;border-color:transparent">IFC 4.x</span> entité nouvelle dans la version</span>
       </div>
     </div><!-- fin pane-arbo -->
 
@@ -4637,6 +4637,7 @@ let selected = null;
 ═══════════════════════ */
 function renderStoreys(){
   const row = document.getElementById('storeys-row');
+  if(!row) return;
   row.innerHTML = '';
 
   storeys.forEach((ti,i)=>{
@@ -13293,21 +13294,21 @@ function setArboVer(ver){
   renderArboTree();
 }
 
-function renderArboNode(node, depth, isLast){
+function renderArboNode(node){
   const en = E[node.key];
   if(!en) return '';
-  const indent = depth * 1.4;
-  const prefix = depth === 0 ? '' : (isLast ? '└─ ' : '├─ ');
+  const hasChildren = node.children && node.children.length > 0;
+  const dot = `<span class="hier-dot" style="background:${getCatColor(en.cat)}"></span>`;
   const newBadge = node.newVer
-    ? `<span style="font-size:.56rem;background:var(--sp,#1D5FA5);color:#fff;padding:.05rem .28rem;border-radius:3px;margin-left:.3rem;font-weight:600">${VER_LABELS[node.newVer]||node.newVer}</span>`
+    ? `<span class="hier-badge" style="background:var(--sp,#1D5FA5);color:#fff;border-color:transparent">${VER_LABELS[node.newVer]||node.newVer}</span>`
     : '';
-  const noteHtml = node.note
-    ? `<span style="font-size:.62rem;color:var(--muted);margin-left:.4rem;font-style:italic">${node.note}</span>`
+  const noteAttr = node.note ? ` title="${node.note}"` : '';
+  const childrenHtml = hasChildren
+    ? `<div class="hier-children">${node.children.map(c=>renderArboNode(c)).join('')}</div>`
     : '';
-  const childrenHtml = (node.children||[]).map((c,i)=>renderArboNode(c, depth+1, i===node.children.length-1)).join('');
-  return `<div style="padding:.18rem 0;margin-left:${indent}rem">
-    <div class="arbo-node" onclick="showDetail('${node.key}')" title="${en.desc||en.fr}">
-      <span class="arbo-prefix">${prefix}</span><span class="arbo-fr">${en.fr}</span><span class="arbo-ifc">${en.ifc}</span>${newBadge}${noteHtml}
+  return `<div class="hier-group open"${noteAttr}>
+    <div class="hier-row" onclick="showDetail('${node.key}')">
+      ${dot}<span class="hier-fr">${en.fr}</span><span class="hier-ifc">${en.ifc}</span>${newBadge}
     </div>
     ${childrenHtml}
   </div>`;
@@ -13317,7 +13318,7 @@ function renderArboTree(){
   const config = SPATIAL_TREES[arboVer];
   if(!config) return;
   document.getElementById('arbo-desc').textContent = config.desc;
-  document.getElementById('arbo-tree').innerHTML = config.roots.map((r,i)=>renderArboNode(r,0,i===config.roots.length-1)).join('');
+  document.getElementById('arbo-tree').innerHTML = config.roots.map(r=>renderArboNode(r)).join('');
 }
 
 renderStoreys();
@@ -13405,7 +13406,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-06</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-07</div>
     </div>
 
     <!-- Stats globales -->
