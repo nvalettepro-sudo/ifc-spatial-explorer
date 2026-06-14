@@ -643,6 +643,14 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 [data-theme="dark"] .ver-filter-btn{background:var(--card2,#252525);color:var(--muted);border-color:var(--border)}
 [data-theme="dark"] .ver-filter-btn.active-ver{background:var(--sp,#4A9FE0);color:#fff;border-color:var(--sp,#4A9FE0)}
 
+/* Arborescence spatiale — nœuds */
+.arbo-node{display:inline-flex;align-items:baseline;gap:.3rem;cursor:pointer;padding:.15rem .4rem;border-radius:5px;transition:background .15s;max-width:100%}
+.arbo-node:hover{background:var(--hover,rgba(0,0,0,.05))}
+[data-theme="dark"] .arbo-node:hover{background:rgba(255,255,255,.06)}
+.arbo-prefix{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--border);flex-shrink:0}
+.arbo-fr{font-weight:600;font-size:.8rem}
+.arbo-ifc{font-family:'DM Mono',monospace;font-size:.67rem;color:var(--muted);flex-shrink:0}
+
 /* Cat badge */
 .cat-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.62rem;padding:.2rem .6rem;border-radius:99px;font-weight:500;margin-bottom:.5rem}
 .cat-space {background:#EBF3FB;color:#1A4E8A;border:1px solid #A8C8F0}
@@ -937,7 +945,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-05</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-06</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1001,45 +1009,22 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
     <!-- Onglet 1 : Arborescence -->
     <div class="aside-pane" id="pane-arbo" style="padding:.75rem;overflow:auto">
-    <!-- Boutons niveaux -->
-    <div style="display:flex;gap:.4rem;margin-bottom:.65rem;flex-wrap:wrap">
-      <button class="btn add" onclick="addStorey()" style="font-size:.65rem;padding:.25rem .6rem;flex:1">＋ Ajouter un niveau</button>
-      <button class="btn del" onclick="removeStorey()" style="font-size:.65rem;padding:.25rem .6rem;flex:1">− Supprimer un niveau</button>
-      <button class="btn" onclick="resetStoreys()" style="font-size:.65rem;padding:.25rem .6rem;flex:1">↺ Réinitialiser</button>
-    </div>
-  <div class="spatial-view" id="spatial">
-
-    <div class="level lv-proj">
-      <div class="level-hd" onclick="showDetail('project')">
-        <span class="fr">Projet</span>
-        <span class="ifc">IfcProject</span>
+      <!-- Sélecteur de version -->
+      <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.75rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)">
+        <a class="nav-pill ver-filter-btn active-ver" id="avf-IFC2x3" onclick="setArboVer('IFC2x3')">IFC 2x3</a>
+        <a class="nav-pill ver-filter-btn" id="avf-IFC4"   onclick="setArboVer('IFC4')">IFC 4</a>
+        <a class="nav-pill ver-filter-btn" id="avf-IFC4x1" onclick="setArboVer('IFC4x1')">IFC 4.1</a>
+        <a class="nav-pill ver-filter-btn" id="avf-IFC4x3" onclick="setArboVer('IFC4x3')">IFC 4.3</a>
       </div>
-      <div class="level-desc">Contient toutes les informations du projet — unités de mesure, systèmes de coordonnées, phases. Racine de tout fichier IFC.</div>
-
-      <div class="level lv-site">
-        <div class="level-hd" onclick="showDetail('site')">
-          <span class="fr">Terrain</span>
-          <span class="ifc">IfcSite</span>
-        </div>
-        <div class="level-desc">La parcelle de terrain sur laquelle le projet est construit. Possède des coordonnées GPS réelles et peut contenir plusieurs bâtiments.</div>
-
-        <div class="level lv-bldg">
-          <div class="level-hd" onclick="showDetail('building')">
-            <span class="fr">Bâtiment</span>
-            <span class="ifc">IfcBuilding</span>
-          </div>
-          <div class="level-desc">Un bâtiment individuel sur le terrain. Regroupe tous les niveaux et espaces qui le composent, du sous-sol au toit.</div>
-
-          <!-- NIVEAUX — horizontal scroll -->
-          <div class="storeys-row" id="storeys-row">
-            <!-- injectés par JS -->
-          </div>
-
-        </div>
+      <!-- Description de la version -->
+      <div id="arbo-desc" style="font-size:.72rem;color:var(--muted);margin-bottom:.9rem;line-height:1.55;padding:.5rem .65rem;border-left:2px solid var(--border);border-radius:0 4px 4px 0"></div>
+      <!-- Arbre spatial -->
+      <div id="arbo-tree"></div>
+      <!-- Légende -->
+      <div style="margin-top:1.25rem;padding-top:.6rem;border-top:1px solid var(--border);display:flex;gap:.9rem;flex-wrap:wrap;font-size:.67rem;color:var(--muted)">
+        <span>▸ clic sur un nœud → fiche détaillée</span>
+        <span style="display:flex;align-items:center;gap:.3rem"><span style="background:var(--sp,#1D5FA5);color:#fff;padding:.05rem .3rem;border-radius:3px;font-size:.6rem">Nouveau</span> entité ajoutée dans cette version</span>
       </div>
-    </div>
-
-  </div><!-- fin spatial-view -->
     </div><!-- fin pane-arbo -->
 
     <!-- Onglet Entités IFC -->
@@ -13251,7 +13236,92 @@ function resetStoreys(){
 /* ═══════════════════════
    INIT
 ═══════════════════════ */
+/* ══════════════════════════════════════════
+   ARBORESCENCE SPATIALE IFC MULTI-VERSION
+══════════════════════════════════════════ */
+const VER_LABELS = {IFC2x3:'IFC 2x3', IFC4:'IFC 4', IFC4x1:'IFC 4.1', IFC4x3:'IFC 4.3'};
+
+const SPATIAL_TREES = {
+  IFC2x3:{
+    desc:"Structure spatiale bâtiment IFC 2x3. Hiérarchie stricte : tout élément physique doit être rattaché à un IfcBuildingStorey. La chaîne est : Projet → Terrain → Bâtiment → Niveau → Espace.",
+    roots:[{key:'project', children:[{key:'site', children:[{key:'building', children:[{key:'storey', note:'répétable (RDC, N+1, N+2…)', children:[{key:'space', children:[]}]}]}]}]}]
+  },
+  IFC4:{
+    desc:"IFC 4 conserve la même hiérarchie bâtiment qu'IFC 2x3 mais lève certaines contraintes : un élément peut désormais être rattaché directement au bâtiment ou au terrain sans passer par un niveau.",
+    roots:[{key:'project', children:[{key:'site', children:[{key:'building', children:[{key:'storey', note:'répétable', children:[{key:'space', children:[]}]}]}]}]}]
+  },
+  IFC4x1:{
+    desc:"IFC 4.1 ajoute la notion d'alignement linéaire pour l'infrastructure : IfcAlignment permet de positionner des éléments le long d'un axe géométrique (route, rail, pipeline). Coexiste avec la hiérarchie bâtiment classique.",
+    roots:[{key:'project', children:[
+      {key:'site', children:[
+        {key:'building', children:[{key:'storey', children:[{key:'space',children:[]}]}]},
+        {key:'alignment', newVer:'IFC4x1', note:'axe géométrique de l\'infrastructure', children:[
+          {key:'linearPositioningElement', newVer:'IFC4x1', children:[
+            {key:'referent', newVer:'IFC4x1', note:'point de référence sur l\'alignement', children:[]}
+          ]}
+        ]}
+      ]}
+    ]}]
+  },
+  IFC4x3:{
+    desc:"IFC 4.3 introduit IfcFacility comme conteneur spatial générique pour l'infrastructure civile. Sous IfcSite, on peut désormais avoir un bâtiment classique ET des ouvrages spécialisés (route, pont, voie ferrée, tunnel, port).",
+    roots:[{key:'project', children:[
+      {key:'site', children:[
+        {key:'building', children:[{key:'storey', children:[{key:'space',children:[]}]}]},
+        {key:'facility', newVer:'IFC4x3', note:'ouvrage générique', children:[
+          {key:'facilityPart', newVer:'IFC4x3', children:[
+            {key:'facilityPartCommon', newVer:'IFC4x3', children:[]}
+          ]}
+        ]},
+        {key:'road', newVer:'IFC4x3', children:[{key:'roadPart', newVer:'IFC4x3', children:[]}]},
+        {key:'bridge', newVer:'IFC4x3', children:[{key:'bridgePart', newVer:'IFC4x3', children:[]}]},
+        {key:'railway', newVer:'IFC4x3', children:[{key:'railwayPart', newVer:'IFC4x3', children:[]}]},
+        {key:'tunnel', newVer:'IFC4x3', children:[{key:'tunnelPart', newVer:'IFC4x3', children:[]}]},
+        {key:'marina', newVer:'IFC4x3', children:[]}
+      ]}
+    ]}]
+  }
+};
+
+let arboVer = 'IFC2x3';
+
+function setArboVer(ver){
+  arboVer = ver;
+  document.querySelectorAll('#pane-arbo .ver-filter-btn').forEach(b=>b.classList.remove('active-ver'));
+  const btn = document.getElementById('avf-'+ver);
+  if(btn) btn.classList.add('active-ver');
+  renderArboTree();
+}
+
+function renderArboNode(node, depth, isLast){
+  const en = E[node.key];
+  if(!en) return '';
+  const indent = depth * 1.4;
+  const prefix = depth === 0 ? '' : (isLast ? '└─ ' : '├─ ');
+  const newBadge = node.newVer
+    ? `<span style="font-size:.56rem;background:var(--sp,#1D5FA5);color:#fff;padding:.05rem .28rem;border-radius:3px;margin-left:.3rem;font-weight:600">${VER_LABELS[node.newVer]||node.newVer}</span>`
+    : '';
+  const noteHtml = node.note
+    ? `<span style="font-size:.62rem;color:var(--muted);margin-left:.4rem;font-style:italic">${node.note}</span>`
+    : '';
+  const childrenHtml = (node.children||[]).map((c,i)=>renderArboNode(c, depth+1, i===node.children.length-1)).join('');
+  return `<div style="padding:.18rem 0;margin-left:${indent}rem">
+    <div class="arbo-node" onclick="showDetail('${node.key}')" title="${en.desc||en.fr}">
+      <span class="arbo-prefix">${prefix}</span><span class="arbo-fr">${en.fr}</span><span class="arbo-ifc">${en.ifc}</span>${newBadge}${noteHtml}
+    </div>
+    ${childrenHtml}
+  </div>`;
+}
+
+function renderArboTree(){
+  const config = SPATIAL_TREES[arboVer];
+  if(!config) return;
+  document.getElementById('arbo-desc').textContent = config.desc;
+  document.getElementById('arbo-tree').innerHTML = config.roots.map((r,i)=>renderArboNode(r,0,i===config.roots.length-1)).join('');
+}
+
 renderStoreys();
+renderArboTree();
 renderCatalogue();
 renderHierTree();
 
@@ -13335,7 +13405,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-05</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-06</div>
     </div>
 
     <!-- Stats globales -->
