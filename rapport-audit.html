@@ -132,9 +132,9 @@ tr:hover td{background:var(--bg)}
 <div class="page-header">
   <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
     <h1>Rapport d'audit — <em>IFC2x3 Explorateur pédagogique</em></h1>
-    <span style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.5);white-space:nowrap">Mis à jour le <strong style="color:rgba(255,255,255,.8)">14/06/2026</strong> · v14/06/26-01</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.5);white-space:nowrap">Mis à jour le <strong style="color:rgba(255,255,255,.8)">14/06/2026</strong> · v14/06/26-08</span>
   </div>
-  <p>Généré le 10/06/2026 · Mis à jour 14/06/2026 · Session Claude Code · nvalettepro-sudo/ifc-spatial-explorer · 528 entités · app v13/06/26-18</p>
+  <p>Généré le 10/06/2026 · Mis à jour 14/06/2026 · Session Claude Code · nvalettepro-sudo/ifc-spatial-explorer · 382 entités (IFC2x3 + IFC4/4.1/4.3) · app v14/06/26-08</p>
 </div>
 
 <nav>
@@ -820,21 +820,53 @@ tr:hover td{background:var(--bg)}
     </h2>
 
     <div class="stats">
-      <div class="stat info"><div class="stat-num">528</div><div class="stat-label">Entités dans l'app</div></div>
-      <div class="stat ok"><div class="stat-num">81%</div><div class="stat-label">Couverture IFC2x3</div></div>
-      <div class="stat ok"><div class="stat-num">523</div><div class="stat-label">Entités avec attrs complets</div></div>
-      <div class="stat ok"><div class="stat-num">170</div><div class="stat-label">Entités avec Psets</div></div>
+      <div class="stat info"><div class="stat-num">382</div><div class="stat-label">Entités dans l'app</div></div>
+      <div class="stat info"><div class="stat-num">255</div><div class="stat-label">IFC 2x3</div></div>
+      <div class="stat info"><div class="stat-num">127</div><div class="stat-label">IFC 4 / 4.1 / 4.3</div></div>
+      <div class="stat ok"><div class="stat-num">100%</div><div class="stat-label">Conformité héritage</div></div>
+    </div>
+
+    <!-- ── Session 14/06/2026 matin — UX & navigation ── -->
+    <div class="card ok" style="margin-bottom:.75rem">
+      <div class="card-title">Session 14/06/2026 (matin) — UX &amp; navigation multi-version · v14/06/26-01 → v14/06/26-08</div>
+      <div class="card-body">
+        <strong>Onglet "Entités IFC" (ex "Données") :</strong><br>
+        ✔ Renommage "Données" → "Entités IFC" — nom plus exact<br>
+        ✔ Suppression des 7 boutons de navigation thématique (Relations, Propriétés, Acteurs…)<br>
+        ✔ Remplacement par 6 boutons de filtre de version : Toutes / IFC 2x3 / IFC 4.x / IFC 4 / IFC 4.1 / IFC 4.3<br>
+        ✔ Bouton "IFC 4.x" filtre simultanément IFC4 + IFC4.1 + IFC4.3 (127 entités)<br>
+        ✔ Suppression de la section "Légende des couleurs" (redondante)<br>
+        ✔ Harmonisation des groupes catalogue : chaque groupe ne contient plus que des entités d'une seule version IFC<br>
+        &nbsp;&nbsp;&nbsp;Nouveau groupe "Capteurs &amp; Actionneurs — IFC4" (sensor, alarm, actuator, controller, valve, damper)<br>
+        <br>
+        <strong>Onglet "Arborescence" — refonte complète :</strong><br>
+        ✔ Remplacement du simulateur de niveaux par un arbre pédagogique de la structure spatiale IFC par version<br>
+        ✔ 4 versions sélectionnables : IFC 2x3 · IFC 4 · IFC 4.1 · IFC 4.3<br>
+        ✔ Esthétique calquée sur l'onglet Hiérarchie (pastilles, connecteurs CSS, police monospace)<br>
+        ✔ Entités nouvelles dans une version badgées (ex : "IFC 4.3" sur IfcFacility, IfcRoad…)<br>
+        ✔ Clic sur chaque nœud → fiche détaillée<br>
+        ✔ Ancien code renderStoreys() conservé intact — retour arrière possible<br>
+        <br>
+        <strong>Corrections techniques :</strong><br>
+        ✔ Fix scroll iOS : <code>height:100vh</code> → <code>100dvh</code> (dynamic viewport height — Safari mobile)<br>
+        ✔ Fix bug critique : renderStoreys() cherchait <code>#storeys-row</code> absent → bloquait renderCatalogue() et renderHierTree() → tous les onglets vides<br>
+        ✔ Mise à jour titre app : "IFC · Explorateur multi-version" (remplace "IFC2x3 · Structure spatiale imbriquée")<br>
+        ✔ Stats info mises à jour : 382 entités réparties par version (255 IFC2x3 + 127 IFC4+)
+      </div>
     </div>
 
     <div class="card ok" style="margin-bottom:.75rem">
       <div class="card-title">Ce qui fonctionne parfaitement</div>
       <div class="card-body">
         ✔ Toutes les fiches IFC2x3, IFC4, IFC4.1, IFC4.3 affichent leurs attributs propres et hérités<br>
-        ✔ Héritage validé via ifcopenshell pour les 127 entités IFC4+ et les 401 entités IFC2x3<br>
-        ✔ Psets standards présents pour 170 entités (les entités sans Pset spécifique ne montrent simplement pas la section)<br>
-        ✔ Badges de version (IFC2x3 / IFC4 / IFC4.1 / IFC4.3) dans chaque fiche<br>
-        ✔ Recherche desktop + mobile (iPhone) fonctionnelle<br>
-        ✔ Onglet Hiérarchie IFC, arborescence spatiale, catalogue complet<br>
+        ✔ Héritage validé via ifcopenshell pour les 127 entités IFC4+ et les 255 entités IFC2x3<br>
+        ✔ Psets standards présents pour 170 entités<br>
+        ✔ Badges de version dans chaque fiche et dans les groupes du catalogue<br>
+        ✔ Filtres de version opérationnels sur les 382 entités<br>
+        ✔ Arborescence spatiale multi-version (IFC 2x3 → IFC 4.3)<br>
+        ✔ Hiérarchie IFC complète avec filtre texte<br>
+        ✔ Recherche desktop + mobile fonctionnelle<br>
+        ✔ Scroll iOS corrigé (100dvh)<br>
         ✔ Dark mode / light mode persistant
       </div>
     </div>
@@ -842,32 +874,29 @@ tr:hover td{background:var(--bg)}
     <div class="card warning" style="margin-bottom:.75rem">
       <div class="card-title">Limitations connues et acceptées</div>
       <div class="card-body">
-        ⚠ 3 entités sans schéma connu : <code>IfcGasTerminal</code>, <code>IfcTunnel</code>, <code>IfcTunnelPart</code> — introuvables dans les 4 schémas disponibles<br>
-        ⚠ 5 entités sans <code>ATTRS_BY_ENTITY</code> : le fallback <code>en.attrs[]</code> les couvre approximativement<br>
-        ⚠ Psets IFC4+ : présents mais basés sur les templates ifcopenshell (pas les YAMLs officiels buildingSMART pour IFC4.3)<br>
-        ⚠ ~125 entités IFC2x3 non couvertes (géométrie fine, styles visuels, mesures scalaires — faible valeur pédagogique)<br>
-        ⚠ ~123 énumérations IFC manquantes (MEP principalement)
+        ⚠ Couverture IFC2x3 : 528/653 (81%) — ~125 entités de géométrie fine et styles visuels non couvertes (faible valeur pédagogique)<br>
+        ⚠ 3 entités sans schéma connu : <code>IfcGasTerminal</code>, <code>IfcTunnel</code>, <code>IfcTunnelPart</code><br>
+        ⚠ 5 entités sans <code>ATTRS_BY_ENTITY</code> : fallback <code>en.attrs[]</code> les couvre approximativement<br>
+        ⚠ Psets IFC4+ basés sur templates ifcopenshell (pas les YAMLs buildingSMART pour IFC4.3)<br>
+        ⚠ ~123 énumérations IFC manquantes (MEP principalement)<br>
+        ⚠ Arborescence IFC 4 : IfcSpatialZone absent des données (non couverte)
       </div>
     </div>
 
     <div class="card info">
       <div class="card-title">Orientations possibles pour la suite — à toi de choisir</div>
       <div class="card-body">
-        <strong>Option A — UX en priorité :</strong> filtres par catégorie dans le catalogue + bouton ← historique + URL partageable. Améliore immédiatement la navigation sans modifier les données. Effort faible, impact fort.
-        <br><br>
-        <strong>Option B — Contenu pédagogique :</strong> liens buildingSMART officiels dans chaque fiche (un clic = documentation officielle), puis correspondances Revit / Archicad. Rend les fiches plus utiles comme référence.
-        <br><br>
-        <strong>Option C — Couverture IFC2x3 :</strong> compléter les ~123 énumérations MEP manquantes + les quelques entités IFC2x3 utiles restantes. Améliore l'exhaustivité mais peu visible pour l'utilisateur final.
-        <br><br>
-        <strong>Option D — Export &amp; partage :</strong> export PDF d'une fiche + URL partageable. Utile pour documentation de projet et présentation client.
-        <br><br>
-        <strong>Option E — Pause contenu, focus technique :</strong> bug regex filterHierTree, service worker offline, chargement différé. Améliore la robustesse sans ajouter de contenu.
+        <strong>Option A — Contenu pédagogique :</strong> liens buildingSMART officiels dans chaque fiche (un clic = documentation officielle), correspondances Revit / Archicad. Rend les fiches plus utiles comme référence terrain.<br><br>
+        <strong>Option B — Couverture IFC2x3 :</strong> compléter les ~123 énumérations MEP manquantes + entités IFC2x3 utiles restantes. Améliore l'exhaustivité mais peu visible pour l'utilisateur final.<br><br>
+        <strong>Option C — Export &amp; partage :</strong> export PDF d'une fiche + URL partageable vers une fiche précise. Utile pour documentation de projet et présentation client.<br><br>
+        <strong>Option D — Arborescence IFC 4 approfondie :</strong> ajouter IfcSpatialZone + représenter les nouveaux modes d'attachement IFC4 (éléments directement sous IfcBuilding sans passer par un niveau).<br><br>
+        <strong>Option E — Technique :</strong> service worker offline, chargement différé des sections, filtre texte dans l'arborescence spatiale.
       </div>
     </div>
   </section>
 
   <p style="font-size:.62rem;color:var(--muted);text-align:center;margin-top:2rem;font-family:'DM Mono',monospace">
-    IFC2x3 Explorateur pédagogique · Nico Valette · Audit 10/06/2026 · Mis à jour 14/06/2026 · v14/06/26-01 · buildingSMART International 2005
+    IFC Explorateur pédagogique multi-version · Nico Valette · Audit 10/06/2026 · Mis à jour 14/06/2026 · v14/06/26-08 · buildingSMART International 2005
   </p>
 
 </div>
