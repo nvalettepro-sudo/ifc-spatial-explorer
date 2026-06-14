@@ -5341,60 +5341,60 @@ function renderCatalogue(){
   /* Groupes ordonnés — mêmes noms/couleurs que RDC + nouvelles sections */
   const groups = [
     /* ── Même structure que les niveaux ── */
-    {label:'Structure', color:'arch',
+    {label:'Structure — IFC 2x3', color:'arch',
      keys:['blde','wall','wallstd','slab','column','beam','roof','curtainwall','member','plate','bldecomp','bldepart','bldproxy']},
 
-    {label:'Ouvertures', color:'ouv',
+    {label:'Ouvertures — IFC 2x3', color:'ouv',
      keys:['door','window','opening']},
 
-    {label:'Circulations & Accès', color:'circ',
+    {label:'Circulations & Accès — IFC 2x3', color:'circ',
      keys:['stair','stairmflight','railing','ramp','rampflight']},
 
-    {label:'Finitions & Revêtements', color:'fin',
+    {label:'Finitions & Revêtements — IFC 2x3', color:'fin',
      keys:['covering']},
 
-    {label:'Espaces', color:'sp',
+    {label:'Espaces — IFC 2x3', color:'sp',
      keys:['project','site','building','storey','space','grid','gridaxis']},
 
-    {label:'Plomberie & Sanitaires', color:'plo',
+    {label:'Plomberie & Sanitaires — IFC 2x3', color:'plo',
      keys:['pipe','pipefitting','wasteterm','sanitary','stackterm','gasterminal']},
 
-    {label:'Ventilation & CVC', color:'vent',
+    {label:'Ventilation & CVC — IFC 2x3', color:'vent',
      keys:['duct','ductfitting','airterminal','airbox','ductsilencer',
            'distchamber','distflow','flowseg','flowfitting','flowterminal','flowcontroller']},
 
-    {label:'Détection & Sécurité', color:'sec',
+    {label:'Détection & Sécurité — IFC 2x3', color:'sec',
      keys:['firesupp','flowinstrument','flowmeter','protectivedevice']},
 
-    {label:'Électricité', color:'elec',
+    {label:'Électricité — IFC 2x3', color:'elec',
      keys:['cable','cablecarrier','cablecarrierfitting','junctionbox',
            'lightfixture','switchdev','etimecontrol',
            'distpoint','battery','eleccircuit','appliance','eheater']},
 
-    {label:'Mobilier & Équipements', color:'furn',
+    {label:'Mobilier & Équipements — IFC 2x3', color:'furn',
      keys:['furniture']},
 
-    {label:'Éléments génériques', color:'gen',
+    {label:'Éléments génériques — IFC 2x3', color:'gen',
      keys:['bldproxy']},
 
     /* ── Sections spécifiques au catalogue ── */
-    {label:'Structure & Fondations', color:'struct',
+    {label:'Structure & Fondations — IFC 2x3', color:'struct',
      keys:['footing','pile','reinfelem','reinfbar','reinfmesh','tendon','tendonanchor']},
 
-    {label:'Analyse structurelle (FEM)', color:'struct',
+    {label:'Analyse structurelle (FEM) — IFC 2x3', color:'struct',
      keys:['structanalysis','structitem','structcurvemember','structsurfmember',
            'structpointconn','structloadgroup']},
 
-    {label:'Profils de section', color:'struct',
+    {label:'Profils de section — IFC 2x3', color:'struct',
      keys:['profiledef','rectprofile','circprofile','circhollow','recthollow',
            'ishapeprofile','lshapeprofile','ushapeprofile','tshapeprofile',
            'arbclosedprofile','compositeprofile']},
 
-    {label:'Production & Fluides', color:'mep',
+    {label:'Production & Fluides — IFC 2x3', color:'mep',
      keys:['spaceheater','heatexchanger','airtoheat',
            'coolingtower','energydev','flowstorage','flowmoving','flowtreatment','distelement']},
 
-    {label:'Données & Propriétés', color:'prop',
+    {label:'Données & Propriétés — IFC 2x3', color:'prop',
      keys:['propdef','propsetdef','propset','propval','propbounded',
            'propenumval','proplistval','elemqty','doorliningprops',
            'winliningprops','elecbaseprops','reinfsectiondef',
@@ -5403,24 +5403,24 @@ function renderCatalogue(){
            'classif','classifitem',
            'unitassign','siunit','convunit','derivedunit']},
 
-    {label:'Acteurs & Documents', color:'actor',
+    {label:'Acteurs & Documents — IFC 2x3', color:'actor',
      keys:['person','org','personorg','actorrole','address','postaladdr',
            'telecomaddr','ownerhistory','application',
            'doc','docref','libinfo','libref','approval',
            'costitem','costsched','costval']},
 
-    {label:'Planning & Ressources', color:'plan',
+    {label:'Planning & Ressources — IFC 2x3', color:'plan',
      keys:['workcontrol','workplan','worksched','task','procedure',
            'relsequence','moveaction',
            'constructres','laborres','subcontractres','matres','equipres','crewres',
            'group','asset','inventory']},
 
-    {label:'Géométrie & Placement', color:'geo',
+    {label:'Géométrie & Placement — IFC 2x3', color:'geo',
      keys:['repcontext','georepcontext','shaperep','prodshape','solidmodel',
            'extruded','boolresult','boolclip',
            'objplacement','localplacement','axis2p3d','axis2p2d','cartpt','direction']},
 
-    {label:'Relations IFC', color:'prop',
+    {label:'Relations IFC — IFC 2x3', color:'prop',
      keys:['rel','relship','reldecomp','relagg','relnests',
            'relcontained','relreferenced','relservices',
            'reldefprop','reldeftype','relovrides',
@@ -5435,32 +5435,32 @@ function renderCatalogue(){
            'relconnstract','relconnstrmem','relconnstrelem','relconnwithreal']},
 
     /* ── Bloc 8 : Types IFC (bibliothèques) ── */
-    {label:'Types architecturaux', color:'arch',
+    {label:'Types architecturaux — IFC 2x3', color:'arch',
      keys:['walltype','slabtype','doorstyle','windowstyle','coveringtype',
            'rooftype','railingtype','stairflighttype','rampflighttype',
            'curtainwalltype','buildingElementType']},
 
-    {label:'Types structurels', color:'struct',
+    {label:'Types structurels — IFC 2x3', color:'struct',
      keys:['columntype','beamtype','membertype','platetype',
            'footingtype','piletype']},
 
-    {label:'Types MEP Fluides', color:'mep',
+    {label:'Types MEP Fluides — IFC 2x3', color:'mep',
      keys:['pipeSegmentType','pipeFittingType','ductSegmentType','ductFittingType',
            'flowControllerType','flowMovingDeviceType','flowStorageDeviceType',
            'flowTerminalType','flowTreatmentDeviceType','energyConversionDeviceType',
            'sanitaryTerminalType','wasteTerminalType','stackTerminalType','gasTerminalType',
            'distribElemType']},
 
-    {label:'Types électricité & contrôle', color:'elec',
+    {label:'Types électricité & contrôle — IFC 2x3', color:'elec',
      keys:['electricDistributionPointType','cableCarrierSegmentType','cableCarrierFittingType',
            'cableSegmentType','electricApplianceType','lightFixtureType','electricHeaterType',
            'protectiveDeviceType','switchingDeviceType','electricTimeControlType',
            'transformerType','sensorType','actuatorType','controllerType','alarmType']},
 
-    {label:'Types mobilier', color:'furn',
+    {label:'Types mobilier — IFC 2x3', color:'furn',
      keys:['furnitureType','systemFurnitureElementType']},
 
-    {label:'Classes abstraites de types', color:'prop',
+    {label:'Classes abstraites de types — IFC 2x3', color:'prop',
      keys:['typeProd','typeObject']},
 
     /* ── IFC4 — Instances MEP concrètes ── */
