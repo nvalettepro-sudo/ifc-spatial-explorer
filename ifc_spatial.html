@@ -13081,7 +13081,9 @@ function renderPsets(id){
       const fra = FR_PSET_DICT[p.n];
       const nomFr = fra ? fra.fr : p.n;
       const defFr = fra ? fra.def : p.d;
-      const t = p.t ? '<span class="pset-prop-type" style="font-family:monospace;font-size:.49rem;margin-left:.3rem">'+p.t+'</span>' : '';
+      const unit = p.t ? _typeUnit(p.t) : null;
+      const unitHtml = unit ? `<span style="color:#E8A850;margin-left:.25rem">${unit}</span>` : '';
+      const t = p.t ? `<span class="pset-prop-type" style="font-family:monospace;font-size:.49rem;margin-left:.3rem">${p.t}${unitHtml}</span>` : '';
       return '<div class="pset-prop-row" style="padding:.3rem 0;border-bottom:1px solid var(--border)">'
         + '<div class="pset-prop-name" style="font-size:.67rem;font-weight:600;color:var(--text);margin-bottom:.12rem">'
         + nomFr
