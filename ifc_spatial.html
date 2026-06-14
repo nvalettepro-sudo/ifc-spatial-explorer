@@ -7773,7 +7773,9 @@ const CAT_COLORS = CAT_COLORS_LIGHT; // fallback pour usage statique
 function highlight(text, q){
   if(!q || !text) return text || '';
   const esc = q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-  return text.replace(new RegExp(`(${esc})`, 'gi'), '<mark>$1</mark>');
+  try {
+    return text.replace(new RegExp(`(${esc})`, 'gi'), '<mark>$1</mark>');
+  } catch(e) { return text; }
 }
 
 function scoreMatch(text, q){
