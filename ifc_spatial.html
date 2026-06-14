@@ -937,7 +937,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-01</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-02</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -5461,6 +5461,27 @@ function renderCatalogue(){
 
     {label:'Classes abstraites de types', color:'prop',
      keys:['typeProd','typeObject']},
+
+    /* ── IFC4.1 — Alignement & infrastructure linéaire ── */
+    {label:'Alignement IFC4.1', color:'geo',
+     keys:['alignment','linearPositioningElement','positioningElement',
+           'alignmentHorizontal','alignmentVertical','alignmentCant','alignmentSegment',
+           'referent','linearPlacement','distanceExpression','sectionedSolid','sectionedSolidHorizontal']},
+
+    /* ── IFC4.3 — Infrastructure civile ── */
+    {label:'Ouvrages & Installations IFC4.3', color:'sp',
+     keys:['facility','facilityPart','facilityPartCommon',
+           'road','roadPart','railway','railwayPart',
+           'bridge','bridgePart','marina','tunnel','tunnelPart']},
+
+    {label:'Éléments construits IFC4.3', color:'arch',
+     keys:['builtElement','course','courseType','pavement','kerb','kerbType',
+           'earthworksElement','earthworksCut','earthworksFill',
+           'sign','signType','trackElement','trackElementType']},
+
+    {label:'Systèmes & Relations IFC4.3', color:'prop',
+     keys:['builtSystem','relPositions',
+           'geotechnicalElement','geotechnicalStratum']},
   ];
 
   const el = document.getElementById('catalogue');
@@ -13274,7 +13295,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-01</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-02</div>
     </div>
 
     <!-- Stats globales -->
