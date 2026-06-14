@@ -1023,7 +1023,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
     <!-- Onglet Entités IFC -->
     <div class="aside-pane active" id="pane-data">
 
-      <input class="hier-search" id="data-search" type="text" placeholder="Filtrer les entités…" oninput="filterCatalogue(this.value)" autocomplete="off" spellcheck="false">
+      <input class="hier-search" id="data-search" type="text" placeholder="Filtrer les entités…" oninput="if(this.value.trim()&amp;&amp;catFilter!=='all'){setCatFilter('all')}filterCatalogue(this.value)" autocomplete="off" spellcheck="false">
 
       <!-- ── Filtres version ── -->
       <div id="ver-filters" style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.75rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)">
