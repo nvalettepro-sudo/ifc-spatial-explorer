@@ -933,7 +933,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-17</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-18</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -4195,7 +4195,7 @@ const E = {
 
   spaceHeater:{fr:"Émetteur de chauffage",ifc:"IfcSpaceHeater",cat:"mep",ver:'IFC4',
     desc:"Terminal de chauffage diffusant la chaleur dans un espace par convection, rayonnement ou les deux. Radiateur eau chaude, plancher chauffant, convecteur électrique, panneau radiant. Instance IFC4 (IfcSpaceHeaterType existait en IFC2x3).",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcEnergyConversionDevice","IfcSpaceHeater"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcDistributionElement','IfcDistributionFlowElement','IfcFlowTerminal','IfcSpaceHeater'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Radiateur acier panneau type 22 H=600mm L=1200mm — 1200 W","Plancher chauffant basse température 35°C — confort par rayonnement","Convecteur électrique 1500 W — chauffage d'appoint salle de bain"]},
 
@@ -4304,7 +4304,7 @@ const E = {
 
   flowMeter:{fr:"Compteur de débit",ifc:"IfcFlowMeter",cat:"mep",ver:'IFC4',
     desc:"Équipement de mesure et comptage du débit volumique ou massique dans un réseau. Compteur d'énergie thermique, compteur d'eau, compteur de gaz, débitmètre. Permet la facturation et le suivi des consommations. Instance IFC4.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionControlElement","IfcFlowMeter"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcDistributionElement','IfcDistributionFlowElement','IfcFlowController','IfcFlowMeter'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Compteur énergie thermique DN25 — sous-comptage logement collectif","Compteur eau froide DN20 — individualisation charges eau","Compteur gaz G4 — raccordement logement RT2020"]},
 
@@ -4341,13 +4341,13 @@ const E = {
 
   protectiveDeviceTrippingUnit:{fr:"Déclencheur de protection",ifc:"IfcProtectiveDeviceTrippingUnit",cat:"elec",ver:'IFC4',
     desc:"Organe de déclenchement intégré ou associé à un disjoncteur ou à un relai de protection. Déclencheur thermique-magnétique, électronique, différentiel. Paramètre les seuils de déclenchement en courant et en temps.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowController","IfcProtectiveDeviceTrippingUnit"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcDistributionElement','IfcDistributionControlElement','IfcProtectiveDeviceTrippingUnit'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Déclencheur électronique Ir=0,4-1×In — disjoncteur 630A motorisé","Déclencheur différentiel 30mA type AC — RCCB logement","Relai de protection différentielle toroïde — départ moteur 75 kW"]},
 
   protectiveDeviceTrippingUnitType:{fr:"Type de déclencheur de protection",ifc:"IfcProtectiveDeviceTrippingUnitType",cat:"elec",ver:'IFC4',
     desc:"Famille paramétrique de déclencheurs de protection partageant le même principe de fonctionnement (thermique-magnétique, différentiel, électronique) et les mêmes plages de réglage.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcDistributionElementType","IfcDistributionFlowElementType","IfcFlowControllerType","IfcProtectiveDeviceTrippingUnitType"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcDistributionElementType','IfcDistributionControlElementType','IfcProtectiveDeviceTrippingUnitType'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type déclencheur TM 10-40A courbe C — disjoncteurs modulaires","Type module différentiel 300mA type A — disjoncteurs moteurs","Type déclencheur électronique LSI 250-630A — disjoncteurs compacts"]},
 
@@ -4462,7 +4462,7 @@ const E = {
 
   humidifier:{fr:"Humidificateur",ifc:"IfcHumidifier",cat:"mep",ver:'IFC4',
     desc:"Équipement ajoutant de la vapeur d'eau à l'air soufflé pour maintenir l'hygrométrie. À vapeur d'eau (électrode, résistance), à eau froide (ultrasonique, centrifuge, atomiseur), à injection directe. Intégré dans une CTA ou autonome. Instance IFC4.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcDistributionElement","IfcDistributionFlowElement","IfcFlowTreatmentDevice","IfcHumidifier"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcDistributionElement','IfcDistributionFlowElement','IfcEnergyConversionDevice','IfcHumidifier'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Humidificateur vapeur 50 kg/h — CTA salle blanche 40-60% HR","Humidificateur ultrasonique 10 kg/h — salle serveur 45% HR","Humidificateur adiabatique 30 kg/h — entrepôt pharmaceutique"]},
 
@@ -4602,7 +4602,7 @@ const E = {
 
   shadingDeviceType:{fr:"Type de dispositif d'ombrage",ifc:"IfcShadingDeviceType",cat:"arch",ver:'IFC4',
     desc:"Famille paramétrique de dispositifs d'ombrage (stores, brise-soleil, lames) partageant les mêmes caractéristiques géométriques et de performance solaire.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcBuildingElementType","IfcShadingDeviceType"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcBuildingElementType','IfcShadingDeviceType'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type store extérieur 80mm Somfy — façades sud et ouest","Type brise-soleil lame aluminium 150mm — catalogue façade","Type casquette béton 60cm — bandeau horizontal niveaux R+1 à R+5"]},
 
@@ -4620,38 +4620,38 @@ const E = {
 
   vibrationIsolatorType:{fr:"Type d'antivibrateur",ifc:"IfcVibrationIsolatorType",cat:"mep",ver:'IFC4',
     desc:"Famille paramétrique d'antivibrations (silent-blocs, ressorts, platines) partageant les mêmes caractéristiques de raideur, d'atténuation et de charge admissible.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcVibrationIsolatorType"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcElementComponentType','IfcVibrationIsolatorType'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type silent-bloc 60 Shore charge 50-200 kg — pompes et ventilateurs","Type platine ressorts 4 points f0=3Hz — CTAs lourdes","Type suspension caoutchouc-métal M12 — petit matériel CVC"]},
 
   /* ── IFC4.1 — Alignement & positionnement linéaire ── */
   alignment:{fr:"Alignement",ifc:"IfcAlignment",cat:"geo",ver:'IFC4x1',
     desc:"Axe géométrique d'une infrastructure linéaire (route, voie ferrée, pipeline) défini par des segments horizontaux et verticaux. Entité centrale de l'IFC4.1 pour les projets d'infrastructure.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement","IfcAlignment"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcPositioningElement','IfcLinearPositioningElement','IfcAlignment'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Axis"],
     ex:["Axe de la RD12 sur 3,2 km — tracé en plan + profil en long","Alignement voie principale LGV — courbes de rayon 6 000 m","Axe pipeline DN500 — 18 km avec 3 coudes"]},
 
   linearPositioningElement:{fr:"Élément de positionnement linéaire",ifc:"IfcLinearPositioningElement",cat:"geo",ver:'IFC4x1',
     desc:"Classe abstraite représentant tout élément servant de référence de positionnement linéaire (alignement, axe). Base de IfcAlignment dans la hiérarchie IFC4.1.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcPositioningElement','IfcLinearPositioningElement'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
     ex:["Classe mère de IfcAlignment","Utilisée pour tout axe servant de référence de positionnement","Permet d'ancrer des objets à une station (chaînage) le long d'un axe"]},
 
-  alignmentHorizontal:{fr:"Alignement horizontal",ifc:"IfcAlignmentHorizontal",cat:"geo",ver:'IFC4x1',
+  alignmentHorizontal:{fr:"Alignement horizontal",ifc:"IfcAlignmentHorizontal",cat:"geo",ver:'IFC4x3',
     desc:"Tracé en plan d'un alignement : succession de segments droits, arcs de cercle et clothoïdes définissant la trajectoire horizontale d'une infrastructure.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement","IfcAlignmentHorizontal"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcLinearElement','IfcAlignmentHorizontal'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
     ex:["Plan d'alignement autoroute : droite 800 m + clothoïde 200 m + arc R=1200 m","Tracé en plan d'une piste d'aéroport","Alignement horizontal d'un raccordement ferroviaire en gare"]},
 
-  alignmentVertical:{fr:"Alignement vertical",ifc:"IfcAlignmentVertical",cat:"geo",ver:'IFC4x1',
+  alignmentVertical:{fr:"Alignement vertical",ifc:"IfcAlignmentVertical",cat:"geo",ver:'IFC4x3',
     desc:"Profil en long d'un alignement : succession de pentes constantes et de raccordements paraboliques définissant l'altitude de l'axe tout au long du tracé.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement","IfcAlignmentVertical"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcLinearElement','IfcAlignmentVertical'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
     ex:["Profil en long RD12 : montée 4% sur 600 m + raccordement parabolique + descente 2%","Profil vertical d'un tunnel — minimise les dénivellations","Profil en long voie ferrée LGV : pente max 2,5%"]},
 
-  alignmentCant:{fr:"Dévers d'alignement",ifc:"IfcAlignmentCant",cat:"geo",ver:'IFC4x1',
+  alignmentCant:{fr:"Dévers d'alignement",ifc:"IfcAlignmentCant",cat:"geo",ver:'IFC4x3',
     desc:"Définit l'inclinaison transversale (dévers) de la chaussée ou de la voie en courbe pour compenser la force centrifuge. Composante du profil en travers le long de l'alignement.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcLinearPositioningElement","IfcAlignmentCant"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcLinearElement','IfcAlignmentCant'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","RailHeadDistance"],
     ex:["Dévers ferroviaire LGV : 150 mm entre rails en courbe R=3000 m","Dévers routier 7% en courbe avec transition progressive","Dévers nul en alignement droit — retour à la pente transversale de base"]},
 
@@ -4667,21 +4667,21 @@ const E = {
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation"],
     ex:["Classe mère abstraite de IfcGrid et IfcLinearPositioningElement","Regroupe tous les éléments de référence géométrique","Permet la requête générique de tous les axes et grilles d'un projet"]},
 
-  alignmentSegment:{fr:"Segment d'alignement",ifc:"IfcAlignmentSegment",cat:"geo",ver:'IFC4x1',
+  alignmentSegment:{fr:"Segment d'alignement",ifc:"IfcAlignmentSegment",cat:"geo",ver:'IFC4x3',
     desc:"Tronçon élémentaire d'un alignement (horizontal, vertical ou en dévers) : droite, arc de cercle, clothoïde, parabole… Chaque segment a un début, une longueur et une géométrie définie.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcAlignmentSegment"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcLinearElement','IfcAlignmentSegment'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","DesignParameters"],
     ex:["Segment clothoïde A=500 — transition courbe-droite LGV","Arc R=800 m, L=240 m — courbe principale tracé routier","Segment parabolique Kv=25000 m — raccordement de profil autoroute"]},
 
   sectionedSolid:{fr:"Solide à sections droites",ifc:"IfcSectionedSolid",cat:"geo",ver:'IFC4x1',
     desc:"Géométrie d'un élément de longueur obtenue par balayage de sections transversales le long d'une courbe directrice. Représentation standard des ouvrages linéaires (chaussées, voies, remblais).",
-    heritage:["IfcSectionedSolid"],
+    heritage:['IfcRepresentationItem','IfcGeometricRepresentationItem','IfcSolidModel','IfcSectionedSolid'],
     attrs:["Directrix","CrossSections","CrossSectionPositions"],
     ex:["Chaussée 2x2 voies : sections trapézoïdales balayées sur 3,2 km","Profil voie ferrée : 2 rails + traverses — solide sectionné sur 18 km","Remblai autoroutier : section triangulaire variable le long de l'axe"]},
 
   sectionedSolidHorizontal:{fr:"Solide sectionné horizontal",ifc:"IfcSectionedSolidHorizontal",cat:"geo",ver:'IFC4x1',
     desc:"Spécialisation de IfcSectionedSolid pour les ouvrages à directrice horizontale. Les sections sont interpolées entre positions définies le long de l'alignement.",
-    heritage:["IfcSectionedSolid","IfcSectionedSolidHorizontal"],
+    heritage:['IfcRepresentationItem','IfcGeometricRepresentationItem','IfcSolidModel','IfcSectionedSolid','IfcSectionedSolidHorizontal'],
     attrs:["Directrix","CrossSections","CrossSectionPositions","FixedAxisVertical"],
     ex:["Dalle de chaussée interpolée entre profils en travers kilométriques","Superstructure ferroviaire à sections variables en courbe","Plateforme d'aéroport : sections balayées selon axe de piste"]},
 
@@ -4693,42 +4693,42 @@ const E = {
 
   distanceExpression:{fr:"Expression de distance curviligne",ifc:"IfcDistanceExpression",cat:"geo",ver:'IFC4x1',
     desc:"Valeur numérique exprimant une position le long d'une courbe (chaînage/station). Composante de IfcLinearPlacement pour définir la station d'ancrage d'un objet sur l'alignement.",
-    heritage:["IfcDistanceExpression"],
+    heritage:['IfcRepresentationItem','IfcGeometricRepresentationItem','IfcDistanceExpression'],
     attrs:["DistanceAlong","OffsetLateral","OffsetVertical","OffsetLongitudinal","AlongHorizontal"],
     ex:["Station 12 350 m — chaînage absolu sur RD12","Station 0+800 avec décalage latéral 2,0 m (côté droite)","Position le long d'une bretelle : 450 m depuis bifurcation"]},
 
-  relPositions:{fr:"Relation de positionnement",ifc:"IfcRelPositions",cat:"geo",ver:'IFC4x1',
+  relPositions:{fr:"Relation de positionnement",ifc:"IfcRelPositions",cat:"geo",ver:'IFC4x3',
     desc:"Relation entre un IfcPositioningElement (alignement, grille) et les objets qui s'y réfèrent pour leur positionnement. Formalise la dépendance de placement des équipements sur un axe.",
-    heritage:["IfcRoot","IfcRelationship","IfcRelPositions"],
+    heritage:['IfcRoot','IfcRelationship','IfcRelConnects','IfcRelPositions'],
     attrs:["GlobalId","OwnerHistory","Name","Description","RelatingPositioningElement","RelatedProducts"],
     ex:["Alignement RD12 ← portiques, glissières, candélabres","Axe LGV ← caténaires, signaux, aiguillages positionnés en station","Axe pipeline ← vannes, coudes, supports positionnés par chaînage"]},
 
   /* ── IFC4.1 — Éléments d'infrastructure ── */
-  course:{fr:"Couche de structure",ifc:"IfcCourse",cat:"struct",ver:'IFC4x1',
+  course:{fr:"Couche de structure",ifc:"IfcCourse",cat:"struct",ver:'IFC4x3',
     desc:"Couche homogène constituant une structure de chaussée, de voie ou d'ouvrage d'art : couche de base, couche de fondation, couche de roulement. Élément de construction linéaire par couches.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuildingElement","IfcCourse"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcBuiltElement','IfcCourse'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Grave bitume 0/20 — couche de base autoroute, e=18 cm","Béton de propreté — couche de fondation semelle filante","Couche de forme PSV — chaussée ferroviaire"]},
 
-  courseType:{fr:"Type de couche de structure",ifc:"IfcCourseType",cat:"struct",ver:'IFC4x1',
+  courseType:{fr:"Type de couche de structure",ifc:"IfcCourseType",cat:"struct",ver:'IFC4x3',
     desc:"Type paramétrique de couche de structure partageant matériau, granulométrie et épaisseur nominale. Sert de gabarit pour les couches récurrentes d'un projet d'infrastructure.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuildingElementType","IfcCourseType"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcBuiltElementType','IfcCourseType'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type 'EME2 0/14 e=6cm' — couche de liaison autoroute","Type 'GNT 0/31,5 e=35cm' — couche de fondation standard","Type 'BBTM 0/6 e=2,5cm' — couche de roulement urbaine"]},
 
-  pavement:{fr:"Chaussée",ifc:"IfcPavement",cat:"struct",ver:'IFC4x1',
+  pavement:{fr:"Chaussée",ifc:"IfcPavement",cat:"struct",ver:'IFC4x3',
     desc:"Ouvrage de surface portant et guidant la circulation routière, composé de plusieurs couches superposées (fondation, base, liaison, roulement). Contient les IfcCourse qui le constituent.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcPavement"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Chaussée 2x3 voies autoroute — structure bitumineuse 55 cm","Piste aéroport — PCN 80 / F / C / X / T béton armé continu","Chaussée urbaine — structure semi-rigide 40 cm"]},
 
-  kerb:{fr:"Bordure de trottoir",ifc:"IfcKerb",cat:"struct",ver:'IFC4x1',
+  kerb:{fr:"Bordure de trottoir",ifc:"IfcKerb",cat:"struct",ver:'IFC4x3',
     desc:"Élément de bordure délimitant la chaussée du trottoir ou d'un espace piéton. Peut être en béton préfabriqué, granit ou pierre. Élément d'infrastructure de voirie.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcKerb"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","Mountable"],
     ex:["Bordure T2 béton préfabriqué — séparation chaussée/trottoir","Bordure granit 20x15 cm — voirie patrimoniale centre historique","Abaissé de trottoir PMR — bordure chanfreinée 4 cm saillie"]},
 
-  kerbType:{fr:"Type de bordure",ifc:"IfcKerbType",cat:"struct",ver:'IFC4x1',
+  kerbType:{fr:"Type de bordure",ifc:"IfcKerbType",cat:"struct",ver:'IFC4x3',
     desc:"Type paramétrique de bordure de trottoir définissant le profil, le matériau et les dimensions standards. Référence les familles normalisées (T2, CS1, etc.).",
     heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuiltElementType","IfcKerbType"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","Mountable","PredefinedType"],
@@ -4737,19 +4737,19 @@ const E = {
   /* ── IFC4.3 — Ouvrages d'infrastructure ── */
   road:{fr:"Route",ifc:"IfcRoad",cat:"struct",ver:'IFC4x3',
     desc:"Ouvrage linéaire de transport routier : autoroute, route nationale, départementale, voie urbaine. Contient les chaussées, trottoirs, équipements et ouvrages associés. Entité faîtière du domaine routier IFC4.3.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcRoad"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility','IfcRoad'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
     ex:["A6 — autoroute du Soleil, section Nemours-Beaune 240 km","RD12 — route départementale traversant 14 communes","Boulevard périphérique Paris — voie rapide urbaine 35 km"]},
 
   railway:{fr:"Voie ferrée",ifc:"IfcRailway",cat:"struct",ver:'IFC4x3',
     desc:"Ouvrage linéaire ferroviaire : ligne LGV, ligne classique, métro, tramway. Contient les voies, caténaires, signalisation et ouvrages d'art ferroviaires. Entité faîtière du domaine ferroviaire IFC4.3.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcRailway"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility','IfcRailway'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
     ex:["LGV Sud-Est — Paris-Lyon 400 km, Vmax 300 km/h","Ligne 14 du métro parisien — extension Orly","Tramway T3b — Paris, section Porte de la Chapelle-Asnières"]},
 
   bridge:{fr:"Pont",ifc:"IfcBridge",cat:"struct",ver:'IFC4x3',
     desc:"Ouvrage d'art permettant le franchissement d'un obstacle (cours d'eau, vallée, autre voie). Comprend tablier, piles, culées, appareils d'appui, équipements. Entité faîtière du domaine ouvrages d'art IFC4.3.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcBridge"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility','IfcBridge'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
     ex:["Viaduc de Millau — tablier haubané 2 460 m, H=343 m","Pont de Normandie — travée centrale 856 m haubans","Passerelle piétonne sur A86 — béton précontraint L=62 m"]},
 
@@ -4761,37 +4761,37 @@ const E = {
 
   facility:{fr:"Ouvrage d'infrastructure",ifc:"IfcFacility",cat:"struct",ver:'IFC4x3',
     desc:"Classe abstraite faîtière de tous les ouvrages d'infrastructure IFC4.3 : route, voie ferrée, pont, tunnel, marina, aéroport… Étend IfcSpatialElement pour les ouvrages non bâtimentaires.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType"],
     ex:["Classe mère abstraite de IfcRoad, IfcRailway, IfcBridge, IfcTunnel","Permet la requête générique de tous les ouvrages d'un projet","Un aéroport = IfcFacility avec sous-ouvrages spécialisés"]},
 
   facilityPart:{fr:"Partie d'ouvrage",ifc:"IfcFacilityPart",cat:"struct",ver:'IFC4x3',
     desc:"Subdivision spatiale d'un ouvrage d'infrastructure : tronçon de route, travée de pont, tube de tunnel, section de voie. Permet la décomposition hiérarchique des grands ouvrages.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType"],
     ex:["Tronçon A6 km 120-180 — section de concession autoroutière","Travée centrale viaduc — portée principale 400 m","Tube Sud tunnel routier — sens Province-Paris"]},
 
   facilityPartCommon:{fr:"Partie commune d'ouvrage",ifc:"IfcFacilityPartCommon",cat:"struct",ver:'IFC4x3',
     desc:"Partie d'ouvrage transversale partagée entre plusieurs usages (exemple : chaussée bidirectionnelle sans séparateur, zone de péage commune). Spécialisation de IfcFacilityPart.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcFacilityPartCommon"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart','IfcFacilityPartCommon'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Zone de péage autoroute — accès tous véhicules","Section route bidirectionnelle sans terre-plein central","Voie de service commune à deux lignes de métro"]},
 
   railwayPart:{fr:"Partie de voie ferrée",ifc:"IfcRailwayPart",cat:"struct",ver:'IFC4x3',
     desc:"Subdivision fonctionnelle ou géographique d'une voie ferrée : section de ligne, zone de gare, zone d'aiguillage, depot. Permet la décomposition hiérarchique des infrastructures ferroviaires.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcRailwayPart"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart','IfcRailwayPart'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Zone de gare Lyon-Part-Dieu — faisceau 14 voies","Section LGV km 120-145 — zone de contrôle vitesse","Dépôt maintenance TGV Conflans — infrastructure ateliers"]},
 
   roadPart:{fr:"Partie de route",ifc:"IfcRoadPart",cat:"struct",ver:'IFC4x3',
     desc:"Subdivision fonctionnelle d'une route : chaussée, accotement, terre-plein central, bretelle, giratoire, intersection. Permet la modélisation détaillée de la section transversale d'une route.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcRoadPart"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart','IfcRoadPart'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Voie de droite autoroute — bande de roulement 3,75 m","Accotement stabilisé 2,50 m — côté droit RN7","Terre-plein central glissières béton — autoroute 2x3 voies"]},
 
   bridgePart:{fr:"Partie de pont",ifc:"IfcBridgePart",cat:"struct",ver:'IFC4x3',
     desc:"Composant structurel ou fonctionnel d'un pont : tablier, pile, culée, fondation, appareil d'appui, corniches. Permet la décomposition hiérarchique détaillée d'un ouvrage d'art.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcBridgePart"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart','IfcBridgePart'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Tablier viaduc — dalle précontrainte L=240 m","Pile P4 — fût évidé H=82 m, fondations profondes","Culée rive gauche — béton armé avec murs en retour"]},
 
@@ -4809,19 +4809,19 @@ const E = {
 
   builtSystem:{fr:"Système construit",ifc:"IfcBuiltSystem",cat:"gen",ver:'IFC4x3',
     desc:"Système fonctionnel d'éléments construits formant un ensemble cohérent : système structurel, système de façade, système de protection. Extension de IfcSystem pour les ouvrages d'infrastructure.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcGroup","IfcSystem","IfcBuiltSystem"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcGroup','IfcSystem','IfcBuiltSystem'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","PredefinedType"],
     ex:["Système structurel tablier pont — poutres + entretoises + dalle","Système de drainage routier — cunettes + bouches d'égout + collecteurs","Système de signalisation tunnel — jalonnement + panneaux + balisage"]},
 
   sign:{fr:"Panneau de signalisation",ifc:"IfcSign",cat:"gen",ver:'IFC4x3',
     desc:"Panneau ou dispositif de signalisation routière, ferroviaire ou d'information : panneau de limitation, indication, danger, direction. Élément d'équipement des infrastructures.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcSign"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcElementComponent','IfcSign'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Panneau B14 — limitation à 70 km/h","Panneau E43c — direction sortie autoroute 2 km","Signal ferroviaire carré — arrêt absolu"]},
 
   signType:{fr:"Type de panneau",ifc:"IfcSignType",cat:"gen",ver:'IFC4x3',
     desc:"Type paramétrique de panneau de signalisation définissant catégorie, forme, couleur et texte réglementaires. Permet la bibliothèque de signalisation d'un projet.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuiltElementType","IfcSignType"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcElementComponentType','IfcSignType'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type 'B14-70' — panneau rond rouge, 70 km/h, Ø700mm","Type 'A1' — panneau triangulaire danger virage à droite","Type 'EB10d' — panneau vert sortie autoroute sens Province"]},
 
@@ -4857,7 +4857,7 @@ const E = {
 
   earthworksCut:{fr:"Déblai",ifc:"IfcEarthworksCut",cat:"struct",ver:'IFC4x3',
     desc:"Volume de terre ou de roche excavé pour réaliser une plateforme, une tranchée ou un tunnel à ciel ouvert. Caractérisé par son volume, sa nature et ses conditions de réutilisation.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcEarthworksElement","IfcEarthworksCut"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcFeatureElement','IfcFeatureElementSubtraction','IfcEarthworksCut'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Déblai grande masse calcaire — 180 000 m³ réutilisable en remblai","Tranchée couverte A86 — déblai blindé 8 m profondeur","Découverte carrière — déblai stérile, mise en dépôt"]},
 
@@ -4869,7 +4869,7 @@ const E = {
 
   marina:{fr:"Port de plaisance",ifc:"IfcMarineFacility",cat:"struct",ver:'IFC4x3',
     desc:"Ouvrage maritime ou fluvial : port de plaisance, quai commercial, digue de protection, bassin. Entité faîtière du domaine maritime IFC4.3.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcMarineFacility"],
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility','IfcMarineFacility'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
     ex:["Port de plaisance Cap d'Agde — 1750 anneaux","Terminal conteneurs Le Havre — quai 700 m, tirant d'eau 16 m","Digue nord port de Brest — ouvrage de protection 2,3 km"]},
 
@@ -13494,7 +13494,7 @@ function showDetail(id){
       ${psetContent ? `
       <div class="toggle-section open" id="ts-pset-${id}">
         <div class="toggle-hd" onclick="this.closest('.toggle-section').classList.toggle('open')">
-          <span class="toggle-hd-title">Psets standards IFC2x3</span>
+          <span class="toggle-hd-title">Psets standards ${en.ver||'IFC2x3'}</span>
           <span class="toggle-hd-meta">buildingSMART TC1</span>
           <span class="toggle-arrow">›</span>
         </div>
@@ -13611,7 +13611,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-17</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-18</div>
     </div>
 
     <!-- Stats globales -->
