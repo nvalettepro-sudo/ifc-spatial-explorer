@@ -261,6 +261,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .e-vent  {background:#E8F5E0;border-color:#90D088;color:#1A6010}   /* Vert clair — Ventilation */
 .e-mep   {background:#FEF3E2;border-color:#E8B84B;color:#8A5500}   /* Ambre   — Production/Fluides */
 .e-sec   {background:#FEE8E8;border-color:#F09090;color:#8A1010}   /* Rouge   — Sécurité */
+.e-infra {background:#FBF0EA;border-color:#D4956A;color:#7A3810}   /* Terre cuite — Infrastructure */
 .e-elec  {background:#F0EBFF;border-color:#C4A8F5;color:#5520A0}   /* Violet  — Électricité */
 .e-furn  {background:#F1EFE8;border-color:#C5C2BC;color:#4A4845}   /* Gris    — Mobilier */
 .e-gen   {background:#F0F0EE;border-color:#BCBCB8;color:#5F6368}   /* Gris neutre — Éléments génériques */
@@ -280,6 +281,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 [data-theme="dark"] .e-vent  {background:rgba(120,196,120,.20);border-color:rgba(120,196,120,.45);color:#70B870}
 [data-theme="dark"] .e-mep   {background:rgba(220,170,80,.20);border-color:rgba(220,170,80,.45);color:#C89030}
 [data-theme="dark"] .e-sec   {background:rgba(224,110,150,.22);border-color:rgba(224,110,150,.50);color:#D06080}
+[data-theme="dark"] .e-infra {background:rgba(212,149,106,.20);border-color:rgba(212,149,106,.45);color:#D4956A}
 [data-theme="dark"] .e-elec  {background:rgba(186,120,196,.22);border-color:rgba(186,120,196,.50);color:#9860C0}
 [data-theme="dark"] .e-furn  {background:rgba(150,162,168,.20);border-color:rgba(150,162,168,.45);color:#8898A0}
 [data-theme="dark"] .e-gen   {background:rgba(140,148,152,.18);border-color:rgba(140,148,152,.40);color:#808890}
@@ -779,6 +781,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 [data-theme="dark"] .cat-chip.e-sec   { background:rgba(210,90,120,.25); border-color:rgba(210,90,120,.55); color:#C06080 }
 [data-theme="dark"] .cat-chip.e-gen   { background:rgba(130,140,145,.20);border-color:rgba(130,140,145,.45);color:#7A8890 }
 [data-theme="dark"] .cat-chip.e-inv   { background:rgba(186,120,196,.25);border-color:rgba(186,120,196,.55);color:#A870C0 }
+[data-theme="dark"] .cat-chip.e-infra { background:rgba(212,149,106,.22);border-color:rgba(212,149,106,.50);color:#D4956A }
 
 
 /* scrollbar */
@@ -1044,6 +1047,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
         <a onclick="setCatFilter('sp')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-sp">Espaces</a>
         <a onclick="setCatFilter('prop')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-prop">Données</a>
         <a onclick="setCatFilter('geo')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-geo">Géom.</a>
+        <a onclick="setCatFilter('infra')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-infra">Infra.</a>
       </div>
 
       <!-- ── CATALOGUE ── -->
@@ -4352,104 +4356,104 @@ const E = {
     ex:["Alignement RD12 ← portiques, glissières, candélabres","Axe LGV ← caténaires, signaux, aiguillages positionnés en station","Axe pipeline ← vannes, coudes, supports positionnés par chaînage"]},
 
   /* ── IFC4.1 — Éléments d'infrastructure ── */
-  course:{fr:"Couche de structure",ifc:"IfcCourse",cat:"struct",ver:'IFC4x3',
+  course:{fr:"Couche de structure",ifc:"IfcCourse",cat:"infra",ver:'IFC4x3',
     desc:"Couche homogène constituant une structure de chaussée, de voie ou d'ouvrage d'art : couche de base, couche de fondation, couche de roulement. Élément de construction linéaire par couches.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcBuiltElement','IfcCourse'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Grave bitume 0/20 — couche de base autoroute, e=18 cm","Béton de propreté — couche de fondation semelle filante","Couche de forme PSV — chaussée ferroviaire"]},
 
-  courseType:{fr:"Type de couche de structure",ifc:"IfcCourseType",cat:"struct",ver:'IFC4x3',
+  courseType:{fr:"Type de couche de structure",ifc:"IfcCourseType",cat:"infra",ver:'IFC4x3',
     desc:"Type paramétrique de couche de structure partageant matériau, granulométrie et épaisseur nominale. Sert de gabarit pour les couches récurrentes d'un projet d'infrastructure.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcTypeObject','IfcTypeProduct','IfcElementType','IfcBuiltElementType','IfcCourseType'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type 'EME2 0/14 e=6cm' — couche de liaison autoroute","Type 'GNT 0/31,5 e=35cm' — couche de fondation standard","Type 'BBTM 0/6 e=2,5cm' — couche de roulement urbaine"]},
 
-  pavement:{fr:"Chaussée",ifc:"IfcPavement",cat:"struct",ver:'IFC4x3',
+  pavement:{fr:"Chaussée",ifc:"IfcPavement",cat:"infra",ver:'IFC4x3',
     desc:"Ouvrage de surface portant et guidant la circulation routière, composé de plusieurs couches superposées (fondation, base, liaison, roulement). Contient les IfcCourse qui le constituent.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcPavement"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Chaussée 2x3 voies autoroute — structure bitumineuse 55 cm","Piste aéroport — PCN 80 / F / C / X / T béton armé continu","Chaussée urbaine — structure semi-rigide 40 cm"]},
 
-  kerb:{fr:"Bordure de trottoir",ifc:"IfcKerb",cat:"struct",ver:'IFC4x3',
+  kerb:{fr:"Bordure de trottoir",ifc:"IfcKerb",cat:"infra",ver:'IFC4x3',
     desc:"Élément de bordure délimitant la chaussée du trottoir ou d'un espace piéton. Peut être en béton préfabriqué, granit ou pierre. Élément d'infrastructure de voirie.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcKerb"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","Mountable"],
     ex:["Bordure T2 béton préfabriqué — séparation chaussée/trottoir","Bordure granit 20x15 cm — voirie patrimoniale centre historique","Abaissé de trottoir PMR — bordure chanfreinée 4 cm saillie"]},
 
-  kerbType:{fr:"Type de bordure",ifc:"IfcKerbType",cat:"struct",ver:'IFC4x3',
+  kerbType:{fr:"Type de bordure",ifc:"IfcKerbType",cat:"infra",ver:'IFC4x3',
     desc:"Type paramétrique de bordure de trottoir définissant le profil, le matériau et les dimensions standards. Référence les familles normalisées (T2, CS1, etc.).",
     heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuiltElementType","IfcKerbType"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","Mountable","PredefinedType"],
     ex:["Type 'T2-100' — bordure haute 100 cm béton NF P98-302","Type 'CS1' — bordure basse chanfreinée PMR","Type 'P1' — bordure plate en granit gris flamé"]},
 
   /* ── IFC4.3 — Ouvrages d'infrastructure ── */
-  road:{fr:"Route",ifc:"IfcRoad",cat:"struct",ver:'IFC4x3',
+  road:{fr:"Route",ifc:"IfcRoad",cat:"infra",ver:'IFC4x3',
     desc:"Ouvrage linéaire de transport routier : autoroute, route nationale, départementale, voie urbaine. Contient les chaussées, trottoirs, équipements et ouvrages associés. Entité faîtière du domaine routier IFC4.3.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility','IfcRoad'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
     ex:["A6 — autoroute du Soleil, section Nemours-Beaune 240 km","RD12 — route départementale traversant 14 communes","Boulevard périphérique Paris — voie rapide urbaine 35 km"]},
 
-  railway:{fr:"Voie ferrée",ifc:"IfcRailway",cat:"struct",ver:'IFC4x3',
+  railway:{fr:"Voie ferrée",ifc:"IfcRailway",cat:"infra",ver:'IFC4x3',
     desc:"Ouvrage linéaire ferroviaire : ligne LGV, ligne classique, métro, tramway. Contient les voies, caténaires, signalisation et ouvrages d'art ferroviaires. Entité faîtière du domaine ferroviaire IFC4.3.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility','IfcRailway'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
     ex:["LGV Sud-Est — Paris-Lyon 400 km, Vmax 300 km/h","Ligne 14 du métro parisien — extension Orly","Tramway T3b — Paris, section Porte de la Chapelle-Asnières"]},
 
-  bridge:{fr:"Pont",ifc:"IfcBridge",cat:"struct",ver:'IFC4x3',
+  bridge:{fr:"Pont",ifc:"IfcBridge",cat:"infra",ver:'IFC4x3',
     desc:"Ouvrage d'art permettant le franchissement d'un obstacle (cours d'eau, vallée, autre voie). Comprend tablier, piles, culées, appareils d'appui, équipements. Entité faîtière du domaine ouvrages d'art IFC4.3.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility','IfcBridge'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
     ex:["Viaduc de Millau — tablier haubané 2 460 m, H=343 m","Pont de Normandie — travée centrale 856 m haubans","Passerelle piétonne sur A86 — béton précontraint L=62 m"]},
 
-  tunnel:{fr:"Tunnel",ifc:"IfcTunnel",cat:"struct",ver:'IFC4x3',
+  tunnel:{fr:"Tunnel",ifc:"IfcTunnel",cat:"infra",ver:'IFC4x3',
     desc:"Ouvrage souterrain de franchissement creusé dans la roche ou le sol : tunnel routier, ferroviaire, piéton ou hydraulique. Comprend creusement, revêtement, équipements de sécurité et ventilation.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacility","IfcTunnel"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
     ex:["Tunnel du Fréjus — 12,87 km, liaison France-Italie","Tunnel sous la Manche — 50,5 km dont 38 km sous mer","Tunnel Prado-Carénage Marseille — 2,5 km urbain"]},
 
-  facility:{fr:"Ouvrage d'infrastructure",ifc:"IfcFacility",cat:"struct",ver:'IFC4x3',
+  facility:{fr:"Ouvrage d'infrastructure",ifc:"IfcFacility",cat:"infra",ver:'IFC4x3',
     desc:"Classe abstraite faîtière de tous les ouvrages d'infrastructure IFC4.3 : route, voie ferrée, pont, tunnel, marina, aéroport… Étend IfcSpatialElement pour les ouvrages non bâtimentaires.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType"],
     ex:["Classe mère abstraite de IfcRoad, IfcRailway, IfcBridge, IfcTunnel","Permet la requête générique de tous les ouvrages d'un projet","Un aéroport = IfcFacility avec sous-ouvrages spécialisés"]},
 
-  facilityPart:{fr:"Partie d'ouvrage",ifc:"IfcFacilityPart",cat:"struct",ver:'IFC4x3',
+  facilityPart:{fr:"Partie d'ouvrage",ifc:"IfcFacilityPart",cat:"infra",ver:'IFC4x3',
     desc:"Subdivision spatiale d'un ouvrage d'infrastructure : tronçon de route, travée de pont, tube de tunnel, section de voie. Permet la décomposition hiérarchique des grands ouvrages.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType"],
     ex:["Tronçon A6 km 120-180 — section de concession autoroutière","Travée centrale viaduc — portée principale 400 m","Tube Sud tunnel routier — sens Province-Paris"]},
 
-  facilityPartCommon:{fr:"Partie commune d'ouvrage",ifc:"IfcFacilityPartCommon",cat:"struct",ver:'IFC4x3',
+  facilityPartCommon:{fr:"Partie commune d'ouvrage",ifc:"IfcFacilityPartCommon",cat:"infra",ver:'IFC4x3',
     desc:"Partie d'ouvrage transversale partagée entre plusieurs usages (exemple : chaussée bidirectionnelle sans séparateur, zone de péage commune). Spécialisation de IfcFacilityPart.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart','IfcFacilityPartCommon'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Zone de péage autoroute — accès tous véhicules","Section route bidirectionnelle sans terre-plein central","Voie de service commune à deux lignes de métro"]},
 
-  railwayPart:{fr:"Partie de voie ferrée",ifc:"IfcRailwayPart",cat:"struct",ver:'IFC4x3',
+  railwayPart:{fr:"Partie de voie ferrée",ifc:"IfcRailwayPart",cat:"infra",ver:'IFC4x3',
     desc:"Subdivision fonctionnelle ou géographique d'une voie ferrée : section de ligne, zone de gare, zone d'aiguillage, depot. Permet la décomposition hiérarchique des infrastructures ferroviaires.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart','IfcRailwayPart'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Zone de gare Lyon-Part-Dieu — faisceau 14 voies","Section LGV km 120-145 — zone de contrôle vitesse","Dépôt maintenance TGV Conflans — infrastructure ateliers"]},
 
-  roadPart:{fr:"Partie de route",ifc:"IfcRoadPart",cat:"struct",ver:'IFC4x3',
+  roadPart:{fr:"Partie de route",ifc:"IfcRoadPart",cat:"infra",ver:'IFC4x3',
     desc:"Subdivision fonctionnelle d'une route : chaussée, accotement, terre-plein central, bretelle, giratoire, intersection. Permet la modélisation détaillée de la section transversale d'une route.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart','IfcRoadPart'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Voie de droite autoroute — bande de roulement 3,75 m","Accotement stabilisé 2,50 m — côté droit RN7","Terre-plein central glissières béton — autoroute 2x3 voies"]},
 
-  bridgePart:{fr:"Partie de pont",ifc:"IfcBridgePart",cat:"struct",ver:'IFC4x3',
+  bridgePart:{fr:"Partie de pont",ifc:"IfcBridgePart",cat:"infra",ver:'IFC4x3',
     desc:"Composant structurel ou fonctionnel d'un pont : tablier, pile, culée, fondation, appareil d'appui, corniches. Permet la décomposition hiérarchique détaillée d'un ouvrage d'art.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacilityPart','IfcBridgePart'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Tablier viaduc — dalle précontrainte L=240 m","Pile P4 — fût évidé H=82 m, fondations profondes","Culée rive gauche — béton armé avec murs en retour"]},
 
-  tunnelPart:{fr:"Partie de tunnel",ifc:"IfcTunnelPart",cat:"struct",ver:'IFC4x3',
+  tunnelPart:{fr:"Partie de tunnel",ifc:"IfcTunnelPart",cat:"infra",ver:'IFC4x3',
     desc:"Composant fonctionnel ou constructif d'un tunnel : excavation, revêtement, radier, niche de sécurité, galerie de secours, zone de bifurcation.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcFacilityPart","IfcTunnelPart"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","UsageType","PredefinedType"],
     ex:["Section courante tunnel — revêtement béton projeté 40 cm","Niche de sécurité — tous les 150 m, côté droit","Galerie de secours piétonne — inter-tube, tous les 250 m"]},
 
-  builtElement:{fr:"Élément construit",ifc:"IfcBuiltElement",cat:"struct",ver:'IFC4x3',
+  builtElement:{fr:"Élément construit",ifc:"IfcBuiltElement",cat:"infra",ver:'IFC4x3',
     desc:"Classe abstraite regroupant tous les éléments physiques construits : éléments de bâtiment et éléments d'infrastructure. Dans IFC4.3, IfcBuildingElement devient un sous-type de IfcBuiltElement.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
@@ -4473,49 +4477,49 @@ const E = {
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type 'B14-70' — panneau rond rouge, 70 km/h, Ø700mm","Type 'A1' — panneau triangulaire danger virage à droite","Type 'EB10d' — panneau vert sortie autoroute sens Province"]},
 
-  trackElement:{fr:"Élément de voie ferrée",ifc:"IfcTrackElement",cat:"struct",ver:'IFC4x3',
+  trackElement:{fr:"Élément de voie ferrée",ifc:"IfcTrackElement",cat:"infra",ver:'IFC4x3',
     desc:"Composant physique d'une voie ferrée : rail, traverse, semelle, ballast, aiguillage, taquet d'arrêt. Élément de base de l'infrastructure ferroviaire.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcTrackElement"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Aiguillage EV-A-L 650-1/11 — voie principale gare","Rail UIC60 soudé en barres longues — LGV","Traverse bi-blocs B70 — voie ballastée LGV 320 km/h"]},
 
-  trackElementType:{fr:"Type d'élément de voie",ifc:"IfcTrackElementType",cat:"struct",ver:'IFC4x3',
+  trackElementType:{fr:"Type d'élément de voie",ifc:"IfcTrackElementType",cat:"infra",ver:'IFC4x3',
     desc:"Type paramétrique d'un composant de voie ferrée : famille de traverses, de rails ou d'aiguillages partageant les mêmes caractéristiques mécaniques et dimensionnelles.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcBuiltElementType","IfcTrackElementType"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
     ex:["Type 'Rail UIC60' — section 60 kg/m, acier R260","Type 'Traverse B70' — béton bi-blocs, espacement 600 mm","Type 'Aiguillage EV-L 500' — radius 500 m, vitesse déviation 60 km/h"]},
 
-  geotechnicalElement:{fr:"Élément géotechnique",ifc:"IfcGeotechnicalElement",cat:"struct",ver:'IFC4x3',
+  geotechnicalElement:{fr:"Élément géotechnique",ifc:"IfcGeotechnicalElement",cat:"infra",ver:'IFC4x3',
     desc:"Classe abstraite pour les éléments géotechniques caractérisant le sous-sol : couches de sol, formations géologiques, niveau phréatique. Base de la modélisation géotechnique IFC4.3.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcGeotechnicalElement"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
     ex:["Classe mère des couches géologiques et formations","Représente toute entité du sous-sol modélisée","Base pour les sondages et coupes géotechniques IFC4.3"]},
 
-  geotechnicalStratum:{fr:"Couche géotechnique",ifc:"IfcGeotechnicalStratum",cat:"struct",ver:'IFC4x3',
+  geotechnicalStratum:{fr:"Couche géotechnique",ifc:"IfcGeotechnicalStratum",cat:"infra",ver:'IFC4x3',
     desc:"Couche homogène de sol ou de roche définie par ses caractéristiques géotechniques : nature, résistance, perméabilité, épaisseur. Issue de sondages ou d'essais in situ.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcGeotechnicalElement","IfcGeotechnicalStratum"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Remblai argilo-limoneux — e=3,5 m, γ=18 kN/m³, Cu=40 kPa","Calcaire fissuré Kimméridgien — toit à -8,5 m TN","Alluvions sablo-graveleuses — nappe à -2,3 m, K=5×10⁻⁴ m/s"]},
 
-  earthworksElement:{fr:"Élément de terrassement",ifc:"IfcEarthworksElement",cat:"struct",ver:'IFC4x3',
+  earthworksElement:{fr:"Élément de terrassement",ifc:"IfcEarthworksElement",cat:"infra",ver:'IFC4x3',
     desc:"Élément issu de travaux de terrassement : remblai, déblai, talus, fossé, plateforme. Classe abstraite mère des volumes de terre modélisés dans les projets d'infrastructure.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcEarthworksElement"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag"],
     ex:["Remblai routier — talus 3H/2V, V=45 000 m³","Déblai ferroviaire — banquette drainage + fossé pied","Plateforme aéroport — décapage + remblai compacté Q4"]},
 
-  earthworksCut:{fr:"Déblai",ifc:"IfcEarthworksCut",cat:"struct",ver:'IFC4x3',
+  earthworksCut:{fr:"Déblai",ifc:"IfcEarthworksCut",cat:"infra",ver:'IFC4x3',
     desc:"Volume de terre ou de roche excavé pour réaliser une plateforme, une tranchée ou un tunnel à ciel ouvert. Caractérisé par son volume, sa nature et ses conditions de réutilisation.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcFeatureElement','IfcFeatureElementSubtraction','IfcEarthworksCut'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Déblai grande masse calcaire — 180 000 m³ réutilisable en remblai","Tranchée couverte A86 — déblai blindé 8 m profondeur","Découverte carrière — déblai stérile, mise en dépôt"]},
 
-  earthworksFill:{fr:"Remblai",ifc:"IfcEarthworksFill",cat:"struct",ver:'IFC4x3',
+  earthworksFill:{fr:"Remblai",ifc:"IfcEarthworksFill",cat:"infra",ver:'IFC4x3',
     desc:"Volume de matériaux rapportés et compactés pour former une plateforme, un talus ou combler une dépression. Caractérisé par la nature des matériaux et leur degré de compactage requis.",
     heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcElement","IfcBuiltElement","IfcEarthworksElement","IfcEarthworksFill"],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","Tag","PredefinedType"],
     ex:["Remblai GNT autoroute — compactage OPM 95%, e=35 cm","Remblai contigu ouvrage d'art — matériaux sélectionnés","Comblement fouille — béton de propreté + remblai compacté"]},
 
-  marina:{fr:"Port de plaisance",ifc:"IfcMarineFacility",cat:"struct",ver:'IFC4x3',
+  marina:{fr:"Port de plaisance",ifc:"IfcMarineFacility",cat:"infra",ver:'IFC4x3',
     desc:"Ouvrage maritime ou fluvial : port de plaisance, quai commercial, digue de protection, bassin. Entité faîtière du domaine maritime IFC4.3.",
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcSpatialElement','IfcSpatialStructureElement','IfcFacility','IfcMarineFacility'],
     attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","CompositionType","PredefinedType"],
@@ -4562,6 +4566,7 @@ const GRP_COLORS_LIGHT = {
   actor:  {dot:'#1E3A8A', border:'rgba(30,58,138,.22)'},
   plan:   {dot:'#8A3010', border:'rgba(138,48,16,.22)'},
   geo:    {dot:'#374151', border:'rgba(55,65,81,.22)'},
+  infra:  {dot:'#7A3810', border:'rgba(122,56,16,.22)'},
 };
 const GRP_COLORS_DARK = {
   arch:   {dot:'#80CBC4', border:'rgba(128,203,196,.30)'},
@@ -4581,6 +4586,7 @@ const GRP_COLORS_DARK = {
   actor:  {dot:'#90CAF9', border:'rgba(144,202,249,.25)'},
   plan:   {dot:'#FFCC80', border:'rgba(255,204,128,.25)'},
   geo:    {dot:'#B0BEC5', border:'rgba(176,190,197,.20)'},
+  infra:  {dot:'#D4956A', border:'rgba(212,149,106,.30)'},
 };
 function getGrpColors(){
   return document.documentElement.getAttribute('data-theme')==='dark' ? GRP_COLORS_DARK : GRP_COLORS_LIGHT;
@@ -5505,12 +5511,12 @@ function renderCatalogue(){
     {label:'Alignement — IFC4.3', color:'geo',
      keys:['alignmentHorizontal','alignmentVertical','alignmentCant','alignmentSegment']},
 
-    {label:'Ouvrages & Installations — IFC4.3', color:'sp',
+    {label:'Ouvrages & Installations — IFC4.3', color:'infra',
      keys:['facility','facilityPart','facilityPartCommon',
            'road','roadPart','railway','railwayPart',
            'bridge','bridgePart','marina','tunnel','tunnelPart']},
 
-    {label:'Éléments construits — IFC4.3', color:'arch',
+    {label:'Éléments construits — IFC4.3', color:'infra',
      keys:['builtElement','course','courseType','pavement','kerb','kerbType',
            'earthworksElement','earthworksCut','earthworksFill',
            'sign','signType','trackElement','trackElementType']},
@@ -5544,7 +5550,7 @@ function renderCatalogue(){
       <div class="cat-grid">
         ${valid.map(k => {
           const en = E[k];
-          return `<div class="cat-chip e-${g.color}" data-ver="${en.ver||'IFC2x3'}" data-cat="${en.cat||g.color}" onclick="showDetail('${k}')">
+          return `<div class="cat-chip e-${g.color}" data-ver="${en.ver||'IFC2x3'}" data-cat="${g.color}" onclick="showDetail('${k}')">
             <span class="chip-fr">${en.fr}</span>
             <span class="chip-ifc">${en.ifc}</span>
           </div>`;
