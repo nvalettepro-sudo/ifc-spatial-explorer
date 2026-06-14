@@ -991,6 +991,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <div class="aside-tab active" id="tab-data" onclick="switchTab('data')">Entités IFC</div>
       <div class="aside-tab" id="tab-arbo" onclick="switchTab('arbo')">Arborescence</div>
       <div class="aside-tab" id="tab-hier" onclick="switchTab('hier')">Hiérarchie</div>
+      <div class="aside-tab" id="tab-fav" onclick="switchTab('fav')">★ Favoris</div>
       <div class="aside-tab" id="tab-search" onclick="switchTab('search')" style="display:none">
         Résultats <span class="aside-badge" id="search-badge">0</span>
       </div>
@@ -1062,6 +1063,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
         <span class="hier-legend-item"><span class="hier-dot" style="background:var(--sp);display:inline-block"></span>Entité concrète</span>
         <span class="hier-legend-item"><span class="hier-dot-abs"></span>Entité abstraite</span>
       </div>
+    </div>
+
+    <!-- Onglet Favoris -->
+    <div class="aside-pane" id="pane-fav" style="padding:.75rem;overflow:auto">
+      <div id="fav-list"></div>
     </div>
 
     <!-- Onglet Résultats de recherche -->
@@ -8436,6 +8442,7 @@ function switchTab(tab){
     if(pane) pane.classList.add('active');
   }
   // La fiche (panneau droit) est toujours visible — pas de switchTab pour elle
+  if(tab==='fav') renderFavs();
 }
 
 const PSET_DATA = {
@@ -13099,6 +13106,34 @@ function verBadgeHtml(ver){
   return `<span class="ver-badge ${cls}" title="Apparu en ${label}">${label}</span>`;
 }
 
+function _getFavs(){ try{ return JSON.parse(localStorage.getItem('ifc-favorites')||'[]'); }catch(e){ return []; } }
+function _isFav(key){ return _getFavs().includes(key); }
+function toggleFav(key){
+  let favs = _getFavs();
+  if(favs.includes(key)) favs = favs.filter(k=>k!==key);
+  else favs.push(key);
+  localStorage.setItem('ifc-favorites', JSON.stringify(favs));
+  const star = document.getElementById('fav-star');
+  if(star) star.textContent = favs.includes(key)?'★':'☆';
+  renderFavs();
+}
+function renderFavs(){
+  const favs = _getFavs();
+  const el = document.getElementById('fav-list');
+  if(!el) return;
+  if(!favs.length){
+    el.innerHTML = "<div style=\"color:var(--muted);font-size:.75rem;padding:1rem .5rem\">Aucun favori — clique sur ☆ dans une fiche pour l'ajouter.</div>";
+    return;
+  }
+  el.innerHTML = favs.map(k=>{
+    const en = E[k]; if(!en) return '';
+    return `<div class="cat-chip e-${en.cat}" onclick="showDetail('${k}')" style="margin-bottom:.35rem;display:flex;justify-content:space-between;align-items:center">
+      <span><span class="chip-fr">${en.fr}</span> <span class="chip-ifc">${en.ifc}</span></span>
+      <span onclick="event.stopPropagation();toggleFav('${k}')" style="cursor:pointer;color:var(--muted);padding:0 .3rem" title="Retirer">✕</span>
+    </div>`;
+  }).join('');
+}
+
 function _bsUrl(en){
   const v = en.ver||'IFC2x3';
   if(v==='IFC4x3'||v==='IFC4x1') return 'https://ifc43-docs.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/'+en.ifc+'.htm';
@@ -13197,7 +13232,10 @@ function showDetail(id){
   const psetContent = renderPsets(id);
 
   document.getElementById('detail').innerHTML = `
-    <div class="detail-fr">${en.fr}</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div class="detail-fr">${en.fr}</div>
+      <button id="fav-star" onclick="toggleFav('${id}')" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--muted);padding:.1rem .3rem;flex-shrink:0" title="Ajouter aux favoris">${_isFav(id)?'★':'☆'}</button>
+    </div>
     <div style="display:flex;align-items:center;gap:.3rem;flex-wrap:wrap">
       <div class="detail-ifc" style="margin:0">${en.ifc}</div>
       ${verBadgeHtml(en.ver)}
