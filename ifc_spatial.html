@@ -937,7 +937,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-03</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-04</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1051,6 +1051,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <div id="ver-filters" style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.75rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)">
         <a onclick="setVerFilter('all')"   class="nav-pill ver-filter-btn active-ver" id="vf-all">Toutes</a>
         <a onclick="setVerFilter('IFC2x3')" class="nav-pill ver-filter-btn" id="vf-IFC2x3">IFC 2x3</a>
+        <a onclick="setVerFilter('IFC4x')"  class="nav-pill ver-filter-btn" id="vf-IFC4x">IFC 4.x</a>
         <a onclick="setVerFilter('IFC4')"   class="nav-pill ver-filter-btn" id="vf-IFC4">IFC 4</a>
         <a onclick="setVerFilter('IFC4x1')" class="nav-pill ver-filter-btn" id="vf-IFC4x1">IFC 4.1</a>
         <a onclick="setVerFilter('IFC4x3')" class="nav-pill ver-filter-btn" id="vf-IFC4x3">IFC 4.3</a>
@@ -5579,7 +5580,8 @@ function filterCatalogue(q){
     let visible = 0;
     s.querySelectorAll('.cat-chip').forEach(c => {
       const chipVer = c.dataset.ver || 'IFC2x3';
-      const verOk  = verFilter === 'all' || chipVer === verFilter;
+      const verOk  = verFilter === 'all'
+        || (verFilter === 'IFC4x' ? ['IFC4','IFC4x1','IFC4x3'].includes(chipVer) : chipVer === verFilter);
       const fr  = c.querySelector('.chip-fr')?.textContent.toLowerCase() || '';
       const ifc = c.querySelector('.chip-ifc')?.textContent.toLowerCase() || '';
       const textOk = !val || fr.includes(val) || ifc.includes(val);
@@ -5592,7 +5594,7 @@ function filterCatalogue(q){
   });
   const counter = document.getElementById('cat-counter');
   if(counter){
-    const label = verFilter === 'all' ? 'toutes versions' : verFilter;
+    const label = verFilter === 'all' ? 'toutes versions' : verFilter === 'IFC4x' ? 'IFC 4 + 4.1 + 4.3' : verFilter;
     counter.textContent = `${visibleTotal} entité${visibleTotal>1?'s':''} · ${label} · clic → fiche détaillée`;
   }
 }
@@ -13331,7 +13333,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-03</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-04</div>
     </div>
 
     <!-- Stats globales -->
