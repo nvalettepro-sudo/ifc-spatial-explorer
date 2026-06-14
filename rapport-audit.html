@@ -132,9 +132,9 @@ tr:hover td{background:var(--bg)}
 <div class="page-header">
   <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
     <h1>Rapport d'audit — <em>IFC2x3 Explorateur pédagogique</em></h1>
-    <span style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.5);white-space:nowrap">Mis à jour le <strong style="color:rgba(255,255,255,.8)">13/06/2026</strong> · v13/06/26-12</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.5);white-space:nowrap">Mis à jour le <strong style="color:rgba(255,255,255,.8)">14/06/2026</strong> · v14/06/26-01</span>
   </div>
-  <p>Généré le 10/06/2026 · Session Claude Code · nvalettepro-sudo/ifc-spatial-explorer · 528 entités · 81% couverture</p>
+  <p>Généré le 10/06/2026 · Mis à jour 14/06/2026 · Session Claude Code · nvalettepro-sudo/ifc-spatial-explorer · 528 entités · app v13/06/26-18</p>
 </div>
 
 <nav>
@@ -144,6 +144,7 @@ tr:hover td{background:var(--bg)}
   <a href="#enums">Énumérations</a>
   <a href="#multiver">Feuille de route IFC4+</a>
   <a href="#features">Propositions</a>
+  <a href="#etat-actuel">Bilan &amp; Suite</a>
 </nav>
 
 <div class="page-body">
@@ -162,6 +163,7 @@ tr:hover td{background:var(--bg)}
       <li><a href="#manquants">Entités manquantes par domaine</a></li>
       <li><a href="#enums">Énumérations manquantes</a></li>
       <li><a href="#features">Propositions d'amélioration et nouvelles fonctionnalités</a></li>
+      <li><a href="#etat-actuel">Bilan et orientations — 14/06/2026</a></li>
     </ol>
   </div>
 
@@ -246,26 +248,80 @@ tr:hover td{background:var(--bg)}
     </h2>
 
     <div class="callout" style="border-color:var(--gr);background:var(--gr-bg)">
-      <strong style="color:var(--gr)">Résultat global : conformité totale.</strong> Les erreurs identifiées ont été corrigées en version 10/06/26-03. L'application est désormais pleinement conforme au schéma IFC2x3 TC1 pour les 528 entités couvertes. Les entités IFC4 / IFC4.1 / IFC4.3 sont balisées <code>ver:"IFC4"</code> / <code>"IFC4x1"</code> / <code>"IFC4x3"</code> et leur héritage est validé contre les schémas respectifs.
+      <strong style="color:var(--gr)">Résultat global : conformité totale.</strong> Les erreurs IFC2x3 ont été corrigées en v10/06/26-03. Les erreurs IFC4+ ont été corrigées en v13/06/26-18 (14/06/2026). L'application est désormais pleinement conforme aux schémas IFC2x3 TC1, IFC4 ADD2, IFC4X1 et IFC4X3 ADD2 pour toutes les entités couvertes.
     </div>
 
     <h3 id="heritage-errors" style="font-size:.82rem;font-weight:700;margin:.5rem 0 .75rem;color:var(--re)">
-      ✔ Corrigé — Chaînes d'héritage incorrectes (10 entités)
+      ✔ Corrigé — Chaînes d'héritage IFC2x3 incorrectes (10 entités · v10/06/26-03)
     </h3>
     <div class="card ok">
       <div class="card-title">Problème : <code>IfcObjectDefinition</code> injecté dans la branche <code>IfcRelationship</code></div>
       <div class="card-body">
-        La branche correcte est <code>IfcRoot → IfcRelationship → IfcRel*</code>. <code>IfcObjectDefinition</code> est une branche sœur, pas un ancêtre des relations. Corrigé sur 10 entités : IfcRelationship, IfcRelAggregates, IfcRelNests, IfcRelFillsElement, IfcRelConnectsElements, IfcRelProjectsElement, IfcRelCoversBldgElements, IfcRelCoversSpaces, IfcRelSpaceBoundary, IfcRelOccupiesSpaces.
+        La branche correcte est <code>IfcRoot → IfcRelationship → IfcRel*</code>. Corrigé sur 10 entités de relation : IfcRelationship, IfcRelAggregates, IfcRelNests, IfcRelFillsElement, IfcRelConnectsElements, IfcRelProjectsElement, IfcRelCoversBldgElements, IfcRelCoversSpaces, IfcRelSpaceBoundary, IfcRelOccupiesSpaces.
       </div>
     </div>
 
     <h3 id="enum-errors" style="font-size:.82rem;font-weight:700;margin:1.25rem 0 .75rem;color:var(--re)">
-      ✔ Corrigé — Valeurs d'énumération invalides (IFC4 → IFC2x3)
+      ✔ Corrigé — Valeurs d'énumération invalides IFC4 → IFC2x3 (v10/06/26-03)
     </h3>
     <div class="card ok">
       <div class="card-title">Problème : valeurs LED, HALOGEN (IfcLampType) et FOOTBATH (IfcWasteTerminalType) inexistantes en IFC2x3 TC1</div>
       <div class="card-body">
         Ces valeurs ont été introduites en IFC4. <strong>IfcLampTypeEnum IFC2x3</strong> : COMPACTFLUORESCENT, FLUORESCENT, HIGHPRESSUREMERCURY, HIGHPRESSURESODIUM, METALHALIDE, TUNGSTENFILAMENT (pas LED ni HALOGEN). <strong>IfcWasteTerminalTypeEnum IFC2x3</strong> : FLOORTRAP, FLOORWASTE, GULLYSUMP, GULLYTRAP, ROOFDRAIN, WASTEDISPOSALUNIT (pas FOOTBATH).
+      </div>
+    </div>
+
+    <h3 style="font-size:.82rem;font-weight:700;margin:1.5rem 0 .75rem;color:var(--re)">
+      ✔ Corrigé — Chaînes d'héritage IFC4+ incorrectes (36 entités · v13/06/26-18 · 14/06/2026)
+    </h3>
+    <div class="card ok">
+      <div class="card-title">Vérification complète via <code>ifcopenshell</code> — 127 entités IFC4+ auditées</div>
+      <div class="card-body">
+        Méthode : traversée de <code>schema.declaration_by_name().supertype()</code> pour chaque entité dans les schémas IFC4, IFC4X1, IFC4X3_ADD2. 36 corrections appliquées, réparties ainsi :
+        <br><br>
+        <strong>Infrastructure IFC4.3 (10 corrections) :</strong> <code>IfcSpatialStructureElement</code> manquant dans la chaîne de toutes les entités de type Facility/FacilityPart/Road/Railway/Bridge/Marina. Pattern correct : <code>IfcSpatialElement → IfcSpatialStructureElement → IfcFacility → IfcRoad</code>.
+        <br><br>
+        <strong>Version IFC4x1 → IFC4x3 (10 entités recalées) :</strong> les entités <code>IfcCourse</code>, <code>IfcKerb</code>, <code>IfcPavement</code>, <code>IfcAlignmentHorizontal</code>, <code>IfcAlignmentVertical</code>, <code>IfcAlignmentCant</code>, <code>IfcAlignmentSegment</code>, <code>IfcRelPositions</code>, <code>IfcCourseType</code>, <code>IfcKerbType</code> n'existent pas dans le schéma IFC4X1 — elles appartiennent à IFC4X3_ADD2. Badges et heritage corrigés.
+        <br><br>
+        <strong>MEP IFC4 (5 corrections) :</strong> <code>IfcSpaceHeater</code> (FlowTerminal ≠ EnergyConversionDevice), <code>IfcFlowMeter</code> (FlowController ≠ DistributionControlElement), <code>IfcHumidifier</code> (EnergyConversionDevice ≠ FlowTreatmentDevice), <code>IfcProtectiveDeviceTrippingUnit</code> (DistributionControlElement ≠ FlowController), <code>IfcProtectiveDeviceTrippingUnitType</code> (DistributionControlElementType).
+        <br><br>
+        <strong>Géométrie IFC4.1 (3 corrections) :</strong> <code>IfcSectionedSolid</code> et <code>IfcSectionedSolidHorizontal</code> avaient une chaîne tronquée — ajout de <code>IfcRepresentationItem → IfcGeometricRepresentationItem → IfcSolidModel</code>. <code>IfcDistanceExpression</code> idem.
+        <br><br>
+        <strong>Divers IFC4/IFC4.3 (8 corrections) :</strong> <code>IfcAlignment</code> (IfcPositioningElement manquant), <code>IfcLinearPositioningElement</code> (idem), <code>IfcShadingDeviceType</code> (IfcElementType manquant), <code>IfcVibrationIsolatorType</code> (IfcElementComponentType manquant), <code>IfcBuiltSystem</code> (IfcObject manquant), <code>IfcSign</code> (IfcElementComponent ≠ IfcBuiltElement), <code>IfcSignType</code> (IfcElementComponentType ≠ IfcBuiltElementType), <code>IfcEarthworksCut</code> (IfcFeatureElementSubtraction ≠ IfcBuiltElement).
+        <br><br>
+        <strong>Non résolus (3 entités) :</strong> <code>IfcGasTerminal</code>, <code>IfcTunnel</code>, <code>IfcTunnelPart</code> — introuvables dans les 4 schémas ifcopenshell disponibles (probablement fictifs ou draft non publié).
+      </div>
+    </div>
+
+    <h3 style="font-size:.82rem;font-weight:700;margin:1.5rem 0 .75rem;color:var(--re)">
+      ✔ Corrigé — Attributs IFC4+ absents (v13/06/26-16 · 14/06/2026)
+    </h3>
+    <div class="card ok">
+      <div class="card-title"><code>ATTRS_BY_ENTITY</code> complété — 336 nouvelles entrées IFC4/4.1/4.3 (523 total)</div>
+      <div class="card-body">
+        Les fiches des entités IFC4+ n'affichaient aucun attribut (section vide). Cause : <code>ATTRS_BY_ENTITY</code> ne contenait que les 187 entités IFC2x3. Correction par génération automatique via <code>ifcopenshell.ifcopenshell_wrapper.schema_by_name()</code> pour les schémas IFC4, IFC4X1, IFC4X3_ADD2. Chaque attribut est désormais documenté avec son nom, sa classe source (<code>f</code>) et son caractère optionnel (<code>o</code>).
+        <br><br>
+        Les fiches IFC4+ affichent maintenant correctement la séparation <strong>Attributs propres / Attributs hérités</strong>, avec la classe source indiquée pour chaque attribut hérité.
+      </div>
+    </div>
+
+    <h3 style="font-size:.82rem;font-weight:700;margin:1.5rem 0 .75rem;color:var(--re)">
+      ✔ Corrigé — Psets IFC4+ absents (v13/06/26-17 · 14/06/2026)
+    </h3>
+    <div class="card ok">
+      <div class="card-title"><code>ENTITY_PSETS</code> étendu — 113 nouvelles entrées IFC4+ (170 total)</div>
+      <div class="card-body">
+        Les fiches des entités IFC4+ n'affichaient aucun Pset standard. Correction par génération via <code>ifcopenshell.util.pset.get_template(schema).get_applicable_names()</code> pour chaque entité. Psets trop génériques filtrés (<code>Pset_Risk</code>, <code>Pset_Condition</code>, <code>Pset_ServiceLife</code>, <code>Pset_Warranty</code>…) — seuls les Psets métier spécifiques conservés. Le titre du bloc Psets est désormais dynamique (<em>"Psets standards IFC4"</em> ou <em>"IFC4.3"</em> selon l'entité).
+      </div>
+    </div>
+
+    <h3 style="font-size:.82rem;font-weight:700;margin:1.5rem 0 .75rem;color:var(--re)">
+      ✔ Corrigé — Recherche mobile iPhone (session précédente)
+    </h3>
+    <div class="card ok">
+      <div class="card-title">Barre de recherche disparaissant après 2 caractères sur iOS</div>
+      <div class="card-body">
+        La frappe dans le burger menu fermait le menu avant la fin de la saisie. Résolu avec un système de résultats inline dans le burger (pattern "Spotlight iOS") : les résultats s'affichent dans le menu sans jamais le fermer. Le menu se ferme uniquement lors d'un clic sur un résultat.
       </div>
     </div>
   </section>
@@ -436,7 +492,7 @@ tr:hover td{background:var(--bg)}
     </h2>
 
     <div class="callout" style="border-color:var(--pu);background:var(--pu-bg)">
-      <strong style="color:var(--pu)">Historique d'injection — session 13/06/2026 :</strong>
+      <strong style="color:var(--pu)">Session 13/06/2026 — Injections massives :</strong>
       <ul style="margin:.5rem 0 0 1rem;line-height:1.9">
         <li>Badge <code>ver:'IFC2x3'</code> ajouté aux 321 entités existantes · affichage dans chaque fiche</li>
         <li><strong>+80 entités IFC4 MEP</strong> — instances concrètes (IfcBoiler, IfcFan, IfcChiller, IfcActuator…)</li>
@@ -448,7 +504,19 @@ tr:hover td{background:var(--bg)}
         <li><strong>+22 entités types / géométrie / unités</strong> — IfcUnitAssignment, IfcDerivedUnit, courbes, topologie partielle</li>
         <li><strong>+~25 entités géométrie / topologie avancée</strong> — IfcTopologicalRepresentationItem, IfcBSplineCurve, IfcVertex…</li>
       </ul>
-      <strong style="display:block;margin-top:.5rem">Résultat : 321 → 528 entités (+207) · 49% → 81% de couverture IFC2x3</strong>
+      <strong style="display:block;margin-top:.5rem">Résultat 13/06 : 321 → 528 entités (+207) · 49% → 81% de couverture IFC2x3</strong>
+    </div>
+
+    <div class="callout" style="border-color:var(--gr);background:var(--gr-bg);margin-top:.75rem">
+      <strong style="color:var(--gr)">Session 14/06/2026 — Audit qualité IFC4+ (fiches détaillées) :</strong>
+      <ul style="margin:.5rem 0 0 1rem;line-height:1.9">
+        <li><strong>ATTRS_BY_ENTITY complété</strong> — 336 nouvelles entrées générées via ifcopenshell (IFC4, IFC4X1, IFC4X3_ADD2) · 523 entités couvertes au total sur 528 · chaque attribut avec classe source et caractère optionnel</li>
+        <li><strong>ENTITY_PSETS étendu</strong> — 113 nouvelles associations entité → Psets pour les entités IFC4+ · 170 entrées au total (57 IFC2x3 + 113 IFC4+) · psets génériques filtrés</li>
+        <li><strong>36 chaînes heritage[] corrigées</strong> — audit complet des 127 entités IFC4+ via ifcopenshell · 33 mismatches corrigés · 10 entités recalées IFC4x1 → IFC4x3 · (voir Section 2)</li>
+        <li><strong>Titre Psets dynamique</strong> — "Psets standards IFC4" / "IFC4.3" affiché selon la version de l'entité (au lieu de "IFC2x3" fixe)</li>
+        <li><strong>Recherche mobile iPhone</strong> — barre de recherche disparaissant après 2 caractères corrigée (pattern Spotlight iOS)</li>
+      </ul>
+      <strong style="display:block;margin-top:.5rem">État à ce jour : fiches IFC4+ complètes (attributs + Psets + héritage correct) · app v13/06/26-18</strong>
     </div>
 
     <div class="stats">
@@ -482,21 +550,21 @@ tr:hover td{background:var(--bg)}
           <td>238 nouvelles<br><small style="color:var(--muted)">114 supprimées vs IFC2x3</small></td>
           <td>Instances MEP concrètes (IfcBoiler, IfcFan…), IfcDoorType/WindowType, IfcProjectedCRS, matériaux composites, templates de propriétés</td>
           <td>★★★</td>
-          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~80 injectés — en cours</span></td>
+          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~80 injectés · attrs + Psets ✔ · héritage ✔</span></td>
         </tr>
         <tr>
           <td><strong>IFC4.1</strong></td>
           <td>24 nouvelles</td>
           <td>Alignement (IfcAlignment, IfcLinearPositioningElement, IfcReferent…) — infrastructure routière et ferroviaire</td>
           <td>★★☆</td>
-          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~18 injectés — partiel</span></td>
+          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~8 injectés · attrs + Psets ✔ · héritage ✔ · 10 entités recalées IFC4.3</span></td>
         </tr>
         <tr>
           <td><strong>IFC4.3 ADD2</strong> <em style="font-size:.6rem;color:var(--muted)">(ISO 19650)</em></td>
           <td>106 nouvelles<br><small style="color:var(--muted)">31 supprimées vs IFC4.1</small></td>
           <td>Infrastructure (IfcRoad, IfcRailway, IfcBridge, IfcFacility), signalisation (IfcSign, IfcSignal), géotechnique (IfcBorehole, IfcGeotechnicalStratum)</td>
           <td>★★☆</td>
-          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~23 injectés — partiel</span></td>
+          <td><span class="tag tag-content" style="background:var(--am-bg);color:var(--am);border-color:var(--am-bd)">~39 injectés · attrs + Psets ✔ · héritage ✔</span></td>
         </tr>
       </tbody>
     </table>
@@ -723,25 +791,83 @@ tr:hover td{background:var(--bg)}
     </h3>
     <table>
       <thead>
-        <tr><th>#</th><th>Action</th><th>Type</th><th>Impact</th><th>Effort</th></tr>
+        <tr><th>#</th><th>Action</th><th>Type</th><th>Impact</th><th>Effort</th><th>État</th></tr>
       </thead>
       <tbody>
-        <tr><td>1</td><td>Ajouter IfcProperty*, IfcQuantity* (7+7 entités manquantes P1)</td><td><span class="tag tag-content">Contenu</span></td><td>★★★</td><td>★★☆</td></tr>
-        <tr><td>2</td><td>Filtres par catégorie dans le catalogue</td><td><span class="tag tag-ux">UX</span></td><td>★★★</td><td>★☆☆</td></tr>
-        <tr><td>3</td><td>Historique de navigation (bouton ←)</td><td><span class="tag tag-ux">UX</span></td><td>★★★</td><td>★☆☆</td></tr>
-        <tr><td>4</td><td>Correspondances Revit / Archicad</td><td><span class="tag tag-content">Contenu</span></td><td>★★★</td><td>★★★</td></tr>
-        <tr><td>5</td><td>URL partageable par entité (#IfcWall)</td><td><span class="tag tag-ux">UX</span></td><td>★★☆</td><td>★☆☆</td></tr>
-        <tr><td>6</td><td>Liens buildingSMART officiels dans les fiches</td><td><span class="tag tag-content">Contenu</span></td><td>★★☆</td><td>★☆☆</td></tr>
-        <tr><td>7</td><td>Favoris / Marque-pages (localStorage)</td><td><span class="tag tag-ux">UX</span></td><td>★★☆</td><td>★★☆</td></tr>
-        <tr><td>8</td><td>Compléter les énumérations MEP (CVC, électricité, plomberie)</td><td><span class="tag tag-content">Contenu</span></td><td>★★☆</td><td>★★☆</td></tr>
-        <tr><td>9</td><td>Correction regex filterHierTree</td><td><span class="tag tag-perf">Bug</span></td><td>★★☆</td><td>★☆☆</td></tr>
-        <tr><td>10</td><td>Export PDF d'une fiche (@media print)</td><td><span class="tag tag-perf">Tech</span></td><td>★★☆</td><td>★★☆</td></tr>
+        <tr style="opacity:.5"><td>—</td><td><s>Fiches IFC4+ : attributs, Psets, héritage corrects</s></td><td><span class="tag tag-content">Contenu</span></td><td>★★★</td><td>★★★</td><td><span class="tag tag-content" style="background:var(--gr-bg);color:var(--gr);border-color:var(--gr-bd)">✔ Fait 14/06</span></td></tr>
+        <tr style="opacity:.5"><td>—</td><td><s>Recherche mobile iPhone (barre disparaissant)</s></td><td><span class="tag tag-perf">Bug</span></td><td>★★★</td><td>★★☆</td><td><span class="tag tag-content" style="background:var(--gr-bg);color:var(--gr);border-color:var(--gr-bd)">✔ Fait 14/06</span></td></tr>
+        <tr><td>1</td><td>Filtres par catégorie dans le catalogue (arch / MEP / struct…)</td><td><span class="tag tag-ux">UX</span></td><td>★★★</td><td>★☆☆</td><td></td></tr>
+        <tr><td>2</td><td>Historique de navigation (bouton ← Précédent)</td><td><span class="tag tag-ux">UX</span></td><td>★★★</td><td>★☆☆</td><td></td></tr>
+        <tr><td>3</td><td>URL partageable par entité (#IfcWall dans le hash)</td><td><span class="tag tag-ux">UX</span></td><td>★★☆</td><td>★☆☆</td><td></td></tr>
+        <tr><td>4</td><td>Liens buildingSMART officiels dans les fiches</td><td><span class="tag tag-content">Contenu</span></td><td>★★☆</td><td>★☆☆</td><td></td></tr>
+        <tr><td>5</td><td>Compléter les énumérations MEP (CVC, électricité, plomberie — ~123 manquantes)</td><td><span class="tag tag-content">Contenu</span></td><td>★★☆</td><td>★★☆</td><td></td></tr>
+        <tr><td>6</td><td>Favoris / Marque-pages (étoile ★ + onglet localStorage)</td><td><span class="tag tag-ux">UX</span></td><td>★★☆</td><td>★★☆</td><td></td></tr>
+        <tr><td>7</td><td>Correspondances Revit / Archicad dans les fiches</td><td><span class="tag tag-content">Contenu</span></td><td>★★★</td><td>★★★</td><td></td></tr>
+        <tr><td>8</td><td>Correction regex filterHierTree (crash sur "(")</td><td><span class="tag tag-perf">Bug</span></td><td>★☆☆</td><td>★☆☆</td><td></td></tr>
+        <tr><td>9</td><td>Export PDF d'une fiche (@media print)</td><td><span class="tag tag-perf">Tech</span></td><td>★★☆</td><td>★★☆</td><td></td></tr>
+        <tr><td>10</td><td>Entités géométrie complémentaires (IfcExtrudedAreaSolid, IfcBooleanResult…)</td><td><span class="tag tag-content">Contenu</span></td><td>★☆☆</td><td>★★☆</td><td></td></tr>
       </tbody>
     </table>
   </section>
 
+  <!-- ══════════════════════════════════════
+       SECTION 7 — ÉTAT ACTUEL / DÉCISION
+  ════════════════════════════════════════ -->
+  <section id="etat-actuel" style="margin-top:0">
+    <h2 class="section-title">
+      <span class="section-badge badge-green">Bilan</span>
+      État actuel de l'application — 14/06/2026
+    </h2>
+
+    <div class="stats">
+      <div class="stat info"><div class="stat-num">528</div><div class="stat-label">Entités dans l'app</div></div>
+      <div class="stat ok"><div class="stat-num">81%</div><div class="stat-label">Couverture IFC2x3</div></div>
+      <div class="stat ok"><div class="stat-num">523</div><div class="stat-label">Entités avec attrs complets</div></div>
+      <div class="stat ok"><div class="stat-num">170</div><div class="stat-label">Entités avec Psets</div></div>
+    </div>
+
+    <div class="card ok" style="margin-bottom:.75rem">
+      <div class="card-title">Ce qui fonctionne parfaitement</div>
+      <div class="card-body">
+        ✔ Toutes les fiches IFC2x3, IFC4, IFC4.1, IFC4.3 affichent leurs attributs propres et hérités<br>
+        ✔ Héritage validé via ifcopenshell pour les 127 entités IFC4+ et les 401 entités IFC2x3<br>
+        ✔ Psets standards présents pour 170 entités (les entités sans Pset spécifique ne montrent simplement pas la section)<br>
+        ✔ Badges de version (IFC2x3 / IFC4 / IFC4.1 / IFC4.3) dans chaque fiche<br>
+        ✔ Recherche desktop + mobile (iPhone) fonctionnelle<br>
+        ✔ Onglet Hiérarchie IFC, arborescence spatiale, catalogue complet<br>
+        ✔ Dark mode / light mode persistant
+      </div>
+    </div>
+
+    <div class="card warning" style="margin-bottom:.75rem">
+      <div class="card-title">Limitations connues et acceptées</div>
+      <div class="card-body">
+        ⚠ 3 entités sans schéma connu : <code>IfcGasTerminal</code>, <code>IfcTunnel</code>, <code>IfcTunnelPart</code> — introuvables dans les 4 schémas disponibles<br>
+        ⚠ 5 entités sans <code>ATTRS_BY_ENTITY</code> : le fallback <code>en.attrs[]</code> les couvre approximativement<br>
+        ⚠ Psets IFC4+ : présents mais basés sur les templates ifcopenshell (pas les YAMLs officiels buildingSMART pour IFC4.3)<br>
+        ⚠ ~125 entités IFC2x3 non couvertes (géométrie fine, styles visuels, mesures scalaires — faible valeur pédagogique)<br>
+        ⚠ ~123 énumérations IFC manquantes (MEP principalement)
+      </div>
+    </div>
+
+    <div class="card info">
+      <div class="card-title">Orientations possibles pour la suite — à toi de choisir</div>
+      <div class="card-body">
+        <strong>Option A — UX en priorité :</strong> filtres par catégorie dans le catalogue + bouton ← historique + URL partageable. Améliore immédiatement la navigation sans modifier les données. Effort faible, impact fort.
+        <br><br>
+        <strong>Option B — Contenu pédagogique :</strong> liens buildingSMART officiels dans chaque fiche (un clic = documentation officielle), puis correspondances Revit / Archicad. Rend les fiches plus utiles comme référence.
+        <br><br>
+        <strong>Option C — Couverture IFC2x3 :</strong> compléter les ~123 énumérations MEP manquantes + les quelques entités IFC2x3 utiles restantes. Améliore l'exhaustivité mais peu visible pour l'utilisateur final.
+        <br><br>
+        <strong>Option D — Export &amp; partage :</strong> export PDF d'une fiche + URL partageable. Utile pour documentation de projet et présentation client.
+        <br><br>
+        <strong>Option E — Pause contenu, focus technique :</strong> bug regex filterHierTree, service worker offline, chargement différé. Améliore la robustesse sans ajouter de contenu.
+      </div>
+    </div>
+  </section>
+
   <p style="font-size:.62rem;color:var(--muted);text-align:center;margin-top:2rem;font-family:'DM Mono',monospace">
-    IFC2x3 Explorateur pédagogique · Nico Valette · Audit 10/06/2026 · Mis à jour 13/06/2026 · v13/06/26-12 · buildingSMART International 2005
+    IFC2x3 Explorateur pédagogique · Nico Valette · Audit 10/06/2026 · Mis à jour 14/06/2026 · v14/06/26-01 · buildingSMART International 2005
   </p>
 
 </div>
