@@ -8146,6 +8146,7 @@ function closeMobMenu(){
 }
 
 function showAbstractDetail(name){
+  try{ location.hash = name; }catch(e){}
   const ac = ABSTRACT_CLASSES[name];
   if(!ac) return;
   selected = null;
@@ -13070,6 +13071,7 @@ function showDetail(id){
 
   const en = E[id];
   if(!en) return;
+  try{ location.hash = en.ifc; }catch(e){}
 
   const catBadge = `<div class="cat-badge ${CAT_CLASS[en.cat]||'cat-arch'}">${CAT_LABELS[en.cat]||en.cat}</div>`;
 
@@ -13315,6 +13317,14 @@ function renderArboTree(){
 renderArboTree();
 renderCatalogue();
 renderHierTree();
+
+(function(){
+  const h = location.hash.slice(1);
+  if(!h) return;
+  const key = Object.keys(E).find(k => E[k].ifc === h);
+  if(key) showDetail(key);
+  else if(ABSTRACT_CLASSES[h]) showAbstractDetail(h);
+})();
 
 /* ═══════════════════════════════════════
    POIGNÉE DE REDIMENSIONNEMENT
