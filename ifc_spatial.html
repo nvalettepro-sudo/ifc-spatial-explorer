@@ -13140,13 +13140,116 @@ function renderFavs(){
   }).join('');
 }
 
+/* Mapping IFC2x3 TC1 : entité → dossier de schéma buildingSMART */
+const IFC2X3_SCHEMA = {
+  /* ifckernel — concepts fondamentaux */
+  IfcProject:'ifckernel', IfcRelationship:'ifckernel', IfcTypeObject:'ifckernel', IfcTypeProduct:'ifckernel',
+  IfcActor:'ifckernel',
+  IfcRelAssigns:'ifckernel', IfcRelAssignsToActor:'ifckernel', IfcRelAssignsToControl:'ifckernel',
+  IfcRelAssignsToGroup:'ifckernel', IfcRelAssignsToProcess:'ifckernel', IfcRelAssignsToProduct:'ifckernel',
+  IfcRelAssignsToResource:'ifckernel', IfcRelDecomposes:'ifckernel',
+  IfcRelDefinesByProperties:'ifckernel', IfcRelDefinesByType:'ifckernel', IfcRelOverridesProperties:'ifckernel',
+  IfcRelAssociatesAppliedValue:'ifckernel', IfcRelAssociatesApproval:'ifckernel',
+  IfcRelAssociatesClassification:'ifckernel', IfcRelAssociatesConstraint:'ifckernel',
+  IfcRelAssociatesDocument:'ifckernel', IfcRelAssociatesLibrary:'ifckernel',
+  IfcRelAssociatesMaterial:'ifckernel', IfcRelAssociatesProfileProperties:'ifckernel',
+  /* ifcproductextension — éléments & structure spatiale */
+  IfcBuilding:'ifcproductextension', IfcBuildingStorey:'ifcproductextension',
+  IfcSite:'ifcproductextension', IfcSpace:'ifcproductextension',
+  IfcElement:'ifcproductextension', IfcBuildingElement:'ifcproductextension',
+  IfcBuildingElementType:'ifcproductextension', IfcBuildingElementComponent:'ifcproductextension',
+  IfcBuildingElementPart:'ifcproductextension',
+  IfcPort:'ifcproductextension', IfcDistributionPort:'ifcproductextension',
+  IfcDistributionElement:'ifcproductextension', IfcDistributionControlElement:'ifcproductextension',
+  IfcDistributionFlowElement:'ifcproductextension', IfcDistributionChamberElement:'ifcproductextension',
+  IfcDistributionElementType:'ifcproductextension', IfcDistributionControlElementType:'ifcproductextension',
+  IfcDistributionChamberElementType:'ifcproductextension', IfcDistributionFlowElementType:'ifcproductextension',
+  IfcEnergyConversionDevice:'ifcproductextension', IfcEnergyConversionDeviceType:'ifcproductextension',
+  IfcFlowController:'ifcproductextension', IfcFlowControllerType:'ifcproductextension',
+  IfcFlowFitting:'ifcproductextension', IfcFlowFittingType:'ifcproductextension',
+  IfcFlowMovingDevice:'ifcproductextension', IfcFlowMovingDeviceType:'ifcproductextension',
+  IfcFlowSegment:'ifcproductextension', IfcFlowSegmentType:'ifcproductextension',
+  IfcFlowStorageDevice:'ifcproductextension', IfcFlowStorageDeviceType:'ifcproductextension',
+  IfcFlowTerminal:'ifcproductextension', IfcFlowTerminalType:'ifcproductextension',
+  IfcFlowTreatmentDevice:'ifcproductextension', IfcFlowTreatmentDeviceType:'ifcproductextension',
+  IfcRelContainedInSpatialStructure:'ifcproductextension', IfcRelServicesBuildings:'ifcproductextension',
+  IfcRelReferencedInSpatialStructure:'ifcproductextension', IfcRelCoversSpaces:'ifcproductextension',
+  IfcRelCoversBldgElements:'ifcproductextension', IfcRelSpaceBoundary:'ifcproductextension',
+  IfcRelVoidsElement:'ifcproductextension', IfcRelFillsElement:'ifcproductextension',
+  IfcRelProjectsElement:'ifcproductextension', IfcRelFlowControlElements:'ifcproductextension',
+  IfcRelConnectsPorts:'ifcproductextension', IfcRelConnectsPortToElement:'ifcproductextension',
+  IfcRelConnectsElements:'ifcproductextension', IfcRelConnectsPathElements:'ifcproductextension',
+  IfcRelInteractionRequirements:'ifcproductextension', IfcRelConnectsWithRealizingElements:'ifcproductextension',
+  IfcRelConnectsStructuralActivity:'ifcproductextension', IfcRelConnectsStructuralElement:'ifcproductextension',
+  IfcRelConnectsStructuralMember:'ifcproductextension',
+  /* ifcsharedbldgelements — éléments architecturaux */
+  IfcWall:'ifcsharedbldgelements', IfcWallStandardCase:'ifcsharedbldgelements', IfcWallType:'ifcsharedbldgelements',
+  IfcSlab:'ifcsharedbldgelements', IfcSlabType:'ifcsharedbldgelements',
+  IfcColumn:'ifcsharedbldgelements', IfcColumnType:'ifcsharedbldgelements',
+  IfcBeam:'ifcsharedbldgelements', IfcBeamType:'ifcsharedbldgelements',
+  IfcRoof:'ifcsharedbldgelements',
+  IfcCovering:'ifcsharedbldgelements', IfcCoveringType:'ifcsharedbldgelements',
+  IfcCurtainWall:'ifcsharedbldgelements', IfcCurtainWallType:'ifcsharedbldgelements',
+  IfcRailing:'ifcsharedbldgelements', IfcRailingType:'ifcsharedbldgelements',
+  IfcStair:'ifcsharedbldgelements', IfcStairFlight:'ifcsharedbldgelements', IfcStairFlightType:'ifcsharedbldgelements',
+  IfcRamp:'ifcsharedbldgelements', IfcRampFlight:'ifcsharedbldgelements', IfcRampFlightType:'ifcsharedbldgelements',
+  IfcBuildingElementProxy:'ifcsharedbldgelements',
+  IfcMember:'ifcsharedbldgelements', IfcMemberType:'ifcsharedbldgelements',
+  IfcPlate:'ifcsharedbldgelements', IfcPlateType:'ifcsharedbldgelements',
+  IfcDoor:'ifcsharedbldgelements', IfcDoorStyle:'ifcsharedbldgelements',
+  IfcWindow:'ifcsharedbldgelements', IfcWindowStyle:'ifcsharedbldgelements',
+  /* ifcsharedcomponentelements — armatures & fixations */
+  IfcReinforcingElement:'ifcsharedcomponentelements', IfcReinforcingBar:'ifcsharedcomponentelements',
+  IfcReinforcingMesh:'ifcsharedcomponentelements', IfcTendon:'ifcsharedcomponentelements',
+  IfcTendonAnchor:'ifcsharedcomponentelements',
+  /* ifcsharedfacilitieselements — mobilier & espaces occupés */
+  IfcFurnishingElement:'ifcsharedfacilitieselements', IfcFurnitureType:'ifcsharedfacilitieselements',
+  IfcSystemFurnitureElementType:'ifcsharedfacilitieselements',
+  IfcRelOccupiesSpaces:'ifcsharedfacilitieselements',
+  /* ifcsharedmgmtelements — gestion de projet */
+  IfcRelAssignsTasks:'ifcsharedmgmtelements', IfcRelAssignsToProjectOrder:'ifcsharedmgmtelements',
+  IfcRelSchedulesCostItems:'ifcsharedmgmtelements',
+  /* ifcstructuralelementsdomain — fondations & structures */
+  IfcFooting:'ifcstructuralelementsdomain', IfcPile:'ifcstructuralelementsdomain',
+  /* ifcplumbingfireprotectiondomain — plomberie & incendie */
+  IfcSanitaryTerminalType:'ifcplumbingfireprotectiondomain',
+  IfcFireSuppressionTerminalType:'ifcplumbingfireprotectiondomain',
+  IfcStackTerminalType:'ifcplumbingfireprotectiondomain',
+  IfcWasteTerminalType:'ifcplumbingfireprotectiondomain',
+  IfcGasTerminalType:'ifcplumbingfireprotectiondomain',
+  IfcInterceptorType:'ifcplumbingfireprotectiondomain',
+  /* ifchvacdomain — CVC & réseaux aérauliques/hydrauliques */
+  IfcAirTerminalType:'ifchvacdomain', IfcAirTerminalBoxType:'ifchvacdomain',
+  IfcAirToAirHeatRecoveryType:'ifchvacdomain', IfcCondenserType:'ifchvacdomain',
+  IfcCooledBeamType:'ifchvacdomain', IfcCoolingTowerType:'ifchvacdomain',
+  IfcDuctFittingType:'ifchvacdomain', IfcDuctSegmentType:'ifchvacdomain', IfcDuctSilencerType:'ifchvacdomain',
+  IfcEvaporativeCoolerType:'ifchvacdomain', IfcEvaporatorType:'ifchvacdomain',
+  IfcFlowMeterType:'ifchvacdomain', IfcHeatExchangerType:'ifchvacdomain',
+  IfcPipeFittingType:'ifchvacdomain', IfcPipeSegmentType:'ifchvacdomain',
+  IfcSpaceHeaterType:'ifchvacdomain',
+  /* ifcelectricaldomain — électricité & câblage */
+  IfcCableCarrierFittingType:'ifcelectricaldomain', IfcCableCarrierSegmentType:'ifcelectricaldomain',
+  IfcCableSegmentType:'ifcelectricaldomain', IfcElectricApplianceType:'ifcelectricaldomain',
+  IfcElectricDistributionPoint:'ifcelectricaldomain',
+  IfcElectricFlowStorageDeviceType:'ifcelectricaldomain', IfcElectricGeneratorType:'ifcelectricaldomain',
+  IfcElectricHeaterType:'ifcelectricaldomain', IfcElectricMotorType:'ifcelectricaldomain',
+  IfcElectricTimeControlType:'ifcelectricaldomain', IfcJunctionBoxType:'ifcelectricaldomain',
+  IfcLightFixtureType:'ifcelectricaldomain', IfcMotorConnectionType:'ifcelectricaldomain',
+  IfcProtectiveDeviceType:'ifcelectricaldomain', IfcSwitchingDeviceType:'ifcelectricaldomain',
+  IfcTransformerType:'ifcelectricaldomain',
+  /* ifcbuildingcontrolsdomain — capteurs, alarmes & contrôle */
+  IfcAlarmType:'ifcbuildingcontrolsdomain', IfcControllerType:'ifcbuildingcontrolsdomain',
+  IfcSensorType:'ifcbuildingcontrolsdomain', IfcActuatorType:'ifcbuildingcontrolsdomain',
+  IfcFlowInstrumentType:'ifcbuildingcontrolsdomain',
+};
+const IFC2X3_BASE = 'https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/';
 function _bsUrl(en){
   const v = en.ver||'IFC2x3';
   const lc = en.ifc.toLowerCase();
   if(v==='IFC4x3'||v==='IFC4x1') return `https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/HTML/lexical/${en.ifc}.htm`;
   if(v==='IFC4') return `https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${lc}.htm`;
-  /* IFC2x3 : pas de répertoire /link/, lien vers l'index TC1 */
-  return `https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/`;
+  const pkg = IFC2X3_SCHEMA[en.ifc];
+  return pkg ? `${IFC2X3_BASE}${pkg}/lexical/${lc}.htm` : IFC2X3_BASE;
 }
 
 function showDetail(id){
