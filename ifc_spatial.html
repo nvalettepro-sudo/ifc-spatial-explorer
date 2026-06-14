@@ -937,7 +937,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-04</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-05</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -5355,20 +5355,19 @@ function renderCatalogue(){
      keys:['project','site','building','storey','space','grid','gridaxis']},
 
     {label:'Plomberie & Sanitaires', color:'plo',
-     keys:['pipe','pipefitting','valve','wasteterm','sanitary','stackterm','gasterminal']},
+     keys:['pipe','pipefitting','wasteterm','sanitary','stackterm','gasterminal']},
 
     {label:'Ventilation & CVC', color:'vent',
-     keys:['duct','ductfitting','airterminal','airbox','damper','ductsilencer',
+     keys:['duct','ductfitting','airterminal','airbox','ductsilencer',
            'distchamber','distflow','flowseg','flowfitting','flowterminal','flowcontroller']},
 
     {label:'Détection & Sécurité', color:'sec',
-     keys:['sensor','alarm','actuator','controller','firesupp','flowinstrument',
-           'flowmeter','protectivedevice']},
+     keys:['firesupp','flowinstrument','flowmeter','protectivedevice']},
 
     {label:'Électricité', color:'elec',
      keys:['cable','cablecarrier','cablecarrierfitting','junctionbox',
-           'outlet','lightfixture','lamp','switchdev','etimecontrol',
-           'distpoint','transformer','battery','eleccircuit','appliance','eheater']},
+           'lightfixture','switchdev','etimecontrol',
+           'distpoint','battery','eleccircuit','appliance','eheater']},
 
     {label:'Mobilier & Équipements', color:'furn',
      keys:['furniture']},
@@ -5390,9 +5389,8 @@ function renderCatalogue(){
            'arbclosedprofile','compositeprofile']},
 
     {label:'Production & Fluides', color:'mep',
-     keys:['boiler','chiller','spaceheater','heatexchanger','airtoheat',
-           'coolingtower','coil','tank','pump','fan','compressor','filter',
-           'energydev','flowstorage','flowmoving','flowtreatment','distelement']},
+     keys:['spaceheater','heatexchanger','airtoheat',
+           'coolingtower','energydev','flowstorage','flowmoving','flowtreatment','distelement']},
 
     {label:'Données & Propriétés', color:'prop',
      keys:['propdef','propsetdef','propset','propval','propbounded',
@@ -5465,7 +5463,8 @@ function renderCatalogue(){
 
     /* ── IFC4 — Instances MEP concrètes ── */
     {label:'Production & CVC — IFC4', color:'mep',
-     keys:['boiler','chiller','condenser','cooledBeam','coolingTower','evaporativeCooler',
+     keys:['boiler','chiller','coil','tank','pump','fan','compressor','filter',
+           'condenser','cooledBeam','coolingTower','evaporativeCooler',
            'evaporator','heatExchanger','airToAirHeatRecovery','spaceHeater','humidifier',
            'unitaryEquipment','burner','engine','solarDevice','tubeBundle']},
 
@@ -5477,12 +5476,15 @@ function renderCatalogue(){
      keys:['pipeSegment','pipeFitting','ductSegment','ductFitting','ductSilencer',
            'cableSegment','cableCarrierSegment','cableCarrierFitting','cableFitting','junctionBox']},
 
+    {label:'Capteurs & Actionneurs — IFC4', color:'sec',
+     keys:['sensor','alarm','actuator','controller','valve','damper']},
+
     {label:'Contrôle & Fluides — IFC4', color:'sec',
      keys:['flowMeter','flowInstrument','protectiveDevice','protectiveDeviceTrippingUnit',
            'switchingDevice','elecTimeControl','unitaryControlElement','vibrationIsolator']},
 
     {label:'Électricité & AV — IFC4', color:'elec',
-     keys:['airTerminal','airTerminalBox','lightFixture','elecAppliance',
+     keys:['outlet','lamp','transformer','airTerminal','airTerminalBox','lightFixture','elecAppliance',
            'elecDistributionBoard','elecDistributionBoardType','elecFlowStorageDevice',
            'elecMotor','elecGenerator','motorConnection',
            'audioVisualAppliance','communicationsAppliance']},
@@ -13333,7 +13335,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-04</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-05</div>
     </div>
 
     <!-- Stats globales -->
