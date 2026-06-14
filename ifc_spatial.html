@@ -638,6 +638,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 .nav-pill{font-size:.58rem;padding:.2rem .5rem;border-radius:6px;cursor:pointer;text-decoration:none;font-weight:600;border:1px solid transparent;display:inline-block;transition:opacity .12s}
 .nav-pill:hover{opacity:.8}
+.ver-filter-btn{background:var(--bg);color:var(--muted);border-color:var(--border)}
+.ver-filter-btn.active-ver{background:var(--sp,#1D5FA5);color:#fff;border-color:var(--sp,#1D5FA5)}
+[data-theme="dark"] .ver-filter-btn{background:var(--card2,#252525);color:var(--muted);border-color:var(--border)}
+[data-theme="dark"] .ver-filter-btn.active-ver{background:var(--sp,#4A9FE0);color:#fff;border-color:var(--sp,#4A9FE0)}
 
 /* Cat badge */
 .cat-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.62rem;padding:.2rem .6rem;border-radius:99px;font-weight:500;margin-bottom:.5rem}
@@ -933,7 +937,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">13/06/26-18</span></div>
+    <div class="logo">IFC<em>2x3</em> · Structure spatiale imbriquée<span class="ver">14/06/26-01</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -987,7 +991,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
     <!-- Onglets gauche : Arborescence / Données -->
     <div class="aside-tabs">
-      <div class="aside-tab active" id="tab-data" onclick="switchTab('data')">Données</div>
+      <div class="aside-tab active" id="tab-data" onclick="switchTab('data')">Entités IFC</div>
       <div class="aside-tab" id="tab-arbo" onclick="switchTab('arbo')">Arborescence</div>
       <div class="aside-tab" id="tab-hier" onclick="switchTab('hier')">Hiérarchie</div>
       <div class="aside-tab" id="tab-search" onclick="switchTab('search')" style="display:none">
@@ -1038,374 +1042,22 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   </div><!-- fin spatial-view -->
     </div><!-- fin pane-arbo -->
 
-    <!-- Onglet 2 : Données invisibles + légende -->
+    <!-- Onglet Entités IFC -->
     <div class="aside-pane active" id="pane-data">
 
-      <input class="hier-search" id="data-search" type="text" placeholder="Filtrer les entités du catalogue…" oninput="filterCatalogue(this.value)" autocomplete="off" spellcheck="false">
+      <input class="hier-search" id="data-search" type="text" placeholder="Filtrer les entités…" oninput="filterCatalogue(this.value)" autocomplete="off" spellcheck="false">
 
-      <!-- ── Navigation rapide ── -->
-      <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.75rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)">
-        <a onclick="toggleDataSection('ds-relations')" class="nav-pill cat-prop">Relations</a>
-        <a onclick="toggleDataSection('ds-props')"    class="nav-pill cat-space">Propriétés</a>
-        <a onclick="toggleDataSection('ds-actors')"   class="nav-pill cat-actor">Acteurs</a>
-        <a onclick="toggleDataSection('ds-enums')"    class="nav-pill cat-geo">Énumérations</a>
-        <a onclick="toggleDataSection('ds-types')"    class="nav-pill cat-space">Types IFC</a>
-        <a onclick="toggleDataSection('ds-catalogue')" class="nav-pill cat-arch">Catalogue</a>
-        <a onclick="toggleDataSection('ds-legend')"   class="nav-pill cat-furn">Légende</a>
+      <!-- ── Filtres version ── -->
+      <div id="ver-filters" style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.75rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)">
+        <a onclick="setVerFilter('all')"   class="nav-pill ver-filter-btn active-ver" id="vf-all">Toutes</a>
+        <a onclick="setVerFilter('IFC2x3')" class="nav-pill ver-filter-btn" id="vf-IFC2x3">IFC 2x3</a>
+        <a onclick="setVerFilter('IFC4')"   class="nav-pill ver-filter-btn" id="vf-IFC4">IFC 4</a>
+        <a onclick="setVerFilter('IFC4x1')" class="nav-pill ver-filter-btn" id="vf-IFC4x1">IFC 4.1</a>
+        <a onclick="setVerFilter('IFC4x3')" class="nav-pill ver-filter-btn" id="vf-IFC4x3">IFC 4.3</a>
       </div>
 
       <!-- ── CATALOGUE ── -->
-      <div class="ds-block" id="ds-catalogue">
-        <div class="ds-header" onclick="toggleDataSection('ds-catalogue')">
-          <span class="ds-title">Catalogue complet des entités</span>
-          <span class="ds-arrow">›</span>
-        </div>
-        <div class="ds-body">
-          <div id="catalogue"></div>
-        </div>
-      </div>
-
-      <!-- ── RELATIONS IFC ── -->
-      <div class="ds-block" id="ds-relations">
-        <div class="ds-header" onclick="toggleDataSection('ds-relations')">
-          <span class="ds-title">Relations IFC <span style="font-size:.55rem;color:#9A7AA8;font-weight:400">(liens entre objets)</span></span>
-          <span class="ds-arrow">›</span>
-        </div>
-        <div class="ds-body">
-          <div style="font-size:.61rem;color:var(--muted);margin-bottom:.5rem;line-height:1.6">Invisibles géométriquement, les relations structurent tout fichier IFC — elles lient les éléments entre eux.</div>
-          <div class="aside-section-title" style="margin-top:.75rem">Relations IFC (liens entre objets)</div>
-      <div style="font-size:.62rem;color:var(--muted);margin-bottom:.4rem;line-height:1.6">Les relations sont invisibles géométriquement mais structurent tout fichier IFC — elles lient les éléments entre eux.</div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.3rem 0 .2rem">Décomposition spatiale</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showDetail('relagg')"><span class="inv-fr">Agrégation</span><span class="inv-ifc">IfcRelAggregates</span></div>
-        <div class="inv-item" onclick="showDetail('relnests')"><span class="inv-fr">Imbrication</span><span class="inv-ifc">IfcRelNests</span></div>
-        <div class="inv-item" onclick="showDetail('relcontained')"><span class="inv-fr">Contenance spatiale</span><span class="inv-ifc">IfcRelContainedInSpatialStructure</span></div>
-        <div class="inv-item" onclick="showDetail('relreferenced')"><span class="inv-fr">Référence spatiale</span><span class="inv-ifc">IfcRelReferencedInSpatialStructure</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Définition & Propriétés</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showDetail('reldefprop')"><span class="inv-fr">Définition par propriétés</span><span class="inv-ifc">IfcRelDefinesByProperties</span></div>
-        <div class="inv-item" onclick="showDetail('reldeftype')"><span class="inv-fr">Définition par type</span><span class="inv-ifc">IfcRelDefinesByType</span></div>
-        <div class="inv-item" onclick="showDetail('relovrides')"><span class="inv-fr">Substitution de propriétés</span><span class="inv-ifc">IfcRelOverridesProperties</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Associations</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showDetail('relassmat')"><span class="inv-fr">Association matériau</span><span class="inv-ifc">IfcRelAssociatesMaterial</span></div>
-        <div class="inv-item" onclick="showDetail('relassclass')"><span class="inv-fr">Association classification</span><span class="inv-ifc">IfcRelAssociatesClassification</span></div>
-        <div class="inv-item" onclick="showDetail('relassdoc')"><span class="inv-fr">Association document</span><span class="inv-ifc">IfcRelAssociatesDocument</span></div>
-        <div class="inv-item" onclick="showDetail('relasslib')"><span class="inv-fr">Association bibliothèque</span><span class="inv-ifc">IfcRelAssociatesLibrary</span></div>
-        <div class="inv-item" onclick="showDetail('relasscons')"><span class="inv-fr">Association contrainte</span><span class="inv-ifc">IfcRelAssociatesConstraint</span></div>
-        <div class="inv-item" onclick="showDetail('relassapp')"><span class="inv-fr">Association approbation</span><span class="inv-ifc">IfcRelAssociatesApproval</span></div>
-        <div class="inv-item" onclick="showDetail('relassprof')"><span class="inv-fr">Association profil de section</span><span class="inv-ifc">IfcRelAssociatesProfileProperties</span></div>
-        <div class="inv-item" onclick="showDetail('relassval')"><span class="inv-fr">Association valeur</span><span class="inv-ifc">IfcRelAssociatesAppliedValue</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Connexions géométriques</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showDetail('relvoids')"><span class="inv-fr">Trémie / Vide dans élément</span><span class="inv-ifc">IfcRelVoidsElement</span></div>
-        <div class="inv-item" onclick="showDetail('relfills')"><span class="inv-fr">Remplissage d'ouverture</span><span class="inv-ifc">IfcRelFillsElement</span></div>
-        <div class="inv-item" onclick="showDetail('relconn')"><span class="inv-fr">Connexion d'éléments</span><span class="inv-ifc">IfcRelConnectsElements</span></div>
-        <div class="inv-item" onclick="showDetail('relconnpath')"><span class="inv-fr">Connexion de murs</span><span class="inv-ifc">IfcRelConnectsPathElements</span></div>
-        <div class="inv-item" onclick="showDetail('relprojects')"><span class="inv-fr">Projection d'élément</span><span class="inv-ifc">IfcRelProjectsElement</span></div>
-        <div class="inv-item" onclick="showDetail('relcovers')"><span class="inv-fr">Revêtement d'un élément</span><span class="inv-ifc">IfcRelCoversBldgElements</span></div>
-        <div class="inv-item" onclick="showDetail('relcoverssp')"><span class="inv-fr">Revêtement d'un espace</span><span class="inv-ifc">IfcRelCoversSpaces</span></div>
-        <div class="inv-item" onclick="showDetail('relspaceb')"><span class="inv-fr">Limite d'espace</span><span class="inv-ifc">IfcRelSpaceBoundary</span></div>
-        <div class="inv-item" onclick="showDetail('relservices')"><span class="inv-fr">Desserte du bâtiment</span><span class="inv-ifc">IfcRelServicesBuildings</span></div>
-        <div class="inv-item" onclick="showDetail('relflow')"><span class="inv-fr">Contrôle de flux MEP</span><span class="inv-ifc">IfcRelFlowControlElements</span></div>
-        <div class="inv-item" onclick="showDetail('relconnports')"><span class="inv-fr">Connexion de ports MEP</span><span class="inv-ifc">IfcRelConnectsPorts</span></div>
-        <div class="inv-item" onclick="showDetail('relportelem')"><span class="inv-fr">Port sur élément MEP</span><span class="inv-ifc">IfcRelConnectsPortToElement</span></div>
-        <div class="inv-item" onclick="showDetail('relinteract')"><span class="inv-fr">Interaction spatiale</span><span class="inv-ifc">IfcRelInteractionRequirements</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Affectations</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showDetail('relassgroup')"><span class="inv-fr">Affectation à un groupe</span><span class="inv-ifc">IfcRelAssignsToGroup</span></div>
-        <div class="inv-item" onclick="showDetail('relassactor')"><span class="inv-fr">Affectation à un acteur</span><span class="inv-ifc">IfcRelAssignsToActor</span></div>
-        <div class="inv-item" onclick="showDetail('relassproc')"><span class="inv-fr">Affectation à un processus</span><span class="inv-ifc">IfcRelAssignsToProcess</span></div>
-        <div class="inv-item" onclick="showDetail('relassres')"><span class="inv-fr">Affectation à une ressource</span><span class="inv-ifc">IfcRelAssignsToResource</span></div>
-        <div class="inv-item" onclick="showDetail('relassctrl')"><span class="inv-fr">Affectation à un contrôle</span><span class="inv-ifc">IfcRelAssignsToControl</span></div>
-        <div class="inv-item" onclick="showDetail('relassproduct')"><span class="inv-fr">Affectation à un produit</span><span class="inv-ifc">IfcRelAssignsToProduct</span></div>
-        <div class="inv-item" onclick="showDetail('relassocc')"><span class="inv-fr">Occupation d'espace</span><span class="inv-ifc">IfcRelOccupiesSpaces</span></div>
-        <div class="inv-item" onclick="showDetail('relasscosts')"><span class="inv-fr">Planification de coûts</span><span class="inv-ifc">IfcRelSchedulesCostItems</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Connexions structurelles</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showDetail('relconnstract')"><span class="inv-fr">Connexion charge-structure</span><span class="inv-ifc">IfcRelConnectsStructuralActivity</span></div>
-        <div class="inv-item" onclick="showDetail('relconnstrmem')"><span class="inv-fr">Connexion entre membrures</span><span class="inv-ifc">IfcRelConnectsStructuralMember</span></div>
-        <div class="inv-item" onclick="showDetail('relconnstrelem')"><span class="inv-fr">Connexion élément-structure</span><span class="inv-ifc">IfcRelConnectsStructuralElement</span></div>
-        <div class="inv-item" onclick="showDetail('relconnwithreal')"><span class="inv-fr">Connexion avec éléments réalisants</span><span class="inv-ifc">IfcRelConnectsWithRealizingElements</span></div>
-      </div>
-        </div>
-      </div>
-
-      <!-- ── DONNÉES INVISIBLES ── -->
-      <div class="ds-block" id="ds-props">
-        <div class="ds-header" onclick="toggleDataSection('ds-props')">
-          <span class="ds-title">Données & Propriétés</span>
-          <span class="ds-arrow">›</span>
-        </div>
-        <div class="ds-body">
-          <div class="aside-section-title" style="margin-top:0">Propriétés individuelles</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('propset')"><span class="inv-fr">Jeu de propriétés</span><span class="inv-ifc">IfcPropertySet</span></div>
-            <div class="inv-item" onclick="showDetail('propval')"><span class="inv-fr">Valeur simple</span><span class="inv-ifc">IfcPropertySingleValue</span></div>
-            <div class="inv-item" onclick="showDetail('propenumval')"><span class="inv-fr">Valeur énumérée</span><span class="inv-ifc">IfcPropertyEnumeratedValue</span></div>
-            <div class="inv-item" onclick="showDetail('propbounded')"><span class="inv-fr">Valeur avec bornes</span><span class="inv-ifc">IfcPropertyBoundedValue</span></div>
-            <div class="inv-item" onclick="showDetail('proplistval')"><span class="inv-fr">Liste de valeurs</span><span class="inv-ifc">IfcPropertyListValue</span></div>
-            <div class="inv-item" onclick="showDetail('proptableval')"><span class="inv-fr">Valeur tabulaire</span><span class="inv-ifc">IfcPropertyTableValue</span></div>
-            <div class="inv-item" onclick="showDetail('proprefval')"><span class="inv-fr">Valeur référencée</span><span class="inv-ifc">IfcPropertyReferenceValue</span></div>
-            <div class="inv-item" onclick="showDetail('complexprop')"><span class="inv-fr">Propriété complexe</span><span class="inv-ifc">IfcComplexProperty</span></div>
-          </div>
-          <div class="aside-section-title">Quantités mesurées</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('elemqty')"><span class="inv-fr">Quantités mesurées</span><span class="inv-ifc">IfcElementQuantity</span></div>
-            <div class="inv-item" onclick="showDetail('qtylength')"><span class="inv-fr">Longueur</span><span class="inv-ifc">IfcQuantityLength</span></div>
-            <div class="inv-item" onclick="showDetail('qtyarea')"><span class="inv-fr">Surface</span><span class="inv-ifc">IfcQuantityArea</span></div>
-            <div class="inv-item" onclick="showDetail('qtyvolume')"><span class="inv-fr">Volume</span><span class="inv-ifc">IfcQuantityVolume</span></div>
-            <div class="inv-item" onclick="showDetail('qtycount')"><span class="inv-fr">Nombre</span><span class="inv-ifc">IfcQuantityCount</span></div>
-            <div class="inv-item" onclick="showDetail('qtyweight')"><span class="inv-fr">Poids</span><span class="inv-ifc">IfcQuantityWeight</span></div>
-            <div class="inv-item" onclick="showDetail('qtytime')"><span class="inv-fr">Durée</span><span class="inv-ifc">IfcQuantityTime</span></div>
-          </div>
-          <div class="aside-section-title">Contraintes</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('constraint')"><span class="inv-fr">Contrainte</span><span class="inv-ifc">IfcConstraint</span></div>
-          </div>
-          <div class="aside-section-title">Matériaux</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('material')"><span class="inv-fr">Matériau</span><span class="inv-ifc">IfcMaterial</span></div>
-            <div class="inv-item" onclick="showDetail('matlayerset')"><span class="inv-fr">Ensemble de couches</span><span class="inv-ifc">IfcMaterialLayerSet</span></div>
-          </div>
-          <div class="aside-section-title">Classification & Coûts</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('classif')"><span class="inv-fr">Classification</span><span class="inv-ifc">IfcClassification</span></div>
-            <div class="inv-item" onclick="showDetail('classifitem')"><span class="inv-fr">Article de classification</span><span class="inv-ifc">IfcClassificationItem</span></div>
-            <div class="inv-item" onclick="showDetail('costsched')"><span class="inv-fr">Devis / Budget</span><span class="inv-ifc">IfcCostSchedule</span></div>
-            <div class="inv-item" onclick="showDetail('costitem')"><span class="inv-fr">Poste de coût</span><span class="inv-ifc">IfcCostItem</span></div>
-          </div>
-          <div class="aside-section-title">Unités de mesure</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('unitassign')"><span class="inv-fr">Affectation des unités</span><span class="inv-ifc">IfcUnitAssignment</span></div>
-            <div class="inv-item" onclick="showDetail('siunit')"><span class="inv-fr">Unité SI</span><span class="inv-ifc">IfcSIUnit</span></div>
-            <div class="inv-item" onclick="showDetail('convunit')"><span class="inv-fr">Unité de conversion</span><span class="inv-ifc">IfcConversionBasedUnit</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── ACTEURS ── -->
-      <div class="ds-block" id="ds-actors">
-        <div class="ds-header" onclick="toggleDataSection('ds-actors')">
-          <span class="ds-title">Acteurs & Documents</span>
-          <span class="ds-arrow">›</span>
-        </div>
-        <div class="ds-body">
-          <div class="aside-section-title" style="margin-top:0">Acteurs</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('person')"><span class="inv-fr">Personne</span><span class="inv-ifc">IfcPerson</span></div>
-            <div class="inv-item" onclick="showDetail('org')"><span class="inv-fr">Organisation</span><span class="inv-ifc">IfcOrganization</span></div>
-            <div class="inv-item" onclick="showDetail('actorrole')"><span class="inv-fr">Rôle</span><span class="inv-ifc">IfcActorRole</span></div>
-            <div class="inv-item" onclick="showDetail('ownerhistory')"><span class="inv-fr">Historique propriétaire</span><span class="inv-ifc">IfcOwnerHistory</span></div>
-            <div class="inv-item" onclick="showDetail('application')"><span class="inv-fr">Application logicielle</span><span class="inv-ifc">IfcApplication</span></div>
-          </div>
-          <div class="aside-section-title">Documents & Références</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('doc')"><span class="inv-fr">Document</span><span class="inv-ifc">IfcDocumentInformation</span></div>
-            <div class="inv-item" onclick="showDetail('docref')"><span class="inv-fr">Référence documentaire</span><span class="inv-ifc">IfcDocumentReference</span></div>
-            <div class="inv-item" onclick="showDetail('approval')"><span class="inv-fr">Approbation / Visa</span><span class="inv-ifc">IfcApproval</span></div>
-            <div class="inv-item" onclick="showDetail('libinfo')"><span class="inv-fr">Bibliothèque d'objets</span><span class="inv-ifc">IfcLibraryInformation</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── ÉNUMÉRATIONS ── -->
-      <div class="ds-block" id="ds-enums">
-        <div class="ds-header" onclick="toggleDataSection('ds-enums')">
-          <span class="ds-title">Énumérations <span style="font-size:.55rem;color:#8A8880;font-weight:400">(PredefinedTypes)</span></span>
-          <span class="ds-arrow">›</span>
-        </div>
-        <div class="ds-body">
-          <div class="aside-section-title">Énumérations (PredefinedTypes)</div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.3rem 0 .2rem">Éléments architecturaux</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showEnum('walltype')"><span class="inv-fr">Types de mur</span><span class="inv-ifc">IfcWallTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('slabtype')"><span class="inv-fr">Types de dalle</span><span class="inv-ifc">IfcSlabTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('rooftype')"><span class="inv-fr">Formes de toiture</span><span class="inv-ifc">IfcRoofTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('stairtype')"><span class="inv-fr">Types d'escalier</span><span class="inv-ifc">IfcStairTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('railingtype')"><span class="inv-fr">Types de garde-corps</span><span class="inv-ifc">IfcRailingTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('coveringtype')"><span class="inv-fr">Types de revêtement</span><span class="inv-ifc">IfcCoveringTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('beamtype')"><span class="inv-fr">Types de poutre</span><span class="inv-ifc">IfcBeamTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('columntype')"><span class="inv-fr">Types de poteau</span><span class="inv-ifc">IfcColumnTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('membertype')"><span class="inv-fr">Types de membrure</span><span class="inv-ifc">IfcMemberTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('platetype')"><span class="inv-fr">Types de plaque</span><span class="inv-ifc">IfcPlateTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('footingtype')"><span class="inv-fr">Types de fondations</span><span class="inv-ifc">IfcFootingTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('piletype')"><span class="inv-fr">Types de pieux</span><span class="inv-ifc">IfcPileTypeEnum</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Portes & Fenêtres</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showEnum('dooroperation')"><span class="inv-fr">Modes d'ouverture (porte)</span><span class="inv-ifc">IfcDoorStyleOperationEnum</span></div>
-        <div class="inv-item" onclick="showEnum('doorconstruction')"><span class="inv-fr">Matériaux de portes</span><span class="inv-ifc">IfcDoorStyleConstructionEnum</span></div>
-        <div class="inv-item" onclick="showEnum('winoperation')"><span class="inv-fr">Configuration vantaux (fenêtre)</span><span class="inv-ifc">IfcWindowStyleOperationEnum</span></div>
-        <div class="inv-item" onclick="showEnum('winpaneloperation')"><span class="inv-fr">Modes d'ouverture vantail</span><span class="inv-ifc">IfcWindowPanelOperationEnum</span></div>
-        <div class="inv-item" onclick="showEnum('winconstruction')"><span class="inv-fr">Matériaux de fenêtres</span><span class="inv-ifc">IfcWindowStyleConstructionEnum</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">MEP & Fluides</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showEnum('sensortype')"><span class="inv-fr">Types de capteurs</span><span class="inv-ifc">IfcSensorTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('valvetype')"><span class="inv-fr">Types de vannes</span><span class="inv-ifc">IfcValveTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('dampertype')"><span class="inv-fr">Types de registres</span><span class="inv-ifc">IfcDamperTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('boilertype')"><span class="inv-fr">Types de chaudières</span><span class="inv-ifc">IfcBoilerTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('spaceheattype')"><span class="inv-fr">Types d'émetteurs chaleur</span><span class="inv-ifc">IfcSpaceHeaterTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('pumptypeenum')"><span class="inv-fr">Types de pompes</span><span class="inv-ifc">IfcPumpTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('fantypeenum')"><span class="inv-fr">Types de ventilateurs</span><span class="inv-ifc">IfcFanTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('airtermtype')"><span class="inv-fr">Types de bouches ventilation</span><span class="inv-ifc">IfcAirTerminalTypeEnum</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Structure</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showEnum('reinfbarroleenum')"><span class="inv-fr">Rôles des armatures</span><span class="inv-ifc">IfcReinforcingBarRoleEnum</span></div>
-        <div class="inv-item" onclick="showEnum('structcurvemembertype')"><span class="inv-fr">Types de membrures FEM</span><span class="inv-ifc">IfcStructuralCurveMemberTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('actiontype')"><span class="inv-fr">Types d'actions (charges)</span><span class="inv-ifc">IfcActionTypeEnum</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Données & Propriétés</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showEnum('constrainttype')"><span class="inv-fr">Grades de contrainte</span><span class="inv-ifc">IfcConstraintEnum</span></div>
-        <div class="inv-item" onclick="showEnum('benchmarkenum')"><span class="inv-fr">Opérateurs de comparaison</span><span class="inv-ifc">IfcBenchmarkEnum</span></div>
-        <div class="inv-item" onclick="showEnum('costschtypeenum')"><span class="inv-fr">Types de devis</span><span class="inv-ifc">IfcCostScheduleTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('changeactionenum')"><span class="inv-fr">Types de modification</span><span class="inv-ifc">IfcChangeActionEnum</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Acteurs & Planning</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showEnum('roleenum')"><span class="inv-fr">Rôles professionnels</span><span class="inv-ifc">IfcRoleEnum</span></div>
-        <div class="inv-item" onclick="showEnum('addrtypeenum')"><span class="inv-fr">Types d'adresses</span><span class="inv-ifc">IfcAddressTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('sequencetype')"><span class="inv-fr">Types de séquences Gantt</span><span class="inv-ifc">IfcSequenceEnum</span></div>
-        <div class="inv-item" onclick="showEnum('proceduretype')"><span class="inv-fr">Types de procédures</span><span class="inv-ifc">IfcProcedureTypeEnum</span></div>
-        <div class="inv-item" onclick="showEnum('inventorytypeenum')"><span class="inv-fr">Types d'inventaire</span><span class="inv-ifc">IfcInventoryTypeEnum</span></div>
-      </div>
-
-      <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Géométrie & Spatial</div>
-      <div class="invisible-items">
-        <div class="inv-item" onclick="showEnum('booloperator')"><span class="inv-fr">Opérateurs booléens</span><span class="inv-ifc">IfcBooleanOperator</span></div>
-        <div class="inv-item" onclick="showEnum('geoprojection')"><span class="inv-fr">Types de vues</span><span class="inv-ifc">IfcGeometricProjectionEnum</span></div>
-        <div class="inv-item" onclick="showEnum('elementcomposenum')"><span class="inv-fr">Composition spatiale</span><span class="inv-ifc">IfcElementCompositionEnum</span></div>
-        <div class="inv-item" onclick="showEnum('internalexternalenum')"><span class="inv-fr">Intérieur / Extérieur</span><span class="inv-ifc">IfcInternalOrExternalEnum</span></div>
-      </div>
-        </div>
-      </div>
-
-      <!-- ── BLOC 8 : TYPES IFC ── -->
-      <div class="ds-block" id="ds-types">
-        <div class="ds-header" onclick="toggleDataSection('ds-types')">
-          <span class="ds-title">Bibliothèques de types IFC <span style="font-size:.55rem;color:#0A5C45;font-weight:400">(familles / gabarits)</span></span>
-          <span class="ds-arrow">›</span>
-        </div>
-        <div class="ds-body">
-          <div style="font-size:.61rem;color:var(--muted);margin-bottom:.5rem;line-height:1.6">Les types IFC sont les <em>familles</em> d'Archicad et les <em>familles système</em> de Revit. Un type définit le gabarit — les instances en héritent via <code>IfcRelDefinesByType</code>.</div>
-
-          <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.3rem 0 .2rem">Éléments de bâtiment</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('wallt')"><span class="inv-fr">Type de mur</span><span class="inv-ifc">IfcWallType</span></div>
-            <div class="inv-item" onclick="showDetail('slabt')"><span class="inv-fr">Type de dalle</span><span class="inv-ifc">IfcSlabType</span></div>
-            <div class="inv-item" onclick="showDetail('doorstyle')"><span class="inv-fr">Style de porte</span><span class="inv-ifc">IfcDoorStyle</span></div>
-            <div class="inv-item" onclick="showDetail('windowstyle')"><span class="inv-fr">Style de fenêtre</span><span class="inv-ifc">IfcWindowStyle</span></div>
-            <div class="inv-item" onclick="showDetail('coveringt')"><span class="inv-fr">Type de revêtement</span><span class="inv-ifc">IfcCoveringType</span></div>
-            <div class="inv-item" onclick="showDetail('rooft')"><span class="inv-fr">Type de toiture</span><span class="inv-ifc">IfcRoofType</span></div>
-            <div class="inv-item" onclick="showDetail('railingt')"><span class="inv-fr">Type de garde-corps</span><span class="inv-ifc">IfcRailingType</span></div>
-            <div class="inv-item" onclick="showDetail('stairflighttype')"><span class="inv-fr">Type de volée d'escalier</span><span class="inv-ifc">IfcStairFlightType</span></div>
-            <div class="inv-item" onclick="showDetail('rampflighttype')"><span class="inv-fr">Type de volée de rampe</span><span class="inv-ifc">IfcRampFlightType</span></div>
-            <div class="inv-item" onclick="showDetail('curtainwalltype')"><span class="inv-fr">Type de mur rideau</span><span class="inv-ifc">IfcCurtainWallType</span></div>
-          </div>
-
-          <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Structure</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('columntype')"><span class="inv-fr">Type de poteau</span><span class="inv-ifc">IfcColumnType</span></div>
-            <div class="inv-item" onclick="showDetail('beamtype')"><span class="inv-fr">Type de poutre</span><span class="inv-ifc">IfcBeamType</span></div>
-            <div class="inv-item" onclick="showDetail('membertype')"><span class="inv-fr">Type de membrure</span><span class="inv-ifc">IfcMemberType</span></div>
-            <div class="inv-item" onclick="showDetail('platetype')"><span class="inv-fr">Type de plaque</span><span class="inv-ifc">IfcPlateType</span></div>
-            <div class="inv-item" onclick="showDetail('footingt')"><span class="inv-fr">Type de fondation</span><span class="inv-ifc">IfcFootingType</span></div>
-            <div class="inv-item" onclick="showDetail('pilet')"><span class="inv-fr">Type de pieu</span><span class="inv-ifc">IfcPileType</span></div>
-          </div>
-
-          <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">MEP Fluides & Sanitaires</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('pipeSegmentType')"><span class="inv-fr">Type de segment de tuyau</span><span class="inv-ifc">IfcPipeSegmentType</span></div>
-            <div class="inv-item" onclick="showDetail('pipeFittingType')"><span class="inv-fr">Type de raccord de tuyauterie</span><span class="inv-ifc">IfcPipeFittingType</span></div>
-            <div class="inv-item" onclick="showDetail('ductSegmentType')"><span class="inv-fr">Type de segment de gaine</span><span class="inv-ifc">IfcDuctSegmentType</span></div>
-            <div class="inv-item" onclick="showDetail('ductFittingType')"><span class="inv-fr">Type de raccord de gaine</span><span class="inv-ifc">IfcDuctFittingType</span></div>
-            <div class="inv-item" onclick="showDetail('flowControllerType')"><span class="inv-fr">Type de régulateur de flux</span><span class="inv-ifc">IfcFlowControllerType</span></div>
-            <div class="inv-item" onclick="showDetail('flowMovingDeviceType')"><span class="inv-fr">Type de dispositif de déplacement</span><span class="inv-ifc">IfcFlowMovingDeviceType</span></div>
-            <div class="inv-item" onclick="showDetail('flowStorageDeviceType')"><span class="inv-fr">Type de réservoir</span><span class="inv-ifc">IfcFlowStorageDeviceType</span></div>
-            <div class="inv-item" onclick="showDetail('flowTerminalType')"><span class="inv-fr">Type de terminal de réseau</span><span class="inv-ifc">IfcFlowTerminalType</span></div>
-            <div class="inv-item" onclick="showDetail('flowTreatmentDeviceType')"><span class="inv-fr">Type de traitement de fluide</span><span class="inv-ifc">IfcFlowTreatmentDeviceType</span></div>
-            <div class="inv-item" onclick="showDetail('energyConversionDeviceType')"><span class="inv-fr">Type de convertisseur d'énergie</span><span class="inv-ifc">IfcEnergyConversionDeviceType</span></div>
-            <div class="inv-item" onclick="showDetail('sanitaryTerminalType')"><span class="inv-fr">Type de terminal sanitaire</span><span class="inv-ifc">IfcSanitaryTerminalType</span></div>
-            <div class="inv-item" onclick="showDetail('wasteTerminalType')"><span class="inv-fr">Type de terminal d'évacuation</span><span class="inv-ifc">IfcWasteTerminalType</span></div>
-            <div class="inv-item" onclick="showDetail('stackTerminalType')"><span class="inv-fr">Type de terminal de chute</span><span class="inv-ifc">IfcStackTerminalType</span></div>
-            <div class="inv-item" onclick="showDetail('gasTerminalType')"><span class="inv-fr">Type de terminal gaz</span><span class="inv-ifc">IfcGasTerminalType</span></div>
-          </div>
-
-          <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Électricité & Contrôle</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('electricDistributionPointType')"><span class="inv-fr">Type de point de distribution</span><span class="inv-ifc">IfcElectricDistributionPointType</span></div>
-            <div class="inv-item" onclick="showDetail('cableCarrierSegmentType')"><span class="inv-fr">Type de chemin de câbles</span><span class="inv-ifc">IfcCableCarrierSegmentType</span></div>
-            <div class="inv-item" onclick="showDetail('cableCarrierFittingType')"><span class="inv-fr">Type de raccord chemin de câbles</span><span class="inv-ifc">IfcCableCarrierFittingType</span></div>
-            <div class="inv-item" onclick="showDetail('cableSegmentType')"><span class="inv-fr">Type de câble électrique</span><span class="inv-ifc">IfcCableSegmentType</span></div>
-            <div class="inv-item" onclick="showDetail('electricApplianceType')"><span class="inv-fr">Type d'appareil électrique</span><span class="inv-ifc">IfcElectricApplianceType</span></div>
-            <div class="inv-item" onclick="showDetail('lightFixtureType')"><span class="inv-fr">Type de luminaire</span><span class="inv-ifc">IfcLightFixtureType</span></div>
-            <div class="inv-item" onclick="showDetail('electricHeaterType')"><span class="inv-fr">Type de radiateur électrique</span><span class="inv-ifc">IfcElectricHeaterType</span></div>
-            <div class="inv-item" onclick="showDetail('protectiveDeviceType')"><span class="inv-fr">Type de protection électrique</span><span class="inv-ifc">IfcProtectiveDeviceType</span></div>
-            <div class="inv-item" onclick="showDetail('switchingDeviceType')"><span class="inv-fr">Type d'appareil de coupure</span><span class="inv-ifc">IfcSwitchingDeviceType</span></div>
-            <div class="inv-item" onclick="showDetail('electricTimeControlType')"><span class="inv-fr">Type d'horloge programmable</span><span class="inv-ifc">IfcElectricTimeControlType</span></div>
-            <div class="inv-item" onclick="showDetail('transformerType')"><span class="inv-fr">Type de transformateur</span><span class="inv-ifc">IfcTransformerType</span></div>
-            <div class="inv-item" onclick="showDetail('sensorType')"><span class="inv-fr">Type de capteur</span><span class="inv-ifc">IfcSensorType</span></div>
-            <div class="inv-item" onclick="showDetail('actuatorType')"><span class="inv-fr">Type d'actionneur</span><span class="inv-ifc">IfcActuatorType</span></div>
-            <div class="inv-item" onclick="showDetail('controllerType')"><span class="inv-fr">Type de contrôleur</span><span class="inv-ifc">IfcControllerType</span></div>
-            <div class="inv-item" onclick="showDetail('alarmType')"><span class="inv-fr">Type d'alarme</span><span class="inv-ifc">IfcAlarmType</span></div>
-          </div>
-
-          <div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.45rem 0 .2rem">Mobilier & Classes abstraites</div>
-          <div class="invisible-items">
-            <div class="inv-item" onclick="showDetail('furnitureType')"><span class="inv-fr">Type de mobilier</span><span class="inv-ifc">IfcFurnitureType</span></div>
-            <div class="inv-item" onclick="showDetail('systemFurnitureElementType')"><span class="inv-fr">Type de mobilier système</span><span class="inv-ifc">IfcSystemFurnitureElementType</span></div>
-            <div class="inv-item" onclick="showDetail('typeProd')"><span class="inv-fr">Type de produit (base)</span><span class="inv-ifc">IfcTypeProduct</span></div>
-            <div class="inv-item" onclick="showDetail('typeObject')"><span class="inv-fr">Type d'objet (base)</span><span class="inv-ifc">IfcTypeObject</span></div>
-            <div class="inv-item" onclick="showDetail('buildingElementType')"><span class="inv-fr">Type d'élément de bâtiment (base)</span><span class="inv-ifc">IfcBuildingElementType</span></div>
-            <div class="inv-item" onclick="showDetail('distribElemType')"><span class="inv-fr">Type d'élément de distribution (base)</span><span class="inv-ifc">IfcDistributionElementType</span></div>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- ── LÉGENDE ── -->
-      <div class="ds-block" id="ds-legend">
-        <div class="ds-header" onclick="toggleDataSection('ds-legend')">
-          <span class="ds-title">Légende des couleurs</span>
-          <span class="ds-arrow">›</span>
-        </div>
-        <div class="ds-body">
-          <div style="display:flex;flex-direction:column;gap:.22rem">
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#0A5C45;flex-shrink:0"></span><span style="color:#0A5C45;font-weight:600">Vert</span> — Structure</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#0A5F65;flex-shrink:0"></span><span style="color:#0A5F65;font-weight:600">Cyan</span> — Structure & Fondations</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#8A3A10;flex-shrink:0"></span><span style="color:#8A3A10;font-weight:600">Orange brun</span> — Ouvertures</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#7A6000;flex-shrink:0"></span><span style="color:#7A6000;font-weight:600">Or</span> — Circulations & Accès</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#7A1A8A;flex-shrink:0"></span><span style="color:#7A1A8A;font-weight:600">Lilas</span> — Finitions & Revêtements</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#1A4E8A;flex-shrink:0"></span><span style="color:#1A4E8A;font-weight:600">Bleu</span> — Espaces</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#0A6060;flex-shrink:0"></span><span style="color:#0A6060;font-weight:600">Bleu-vert</span> — Plomberie & Sanitaires</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#1A6010;flex-shrink:0"></span><span style="color:#1A6010;font-weight:600">Vert clair</span> — Ventilation & CVC</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#8A1010;flex-shrink:0"></span><span style="color:#8A1010;font-weight:600">Rouge</span> — Détection & Sécurité</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#5520A0;flex-shrink:0"></span><span style="color:#5520A0;font-weight:600">Violet</span> — Électricité</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#4A4845;flex-shrink:0"></span><span style="color:#4A4845;font-weight:600">Gris</span> — Mobilier & Équipements</div>
-            <div style="display:flex;align-items:center;gap:.4rem;font-size:.64rem"><span style="width:9px;height:9px;border-radius:2px;background:#5F6368;flex-shrink:0"></span><span style="color:#5F6368;font-weight:600">Gris neutre</span> — Éléments génériques</div>
-          </div>
-        </div>
-      </div>
+      <div id="catalogue"></div>
 
     </div><!-- fin pane-data -->
 
@@ -5836,7 +5488,7 @@ function renderCatalogue(){
       <div class="cat-grid">
         ${valid.map(k => {
           const en = E[k];
-          return `<div class="cat-chip e-${g.color}" onclick="showDetail('${k}')">
+          return `<div class="cat-chip e-${g.color}" data-ver="${en.ver||'IFC2x3'}" onclick="showDetail('${k}')">
             <span class="chip-fr">${en.fr}</span>
             <span class="chip-ifc">${en.ifc}</span>
           </div>`;
@@ -5845,36 +5497,47 @@ function renderCatalogue(){
     </div>`;
   });
 
-  el.innerHTML = `<div style="font-size:.62rem;color:var(--muted);margin-bottom:.5rem">
+  el.innerHTML = `<div id="cat-counter" style="font-size:.62rem;color:var(--muted);margin-bottom:.5rem">
     ${total} entités · clic → fiche détaillée
   </div>` + html;
 }
 
+let verFilter = 'all';
+
+function setVerFilter(ver){
+  verFilter = ver;
+  // Mettre à jour le bouton actif
+  document.querySelectorAll('.ver-filter-btn').forEach(b => b.classList.remove('active-ver'));
+  const btn = document.getElementById('vf-' + ver);
+  if(btn) btn.classList.add('active-ver');
+  // Réappliquer les filtres
+  filterCatalogue(document.getElementById('data-search')?.value || '');
+}
 
 function filterCatalogue(q){
   const val = q.trim().toLowerCase();
-  const catBlock = document.getElementById('ds-catalogue');
   const sections = document.querySelectorAll('#catalogue .cat-section');
-  if(!val){
-    sections.forEach(s => {
-      s.style.display = '';
-      s.querySelectorAll('.cat-chip').forEach(c => c.style.display = '');
-    });
-    return;
-  }
-  // Ouvrir le catalogue si replié
-  if(catBlock && !catBlock.classList.contains('open')) catBlock.classList.add('open');
+  let visibleTotal = 0;
   sections.forEach(s => {
     let visible = 0;
     s.querySelectorAll('.cat-chip').forEach(c => {
-      const fr  = c.querySelector('.chip-fr')?.textContent.toLowerCase()  || '';
+      const chipVer = c.dataset.ver || 'IFC2x3';
+      const verOk  = verFilter === 'all' || chipVer === verFilter;
+      const fr  = c.querySelector('.chip-fr')?.textContent.toLowerCase() || '';
       const ifc = c.querySelector('.chip-ifc')?.textContent.toLowerCase() || '';
-      const show = fr.includes(val) || ifc.includes(val);
+      const textOk = !val || fr.includes(val) || ifc.includes(val);
+      const show = verOk && textOk;
       c.style.display = show ? '' : 'none';
       if(show) visible++;
     });
     s.style.display = visible ? '' : 'none';
+    visibleTotal += visible;
   });
+  const counter = document.getElementById('cat-counter');
+  if(counter){
+    const label = verFilter === 'all' ? 'toutes versions' : verFilter;
+    counter.textContent = `${visibleTotal} entité${visibleTotal>1?'s':''} · ${label} · clic → fiche détaillée`;
+  }
 }
 
 const ATTR_DICT = {
@@ -13611,7 +13274,7 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v13/06/26-18</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>13/06/2026</strong> · buildingSMART International 2005 · 653 entités IFC2x3 · v14/06/26-01</div>
     </div>
 
     <!-- Stats globales -->
