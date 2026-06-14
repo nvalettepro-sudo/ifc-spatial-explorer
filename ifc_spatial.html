@@ -1069,6 +1069,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   <div class="fiche-panel">
     <div class="fiche-panel-header">
       <button class="mob-back-btn" onclick="mobilePanelBack()" aria-label="Retour à la liste">‹ Retour</button>
+      <button id="btn-back" onclick="goBack()" disabled style="font-size:.7rem;padding:.2rem .5rem;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--muted);cursor:pointer;margin-right:.25rem" title="Fiche précédente">← Préc.</button>
       <span class="fiche-panel-title">Fiche détaillée</span>
       <span class="aside-badge" id="aside-badge" style="opacity:0">●</span>
     </div>
@@ -5538,6 +5539,20 @@ function renderCatalogue(){
 }
 
 let verFilter = 'all';
+let _navHistory = [];
+
+function _updateBackBtn(){
+  const btn = document.getElementById('btn-back');
+  if(btn) btn.disabled = _navHistory.length <= 1;
+}
+function goBack(){
+  if(_navHistory.length <= 1) return;
+  _navHistory.pop();
+  const prev = _navHistory[_navHistory.length-1];
+  _navHistory.pop();
+  if(prev.t==='e') showDetail(prev.k);
+  else showAbstractDetail(prev.k);
+}
 
 function setVerFilter(ver){
   verFilter = ver;
@@ -8146,6 +8161,7 @@ function closeMobMenu(){
 }
 
 function showAbstractDetail(name){
+  _navHistory.push({t:'a',k:name}); _updateBackBtn();
   try{ location.hash = name; }catch(e){}
   const ac = ABSTRACT_CLASSES[name];
   if(!ac) return;
@@ -13061,6 +13077,7 @@ function verBadgeHtml(ver){
 }
 
 function showDetail(id){
+  _navHistory.push({t:'e',k:id}); _updateBackBtn();
   const prev = selected;
   selected = id;
   document.getElementById('aside-badge').classList.add('on');
