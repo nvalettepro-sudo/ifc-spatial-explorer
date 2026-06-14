@@ -1031,6 +1031,20 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
         <a onclick="setVerFilter('IFC4x3')" class="nav-pill ver-filter-btn" id="vf-IFC4x3">IFC 4.3</a>
       </div>
 
+      <!-- ── Filtres catégorie ── -->
+      <div id="cat-filters" style="display:flex;flex-wrap:wrap;gap:.25rem;margin-bottom:.65rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)">
+        <a onclick="setCatFilter('all')" class="nav-pill cat-filter-btn ver-filter-btn active-ver" id="cf-all">Toutes</a>
+        <a onclick="setCatFilter('arch')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-arch">Arch.</a>
+        <a onclick="setCatFilter('struct')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-struct">Struct.</a>
+        <a onclick="setCatFilter('ouv')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-ouv">Ouvertures</a>
+        <a onclick="setCatFilter('mep')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-mep">MEP</a>
+        <a onclick="setCatFilter('elec')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-elec">Élec.</a>
+        <a onclick="setCatFilter('sec')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-sec">Sécu.</a>
+        <a onclick="setCatFilter('sp')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-sp">Espaces</a>
+        <a onclick="setCatFilter('prop')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-prop">Données</a>
+        <a onclick="setCatFilter('geo')" class="nav-pill cat-filter-btn ver-filter-btn" id="cf-geo">Géom.</a>
+      </div>
+
       <!-- ── CATALOGUE ── -->
       <div id="catalogue"></div>
 
@@ -5524,7 +5538,7 @@ function renderCatalogue(){
       <div class="cat-grid">
         ${valid.map(k => {
           const en = E[k];
-          return `<div class="cat-chip e-${g.color}" data-ver="${en.ver||'IFC2x3'}" onclick="showDetail('${k}')">
+          return `<div class="cat-chip e-${g.color}" data-ver="${en.ver||'IFC2x3'}" data-cat="${en.cat||g.color}" onclick="showDetail('${k}')">
             <span class="chip-fr">${en.fr}</span>
             <span class="chip-ifc">${en.ifc}</span>
           </div>`;
@@ -5539,6 +5553,14 @@ function renderCatalogue(){
 }
 
 let verFilter = 'all';
+let catFilter = 'all';
+function setCatFilter(cat){
+  catFilter = cat;
+  document.querySelectorAll('.cat-filter-btn').forEach(b=>b.classList.remove('active-ver'));
+  const btn = document.getElementById('cf-'+cat);
+  if(btn) btn.classList.add('active-ver');
+  filterCatalogue(document.getElementById('data-search')?.value||'');
+}
 let _navHistory = [];
 
 function _updateBackBtn(){
@@ -5574,10 +5596,11 @@ function filterCatalogue(q){
       const chipVer = c.dataset.ver || 'IFC2x3';
       const verOk  = verFilter === 'all'
         || (verFilter === 'IFC4x' ? ['IFC4','IFC4x1','IFC4x3'].includes(chipVer) : chipVer === verFilter);
+      const catOk = catFilter==='all' || (c.dataset.cat||'') === catFilter;
       const fr  = c.querySelector('.chip-fr')?.textContent.toLowerCase() || '';
       const ifc = c.querySelector('.chip-ifc')?.textContent.toLowerCase() || '';
       const textOk = !val || fr.includes(val) || ifc.includes(val);
-      const show = verOk && textOk;
+      const show = verOk && catOk && textOk;
       c.style.display = show ? '' : 'none';
       if(show) visible++;
     });
