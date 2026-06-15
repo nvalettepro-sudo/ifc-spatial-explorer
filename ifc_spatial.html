@@ -13087,7 +13087,7 @@ function renderPsets(id){
       return '<div class="pset-prop-row" style="padding:.3rem 0;border-bottom:1px solid var(--border)">'
         + '<div class="pset-prop-name" style="font-size:.67rem;font-weight:600;color:var(--text);margin-bottom:.12rem">'
         + nomFr
-        + '<span class="pset-prop-type" style="font-size:.5rem;font-family:monospace;color:var(--muted);margin-left:.35rem;font-weight:400">'+p.n+'</span>'
+
         + t
         + '</div>'
         + '<div class="pset-prop-def" style="font-size:.62rem;color:var(--text);line-height:1.55">' + (defFr||'—') + '</div>'
@@ -13355,7 +13355,7 @@ function showDetail(id){
   function renderAttrRow(a){
     const info = ATTR_DICT[a.n] || {fr: a.n, def: ''};
     const opt = a.o ? '<span style="font-size:.5rem;color:var(--muted);margin-left:.3rem;opacity:.8">OPTIONNEL</span>' : '';
-    const inh = a.f !== en.ifc ? `<span style="font-size:.5rem;color:var(--muted);opacity:.7"> ← ${a.f}</span>` : '';
+    const inh = '';
     /* Type EXPRESS (IFC2x3 uniquement) */
     let typeBadge = '';
     if((en.ver||'IFC2x3') === 'IFC2x3'){
