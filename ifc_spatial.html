@@ -82,6 +82,22 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .toggle-body{display:none;padding:.4rem .7rem .5rem}
 .toggle-section.open .toggle-body{display:block}
 
+/* ── FICHE : grille 2 colonnes attributs/psets ── */
+.attr-row{display:grid;grid-template-columns:38% 1fr;gap:0 1rem;padding:.55rem 0;border-bottom:1px solid var(--border);align-items:start}
+.attr-row:last-child{border-bottom:none}
+.attr-name-fr{font-weight:600;font-size:.72rem;line-height:1.3;color:var(--text)}
+.attr-ifc-name{font-family:'DM Mono',monospace;font-size:.54rem;color:var(--muted);margin-top:.1rem}
+.attr-badge{display:inline-block;font-size:.48rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:.1rem .35rem;border-radius:4px;margin-top:.25rem}
+.badge-required{background:rgba(74,159,224,.15);color:#4A9FE0;border:1px solid rgba(74,159,224,.35)}
+.badge-optional{background:rgba(136,136,136,.12);color:var(--muted);border:1px solid rgba(136,136,136,.25)}
+.attr-desc{font-size:.67rem;line-height:1.55;color:var(--text);margin-bottom:.3rem}
+.attr-meta-line{display:flex;align-items:baseline;gap:.35rem;font-size:.6rem;flex-wrap:wrap}
+.meta-label{color:var(--muted);white-space:nowrap;flex-shrink:0}
+.meta-value{font-family:'DM Mono',monospace;color:var(--text);opacity:.9}
+.meta-human{color:#80CBC4;font-size:.58rem}
+.meta-unit{color:#E8A850;font-family:'DM Mono',monospace}
+.sub-section-label{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-top:1px solid var(--border);padding:.5rem 0 .3rem;margin-top:.25rem}
+.sub-section-label:first-child{border-top:none;margin-top:0}
 
 /* ── SECTIONS DU PANNEAU DONNÉES ── */
 .ds-block{border:1px solid var(--border);border-radius:9px;margin-bottom:.4rem;overflow:hidden}
@@ -13081,21 +13097,28 @@ function renderPsets(id){
       const fra = FR_PSET_DICT[p.n];
       const nomFr = fra ? fra.fr : p.n;
       const defFr = fra ? fra.def : p.d;
+      const human = p.t ? _typeHuman(p.t) : null;
       const unit = p.t ? _typeUnit(p.t) : null;
-      const unitHtml = unit ? `<span style="color:#E8A850;margin-left:.25rem">${unit}</span>` : '';
-      const t = p.t ? `<span class="pset-prop-type" style="font-family:monospace;font-size:.49rem;margin-left:.3rem">${p.t}${unitHtml}</span>` : '';
-      return '<div class="pset-prop-row" style="padding:.3rem 0;border-bottom:1px solid var(--border)">'
-        + '<div class="pset-prop-name" style="font-size:.67rem;font-weight:600;color:var(--text);margin-bottom:.12rem">'
-        + nomFr
-        + '<span class="pset-prop-type" style="font-size:.5rem;font-family:monospace;color:var(--muted);margin-left:.35rem;font-weight:400">'+p.n+'</span>'
-        + t
-        + '</div>'
-        + '<div class="pset-prop-def" style="font-size:.62rem;color:var(--text);line-height:1.55">' + (defFr||'—') + '</div>'
-        + '</div>';
+      const humanHtml = human ? `<span class="meta-human">→ ${human}</span>` : '';
+      const unitHtml = unit ? `<span class="meta-unit">· ${unit}</span>` : '';
+      const metaLine = p.t
+        ? `<div class="attr-meta-line"><span class="meta-label">Type :</span><span class="meta-value">${p.t}</span>${humanHtml}${unitHtml}</div>`
+        : '';
+      return `<div class="attr-row">
+        <div class="attr-left">
+          <div class="attr-name-fr">${nomFr}</div>
+          <div class="attr-ifc-name">${p.n}</div>
+          <span class="attr-badge badge-optional">Optionnel</span>
+        </div>
+        <div class="attr-right">
+          <div class="attr-desc">${defFr || '—'}</div>
+          ${metaLine}
+        </div>
+      </div>`;
     }).join('');
     return '<div class="pset-wrap" style="margin-bottom:.5rem;border:1px solid var(--border);border-radius:8px;overflow:hidden">'
       + '<div class="pset-header-inline" style="padding:.38rem .65rem;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.45rem">'
-      + '<span class="pset-name-inline" style="font-size:.62rem;font-weight:700;color:var(--text)">'+pname+'</span>'
+      + '<span class="pset-name-inline" style="font-size:.62rem;font-weight:700;color:var(--text);font-family:\'DM Mono\',monospace">'+pname+'</span>'
       + '<span class="pset-count-badge" style="margin-left:auto;font-size:.54rem;background:var(--sp-bg);color:var(--sp);border:1px solid var(--sp-bd);border-radius:99px;padding:.1rem .4rem">'+pdata.props.length+' prop.</span>'
       + '</div>'
       + '<div style="padding:.05rem .65rem .1rem">' + propRows + '</div>'
@@ -13125,26 +13148,41 @@ function _attrType(ifcName, attrName){
 /* Unité SI associée à un type de mesure IFC */
 function _typeUnit(t){
   const u = {
-    IfcLengthMeasure:'m',IfcPositiveLengthMeasure:'m',IfcNonNegativeLengthMeasure:'m',
+    IfcLengthMeasure:'mètres',IfcPositiveLengthMeasure:'mètres',IfcNonNegativeLengthMeasure:'mètres',
     IfcAreaMeasure:'m²',IfcVolumeMeasure:'m³',
-    IfcMassMeasure:'kg',IfcMassPerLengthMeasure:'kg/m',
-    IfcPressureMeasure:'Pa',IfcModulusOfElasticityMeasure:'Pa',
-    IfcForceMeasure:'N',IfcLinearForceMeasure:'N/m',IfcPlanarForceMeasure:'N/m²',
+    IfcMassMeasure:'kilogrammes',IfcMassPerLengthMeasure:'kg/m',
+    IfcPressureMeasure:'pascals',IfcModulusOfElasticityMeasure:'pascals',
+    IfcForceMeasure:'newtons',IfcLinearForceMeasure:'N/m',IfcPlanarForceMeasure:'N/m²',
     IfcMomentOfInertiaMeasure:'m⁴',IfcSectionalAreaIntegralMeasure:'m³',
-    IfcEnergyMeasure:'J',IfcPowerMeasure:'W',IfcHeatFluxDensityMeasure:'W/m²',
+    IfcEnergyMeasure:'joules',IfcPowerMeasure:'watts',IfcHeatFluxDensityMeasure:'W/m²',
     IfcThermalConductivityMeasure:'W/(m·K)',IfcThermalTransmittanceMeasure:'W/(m²·K)',
-    IfcThermodynamicTemperatureMeasure:'K',IfcTemperatureRateOfChangeMeasure:'K/s',
-    IfcPlaneAngleMeasure:'°',IfcAngularVelocityMeasure:'rad/s',
-    IfcFrequencyMeasure:'Hz',IfcTimeMeasure:'s',
+    IfcThermodynamicTemperatureMeasure:'kelvins',IfcTemperatureRateOfChangeMeasure:'K/s',
+    IfcPlaneAngleMeasure:'degrés',IfcAngularVelocityMeasure:'rad/s',
+    IfcFrequencyMeasure:'hertz',IfcTimeMeasure:'secondes',
     IfcVolumetricFlowRateMeasure:'m³/s',IfcMassFlowRateMeasure:'kg/s',
     IfcLinearVelocityMeasure:'m/s',IfcAccelerationMeasure:'m/s²',
-    IfcIlluminanceMeasure:'lux',IfcLuminousFluxMeasure:'lm',IfcLuminousIntensityMeasure:'cd',
-    IfcElectricVoltageMeasure:'V',IfcElectricCurrentMeasure:'A',IfcElectricResistanceMeasure:'Ω',
-    IfcElectricCapacitanceMeasure:'F',IfcElectricConductanceMeasure:'S',
-    IfcSoundPowerMeasure:'W',IfcSoundPressureMeasure:'Pa',
-    IfcCountMeasure:'(entier)',IfcNormalisedRatioMeasure:'0–1',IfcPositiveRatioMeasure:'ratio',
+    IfcIlluminanceMeasure:'lux',IfcLuminousFluxMeasure:'lumens',IfcLuminousIntensityMeasure:'candelas',
+    IfcElectricVoltageMeasure:'volts',IfcElectricCurrentMeasure:'ampères',IfcElectricResistanceMeasure:'ohms',
+    IfcElectricCapacitanceMeasure:'farads',IfcElectricConductanceMeasure:'siemens',
+    IfcSoundPowerMeasure:'watts',IfcSoundPressureMeasure:'pascals',
+    IfcCountMeasure:'entier',IfcNormalisedRatioMeasure:'ratio 0–1',IfcPositiveRatioMeasure:'ratio',
   };
   return u[t] || null;
+}
+/* Libellé humain pour un type EXPRESS */
+function _typeHuman(t){
+  if(!t) return null;
+  if(t==='IfcLabel') return 'Étiquette (255 car. max)';
+  if(t==='IfcIdentifier') return 'Identifiant (255 car. max)';
+  if(t==='IfcText') return 'Texte libre (illimité)';
+  if(t==='IfcGloballyUniqueId') return 'Identifiant unique (22 car.)';
+  if(t==='BOOLEAN') return 'Vrai / Faux';
+  if(t==='INTEGER') return 'Nombre entier';
+  if(t==='REAL' || t==='IfcReal') return 'Nombre décimal';
+  if(t.endsWith('Enum')) return 'Énumération';
+  if(t.startsWith('SET OF') || t.startsWith('LIST OF')) return 'Liste d\'objets liés';
+  if(_typeUnit(t)) return 'Numérique';
+  return 'Objet lié';
 }
 const INHERITED_ORDER = ['Name','ObjectType','Description','GlobalId','OwnerHistory','ObjectPlacement','Representation','Tag'];
 
@@ -13354,32 +13392,35 @@ function showDetail(id){
 
   function renderAttrRow(a){
     const info = ATTR_DICT[a.n] || {fr: a.n, def: ''};
-    const opt = a.o ? '<span style="font-size:.5rem;color:var(--muted);margin-left:.3rem;opacity:.8">OPTIONNEL</span>' : '';
-    const inh = a.f !== en.ifc ? `<span style="font-size:.5rem;color:var(--muted);opacity:.7"> ← ${a.f}</span>` : '';
-    /* Type EXPRESS (IFC2x3 uniquement) */
-    let typeBadge = '';
+    const badge = a.o
+      ? '<span class="attr-badge badge-optional">Optionnel</span>'
+      : '<span class="attr-badge badge-required">Obligatoire</span>';
+    let metaLine = '';
     if((en.ver||'IFC2x3') === 'IFC2x3'){
       const td = _attrType(en.ifc, a.n);
       if(td){
+        const human = _typeHuman(td.t);
         const unit = _typeUnit(td.t);
-        const unitStr = unit ? `<span style="color:#E8A850;margin-left:.25rem">${unit}</span>` : '';
-        typeBadge = `<div style="font-family:'DM Mono',monospace;font-size:.48rem;color:var(--muted);margin-top:.15rem;opacity:.85">${td.t}${unitStr}</div>`;
+        const humanHtml = human ? `<span class="meta-human">→ ${human}</span>` : '';
+        const unitHtml = unit ? `<span class="meta-unit">· ${unit}</span>` : '';
+        metaLine = `<div class="attr-meta-line"><span class="meta-label">Type :</span><span class="meta-value">${td.t}</span>${humanHtml}${unitHtml}</div>`;
       }
     }
-    return `<tr>
-      <td style="padding:.3rem .4rem .3rem 0;vertical-align:top;width:36%">
-        <div style="font-weight:600;font-size:.67rem;line-height:1.3">${info.fr}${opt}</div>
-        <div style="font-family:'DM Mono',monospace;font-size:.5rem;color:var(--muted);margin-top:.1rem">${a.n}${inh}</div>
-        ${typeBadge}
-      </td>
-      <td style="padding:.3rem .4rem;vertical-align:top;font-size:.64rem;line-height:1.55;color:var(--text)">${info.def || '—'}</td>
-    </tr>`;
+    return `<div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">${info.fr}</div>
+        <div class="attr-ifc-name">${a.n}</div>
+        ${badge}
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">${info.def || '—'}</div>
+        ${metaLine}
+      </div>
+    </div>`;
   }
 
   const sectionLabel = (txt, count) =>
-    `<tr><td colspan="2" style="padding:.5rem 0 .25rem;font-size:.56rem;font-weight:700;
-      text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
-      border-top:1px solid var(--border)">${txt}<span style="font-weight:400;margin-left:.4rem;opacity:.7">(${count})</span></td></tr>`;
+    `<div class="sub-section-label">${txt} <span style="font-weight:400;opacity:.7">(${count})</span></div>`;
 
   let attrsHtml = '';
   if(ownAttrs.length){
@@ -13390,7 +13431,7 @@ function showDetail(id){
     attrsHtml += sectionLabel('Attributs hérités', inherited.length);
     attrsHtml += inherited.map(renderAttrRow).join('');
   }
-  const attrsTable = `<table style="width:100%;border-collapse:collapse">${attrsHtml}</table>`;
+  const attrsTable = `<div>${attrsHtml}</div>`;
   const exs = en.ex.map(e=>`<div class="example">→ ${e}</div>`).join('');
 
   // Générer les sections toggle
