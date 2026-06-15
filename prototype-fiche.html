@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prototype fiche — IfcRampFlight</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:     #1A1A1A;
+    --card:   #222222;
+    --card2:  #2A2A2A;
+    --border: rgba(255,255,255,.10);
+    --text:   #E8E8E8;
+    --muted:  #888;
+    --accent: #4A9FE0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 2rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* ── En-tête fiche ── */
+  .fiche-title { font-size: 1.4rem; font-weight: 700; margin-bottom: .35rem; }
+  .fiche-meta  { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .5rem; }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem;
+    padding: .15rem .5rem;
+    border-radius: 5px;
+    border: 1px solid;
+  }
+  .badge-ifc   { border-color: #4A9FE0; color: #4A9FE0; background: rgba(74,159,224,.10); }
+  .badge-ver   { border-color: #666; color: #aaa; background: rgba(255,255,255,.05); }
+  .badge-doc   { border-color: #4A9FE0; color: #4A9FE0; background: rgba(74,159,224,.08); cursor: pointer; }
+  .badge-cat   { border-color: #FFCC80; color: #FFCC80; background: rgba(255,204,128,.10); border-radius: 99px; font-size: .62rem; padding: .15rem .6rem; font-family: 'Inter', sans-serif; }
+
+  .fiche-desc { font-size: .85rem; color: var(--text); line-height: 1.6; margin: .75rem 0 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+
+  /* ── Sections toggle ── */
+  .section {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: .75rem;
+  }
+  .section-hd {
+    display: flex;
+    align-items: center;
+    padding: .55rem .9rem;
+    background: var(--card);
+    cursor: pointer;
+    user-select: none;
+    gap: .5rem;
+  }
+  .section-hd-label {
+    font-size: .6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+  }
+  .section-hd-meta {
+    font-size: .6rem;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+  }
+  .section-body { padding: .75rem .9rem; }
+
+  /* ── Sous-section (Propres / Hérités) ── */
+  .sub-section-label {
+    font-size: .56rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding: .5rem 0 .3rem;
+    margin-top: .25rem;
+  }
+  .sub-section-label:first-child { border-top: none; margin-top: 0; }
+
+  /* ══════════════════════════════════════════
+     NOUVEAU : grille 2 colonnes pour chaque ligne
+  ══════════════════════════════════════════ */
+  .attr-row {
+    display: grid;
+    grid-template-columns: 38% 1fr;
+    gap: 0 1rem;
+    padding: .55rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+  .attr-row:last-child { border-bottom: none; }
+
+  /* Colonne gauche */
+  .attr-left {}
+  .attr-name-fr {
+    font-weight: 600;
+    font-size: .72rem;
+    line-height: 1.3;
+    color: var(--text);
+  }
+  .attr-ifc-name {
+    font-family: 'DM Mono', monospace;
+    font-size: .54rem;
+    color: var(--muted);
+    margin-top: .1rem;
+  }
+  .attr-badge {
+    display: inline-block;
+    font-size: .48rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: .1rem .35rem;
+    border-radius: 4px;
+    margin-top: .25rem;
+  }
+  .badge-required { background: rgba(74,159,224,.15); color: #4A9FE0; border: 1px solid rgba(74,159,224,.35); }
+  .badge-optional { background: rgba(136,136,136,.12); color: var(--muted); border: 1px solid rgba(136,136,136,.25); }
+
+  /* Colonne droite */
+  .attr-right {}
+  .attr-desc {
+    font-size: .67rem;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: .3rem;
+  }
+  .attr-meta-grid {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+  }
+  .attr-meta-line {
+    display: flex;
+    align-items: baseline;
+    gap: .35rem;
+    font-size: .6rem;
+  }
+  .meta-label {
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .meta-value {
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    opacity: .9;
+  }
+  .meta-unit {
+    color: #E8A850;
+    font-family: 'DM Mono', monospace;
+  }
+  .meta-human {
+    color: #80CBC4;
+    font-size: .58rem;
+  }
+  /* Énumérations */
+  .enum-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2rem;
+    margin-top: .15rem;
+  }
+  .enum-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: .5rem;
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .1rem .35rem;
+    color: var(--muted);
+  }
+  .enum-pill.highlight { color: #CE93D8; border-color: rgba(206,147,216,.35); background: rgba(206,147,216,.08); }
+
+  /* Psets */
+  .pset-wrap {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: .6rem;
+  }
+  .pset-header {
+    display: flex;
+    align-items: center;
+    padding: .4rem .75rem;
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+  }
+  .pset-name { font-size: .65rem; font-weight: 700; font-family: 'DM Mono', monospace; }
+  .pset-count { margin-left: auto; font-size: .54rem; background: rgba(74,159,224,.12); color: #4A9FE0; border: 1px solid rgba(74,159,224,.25); border-radius: 99px; padding: .1rem .45rem; }
+  .pset-body { padding: .2rem .75rem .3rem; }
+
+  /* Annotation de comparaison */
+  .compare-note {
+    background: rgba(255,204,80,.08);
+    border: 1px solid rgba(255,204,80,.25);
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    font-size: .72rem;
+    color: #FFCC50;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  .compare-note strong { display: block; margin-bottom: .3rem; font-size: .78rem; }
+</style>
+</head>
+<body>
+
+<div class="compare-note">
+  <strong>⚠️ Prototype — pas encore intégré à l'application</strong>
+  Ceci montre la nouvelle présentation proposée pour les attributs et propriétés Pset d'<strong>IfcRampFlight</strong>.
+  Comparé à l'application actuelle : même données, mise en page réorganisée en 2 colonnes avec label "Obligatoire / Optionnel" explicite et valeurs d'énumération visibles.
+</div>
+
+<!-- En-tête fiche -->
+<div class="fiche-title">Volée de rampe</div>
+<div class="fiche-meta">
+  <span class="badge badge-ifc">IfcRampFlight</span>
+  <span class="badge badge-ver">IFC 2x3</span>
+  <span class="badge badge-doc">Docs IFC2x3 ↗</span>
+  <span class="badge-cat">Élément architectural</span>
+</div>
+
+<div class="fiche-desc">
+  Un tronçon incliné continu d'une rampe d'accès entre deux paliers horizontaux.
+</div>
+
+<!-- ATTRIBUTS -->
+<div class="section">
+  <div class="section-hd">
+    <span class="section-hd-label">Attributs</span>
+    <span class="section-hd-meta">8 total · 0 propres</span>
+  </div>
+  <div class="section-body">
+
+    <div class="sub-section-label">Attributs hérités (8)</div>
+
+    <!-- Nom -->
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Nom</div>
+        <div class="attr-ifc-name">Name</div>
+        <span class="attr-badge badge-optional">Optionnel</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Nom court identifiant l'élément dans l'interface du logiciel (ex : "Volée rampe PMR RDC-N1").</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcLabel</span>
+            <span class="meta-human">→ Texte ≤ 255 car.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Type d'objet -->
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Type d'objet</div>
+        <div class="attr-ifc-name">ObjectType</div>
+        <span class="attr-badge badge-optional">Optionnel</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Sous-type personnalisé quand le PredefinedType normalisé ne couvre pas le cas.</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcLabel</span>
+            <span class="meta-human">→ Texte</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Description</div>
+        <div class="attr-ifc-name">Description</div>
+        <span class="attr-badge badge-optional">Optionnel</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Texte libre décrivant l'élément en détail — notes de conception ou instructions de mise en œuvre.</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcText</span>
+            <span class="meta-human">→ Texte long</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUID -->
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Identifiant unique (GUID)</div>
+        <div class="attr-ifc-name">GlobalId</div>
+        <span class="attr-badge badge-required">Obligatoire</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Identifiant universel unique de 22 caractères, généré une seule fois. Stable et immuable pour toute la durée de vie de l'objet dans tous les logiciels.</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcGloballyUniqueId</span>
+            <span class="meta-human">→ Chaîne 22 chars</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OwnerHistory -->
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Historique propriétaire</div>
+        <div class="attr-ifc-name">OwnerHistory</div>
+        <span class="attr-badge badge-required">Obligatoire</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Enregistrement de la création et des dernières modifications — auteur, date, logiciel utilisé.</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcOwnerHistory</span>
+            <span class="meta-human">→ Référence</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placement -->
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Placement</div>
+        <div class="attr-ifc-name">ObjectPlacement</div>
+        <span class="attr-badge badge-optional">Optionnel</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Position et orientation de l'objet dans l'espace 3D, définis par un repère local.</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcObjectPlacement</span>
+            <span class="meta-human">→ Référence</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Représentation -->
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Représentation</div>
+        <div class="attr-ifc-name">Representation</div>
+        <span class="attr-badge badge-optional">Optionnel</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Géométries 3D et autres représentations visuelles associées à l'objet.</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcProductRepresentation</span>
+            <span class="meta-human">→ Référence</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tag -->
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Étiquette / Repère</div>
+        <div class="attr-ifc-name">Tag</div>
+        <span class="attr-badge badge-optional">Optionnel</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Référence de repérage sur les plans — numéro ou code unique visible dans les nomenclatures.</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcIdentifier</span>
+            <span class="meta-human">→ Texte ≤ 255 car.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /section-body -->
+</div><!-- /section -->
+
+<!-- PSETS -->
+<div class="section">
+  <div class="section-hd">
+    <span class="section-hd-label">Psets standards IFC2x3</span>
+    <span class="section-hd-meta">buildingSMART TC1</span>
+  </div>
+  <div class="section-body" style="padding:.6rem .9rem">
+
+    <div class="pset-wrap">
+      <div class="pset-header">
+        <span class="pset-name">Pset_RampFlightCommon</span>
+        <span class="pset-count">3 prop.</span>
+      </div>
+      <div class="pset-body">
+
+        <!-- Référence -->
+        <div class="attr-row">
+          <div class="attr-left">
+            <div class="attr-name-fr">Référence</div>
+            <div class="attr-ifc-name">Reference</div>
+            <span class="attr-badge badge-optional">Optionnel</span>
+          </div>
+          <div class="attr-right">
+            <div class="attr-desc">Code de référence de ce type dans le projet (ex : type 'A-1').</div>
+            <div class="attr-meta-grid">
+              <div class="attr-meta-line">
+                <span class="meta-label">Type :</span>
+                <span class="meta-value">IfcIdentifier</span>
+                <span class="meta-human">→ Texte</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hauteur libre -->
+        <div class="attr-row">
+          <div class="attr-left">
+            <div class="attr-name-fr">Hauteur libre</div>
+            <div class="attr-ifc-name">Headroom</div>
+            <span class="attr-badge badge-optional">Optionnel</span>
+          </div>
+          <div class="attr-right">
+            <div class="attr-desc">Hauteur libre disponible sous l'équipement ou dans l'espace, en mètres.</div>
+            <div class="attr-meta-grid">
+              <div class="attr-meta-line">
+                <span class="meta-label">Type :</span>
+                <span class="meta-value">IfcPositiveLengthMeasure</span>
+                <span class="meta-human">→ Numérique</span>
+                <span class="meta-unit">· m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pente -->
+        <div class="attr-row">
+          <div class="attr-left">
+            <div class="attr-name-fr">Pente / Inclinaison</div>
+            <div class="attr-ifc-name">Slope</div>
+            <span class="attr-badge badge-optional">Optionnel</span>
+          </div>
+          <div class="attr-right">
+            <div class="attr-desc">Angle d'inclinaison de l'élément par rapport à l'horizontale, en degrés.</div>
+            <div class="attr-meta-grid">
+              <div class="attr-meta-line">
+                <span class="meta-label">Type :</span>
+                <span class="meta-value">IfcPlaneAngleMeasure</span>
+                <span class="meta-human">→ Numérique</span>
+                <span class="meta-unit">· °</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /pset-wrap -->
+
+  </div>
+</div>
+
+<!-- BONUS : exemple avec énumération (IfcRampFlightType pour montrer les enums) -->
+<div class="section">
+  <div class="section-hd">
+    <span class="section-hd-label">Bonus — exemple avec énumération</span>
+    <span class="section-hd-meta">IfcRampFlightType · 1 propre</span>
+  </div>
+  <div class="section-body">
+    <div class="sub-section-label">Attributs propres (1)</div>
+    <div class="attr-row">
+      <div class="attr-left">
+        <div class="attr-name-fr">Type prédéfini</div>
+        <div class="attr-ifc-name">PredefinedType</div>
+        <span class="attr-badge badge-required">Obligatoire</span>
+      </div>
+      <div class="attr-right">
+        <div class="attr-desc">Catégorie normalisée de la volée de rampe selon sa forme géométrique.</div>
+        <div class="attr-meta-grid">
+          <div class="attr-meta-line">
+            <span class="meta-label">Type :</span>
+            <span class="meta-value">IfcRampFlightTypeEnum</span>
+            <span class="meta-human">→ Énumération</span>
+          </div>
+        </div>
+        <div class="enum-values">
+          <span class="enum-pill highlight">STRAIGHT</span>
+          <span class="enum-pill highlight">SPIRAL</span>
+          <span class="enum-pill">USERDEFINED</span>
+          <span class="enum-pill">NOTDEFINED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
