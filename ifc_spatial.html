@@ -13221,8 +13221,8 @@ function _typeHuman(t){
   if(t==='IfcIdentifier') return 'Identifiant (255 car. max)';
   if(t==='IfcText') return 'Texte libre (illimité)';
   if(t==='IfcGloballyUniqueId') return 'Identifiant unique (22 car.)';
-  if(t==='BOOLEAN') return 'Vrai / Faux';
-  if(t==='INTEGER') return 'Nombre entier';
+  if(t==='BOOLEAN' || t==='IfcBoolean') return 'Vrai / Faux';
+  if(t==='INTEGER' || t==='IfcInteger' || t==='IfcCountMeasure') return 'Nombre entier';
   if(t==='REAL' || t==='IfcReal') return 'Nombre décimal';
   if(t.endsWith('Enum')) return 'Énumération';
   if(t.startsWith('SET OF') || t.startsWith('LIST OF')) return 'Liste d\'objets liés';
