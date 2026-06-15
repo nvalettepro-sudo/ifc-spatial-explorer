@@ -7891,7 +7891,7 @@ function onSearch(val){
   }
 
   const results = runSearch(q);
-  const total = results.entities.length + results.enums.length + results.attrs.length;
+  const total = results.entities.length + results.enums.length + results.attrs.length + results.psets.length;
 
   badge.textContent = total > 99 ? '99+' : total;
   tab.style.display = '';
@@ -8005,16 +8005,38 @@ function runSearch(q){
   }
   attrResults.sort((a,b) => b.score - a.score);
 
+  // Recherche dans les propriétés Pset (FR_PSET_DICT)
+  const psetResults = [];
+  for(const [name, info] of Object.entries(FR_PSET_DICT)){
+    let score = scoreFields(info.fr, name, info.def, sq);
+    if(score === 0) continue;
+    // Trouver les entités qui portent cette propriété via ENTITY_PSETS
+    const carriers = [];
+    for(const [eid, pnames] of Object.entries(ENTITY_PSETS)){
+      for(const pname of pnames){
+        const pdata = PSET_DATA[pname];
+        if(pdata && pdata.props.some(p => p.n === name)){
+          const en = E[eid];
+          if(en) carriers.push({eid, en, pname});
+          break;
+        }
+      }
+    }
+    psetResults.push({name, info, score, carriers});
+  }
+  psetResults.sort((a,b) => b.score - a.score);
+
   return {
     entities: entResults.slice(0, 30),
     enums: enumResults.slice(0, 15),
-    attrs: attrResults.slice(0, 20)
+    attrs: attrResults.slice(0, 20),
+    psets: psetResults.slice(0, 20)
   };
 }
 
 function renderSearchResults(results, q){
-  const {entities, enums, attrs} = results;
-  const total = entities.length + enums.length + attrs.length;
+  const {entities, enums, attrs, psets} = results;
+  const total = entities.length + enums.length + attrs.length + psets.length;
   let html = `<div class="sr-header">${total} résultat${total>1?'s':''} pour « ${q} »</div>`;
 
   // Entités
@@ -8061,6 +8083,29 @@ function renderSearchResults(results, q){
           <div class="sr-attr-fr">${highlight(info.fr, q)}</div>
           <div class="sr-attr-def">${highlight(info.def.substring(0,100)+(info.def.length>100?'…':''), q)}</div>
         </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Propriétés Pset
+  if(psets.length){
+    html += `<div class="sr-group-title">Propriétés Pset <span class="sr-count">${psets.length}</span></div>`;
+    html += psets.map(({name, info, carriers}) => {
+      const carrierChips = carriers.slice(0, 6).map(({eid, en}) =>
+        `<span onclick="event.stopPropagation();showDetail('${eid}')" class="cat-chip e-${en.cat}" style="cursor:pointer;font-size:.48rem;padding:.1rem .35rem;margin:.1rem .1rem 0 0;display:inline-flex">
+          <span class="chip-fr">${en.fr}</span>
+        </span>`
+      ).join('');
+      const more = carriers.length > 6 ? `<span style="font-size:.52rem;color:var(--muted)"> +${carriers.length-6}</span>` : '';
+      return `<div class="sr-attr-item" style="flex-direction:column;align-items:flex-start;gap:.2rem">
+        <div style="display:flex;gap:.5rem;width:100%">
+          <div style="flex:1;min-width:0">
+            <div class="sr-attr-name">${highlight(name, q)}</div>
+            <div class="sr-attr-fr">${highlight(info.fr, q)}</div>
+            <div class="sr-attr-def">${highlight(info.def.substring(0,110)+(info.def.length>110?'…':''), q)}</div>
+          </div>
+        </div>
+        ${carriers.length ? `<div style="margin-top:.15rem">${carrierChips}${more}</div>` : ''}
       </div>`;
     }).join('');
   }
