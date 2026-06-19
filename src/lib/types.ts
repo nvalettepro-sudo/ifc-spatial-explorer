@@ -34,6 +34,7 @@ export interface PsetCoverage {
 }
 
 export type WorkerInMessage =
+  | { type: 'init'; wasmPath: string }
   | { type: 'load'; buffer: ArrayBuffer }
   | { type: 'select'; entityType: string }
 

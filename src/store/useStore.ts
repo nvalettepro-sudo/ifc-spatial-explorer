@@ -37,6 +37,8 @@ function getOrCreateWorker(set: (s: Partial<AppState>) => void) {
   worker = new Worker(new URL('../workers/ifc.worker.ts', import.meta.url), {
     type: 'module',
   })
+  // Tell the worker where WASM files are (equals the Vite base URL, e.g. /ifc-spatial-explorer/explorer/)
+  worker.postMessage({ type: 'init', wasmPath: import.meta.env.BASE_URL })
   worker.onmessage = (e: MessageEvent<WorkerOutMessage>) => {
     const msg = e.data
     if (msg.type === 'progress') {

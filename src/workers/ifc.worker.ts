@@ -12,6 +12,8 @@ import type {
 let api: WebIFC.IfcAPI | null = null
 let modelId = -1
 let ifcVersion = 'IFC2X3'
+// Passed from main thread via 'init' message — equals import.meta.env.BASE_URL
+let wasmBasePath: string | null = null
 
 // cache: expressId → storey name
 const storeyCache = new Map<number, string | null>()
@@ -43,9 +45,18 @@ function safeStr(v: unknown): string | null {
 
 async function initApi() {
   const instance = new WebIFC.IfcAPI()
-  // In Electron production the renderer uses the custom 'app://' scheme;
-  // in the browser (dev or plain browser usage) it's served over http.
-  const wasmPath = self.location.protocol === 'app:' ? 'app:///' : '/'
+  // Priority:
+  // 1. Electron custom protocol (app://)
+  // 2. BASE_URL sent from main thread (handles GitHub Pages subdirectory)
+  // 3. Fallback to root
+  let wasmPath: string
+  if (self.location.protocol === 'app:') {
+    wasmPath = 'app:///'
+  } else if (wasmBasePath) {
+    wasmPath = wasmBasePath
+  } else {
+    wasmPath = '/'
+  }
   instance.SetWasmPath(wasmPath, true)
   await instance.Init()
   api = instance
@@ -368,7 +379,9 @@ async function selectEntityType(entityType: string) {
 self.onmessage = async (e: MessageEvent<WorkerInMessage>) => {
   const msg = e.data
   try {
-    if (msg.type === 'load') {
+    if (msg.type === 'init') {
+      wasmBasePath = msg.wasmPath
+    } else if (msg.type === 'load') {
       await loadFile(msg.buffer)
     } else if (msg.type === 'select') {
       await selectEntityType(msg.entityType)
