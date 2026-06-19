@@ -272,18 +272,16 @@ async function loadFile(buffer: ArrayBuffer) {
   for (let i = 0; i < typeTotal; i++) {
     const ifcType = allTypes[i]
     const typeCode = ifcType.typeID
-    const typeName = ifcType.typeName  // e.g. "IFCWALL"
-    if (!typeName || typeName.startsWith('IFCREL') || !typeName.startsWith('IFC')) continue
+    // web-ifc returns camelCase names: 'IfcWall', 'IfcRelAggregates', etc.
+    const typeName = ifcType.typeName
+    if (!typeName || !typeName.startsWith('Ifc') || typeName.startsWith('IfcRel')) continue
 
     const lineIds = api.GetLineIDsWithType(modelId, typeCode)
     const count = lineIds.size()
     if (count === 0) continue
 
-    // Convert IFCWALL → IfcWall
-    const properName = 'Ifc' + typeName.slice(3).charAt(0).toUpperCase() + typeName.slice(4).toLowerCase()
-
     typeSummaries.push({
-      type: properName,
+      type: typeName,   // already correct PascalCase: 'IfcWall'
       count,
       storeyBreakdown: {},
     })
@@ -310,10 +308,9 @@ async function selectEntityType(entityType: string) {
 
   post({ type: 'progress', percent: 10, phase: `Chargement des ${entityType}…` })
 
-  // Convert PascalCase IfcWall → IFCWALL for web-ifc
-  const typeCodeName = entityType.toUpperCase()
-  const typeCode = (WebIFC as Record<string, unknown>)[typeCodeName] as number | undefined
-  if (typeCode === undefined) {
+  // GetTypeCodeFromName expects uppercase: 'IfcWall' → 'IFCWALL'
+  const typeCode = api.GetTypeCodeFromName(entityType.toUpperCase())
+  if (typeCode === 0 || typeCode === undefined) {
     post({ type: 'error', message: `Type inconnu: ${entityType}` })
     return
   }
