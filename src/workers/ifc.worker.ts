@@ -43,7 +43,10 @@ function safeStr(v: unknown): string | null {
 
 async function initApi() {
   const instance = new WebIFC.IfcAPI()
-  instance.SetWasmPath('/', true)
+  // In Electron production the renderer uses the custom 'app://' scheme;
+  // in the browser (dev or plain browser usage) it's served over http.
+  const wasmPath = self.location.protocol === 'app:' ? 'app:///' : '/'
+  instance.SetWasmPath(wasmPath, true)
   await instance.Init()
   api = instance
 }

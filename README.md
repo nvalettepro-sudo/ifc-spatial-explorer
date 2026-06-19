@@ -4,6 +4,51 @@ Outil pédagogique standalone pour explorer le schéma IFC2x3 en français.
 Fichier unique HTML/CSS/JS — zéro dépendance, zéro build, 100% offline.
 
 https://nvalettepro-sudo.github.io/ifc-spatial-explorer/ifc_spatial.html
+
+---
+
+# IFC Data Explorer
+
+Application d'audit de données IFC (React + TypeScript + Vite + Electron).  
+Branch : `claude/busy-ramanujan-8akvgu`
+
+## Lancement en mode navigateur
+
+```bash
+git checkout claude/busy-ramanujan-8akvgu
+npm install
+npm run dev
+# → http://localhost:5173
+```
+
+## Lancement en mode Electron (fenêtre bureau)
+
+```bash
+npm run electron:dev
+```
+
+## Créer un installateur
+
+**Windows (.exe)**
+```bash
+npm run electron:build:win
+# → release/IFC Data Explorer Setup x.x.x.exe
+```
+
+**macOS (.dmg)**
+```bash
+npm run electron:build:mac
+# → release/IFC Data Explorer-x.x.x.dmg
+```
+
+**Linux (.AppImage)**
+```bash
+npm run electron:build:linux
+# → release/IFC Data Explorer-x.x.x.AppImage
+```
+
+> Prérequis : Node.js 18+. L'installateur Windows ne nécessite pas Node sur la machine cible.
+
 ---
 
 ## Démarrage rapide
