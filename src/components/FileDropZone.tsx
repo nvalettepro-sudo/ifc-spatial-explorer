@@ -1,83 +1,86 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { useStore } from '../store/useStore';
+import { useCallback, useState } from 'react'
+import { useStore } from '../store/useStore'
 
 export function FileDropZone() {
-  const { loadFile } = useStore();
-  const [isDragOver, setIsDragOver] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const loadFile = useStore((s) => s.loadFile)
+  const [dragging, setDragging] = useState(false)
 
-  const handleFile = useCallback((file: File) => {
-    if (!file.name.endsWith('.ifc')) {
-      alert('Seuls les fichiers .ifc sont acceptés.');
-      return;
-    }
-    loadFile(file);
-  }, [loadFile]);
+  const handleFile = useCallback(
+    (file: File) => {
+      if (!file.name.endsWith('.ifc')) return
+      loadFile(file)
+    },
+    [loadFile]
+  )
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  }, [handleFile]);
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      setDragging(false)
+      const file = e.dataTransfer.files[0]
+      if (file) handleFile(file)
+    },
+    [handleFile]
+  )
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  }, []);
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragging(true)
+  }
+  const onDragLeave = () => setDragging(false)
 
-  const handleDragLeave = useCallback(() => {
-    setIsDragOver(false);
-  }, []);
-
-  const handleClick = useCallback(() => {
-    inputRef.current?.click();
-  }, []);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
-  }, [handleFile]);
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) handleFile(file)
+    e.target.value = ''
+  }
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-colors ${
-        isDragOver ? 'bg-blue-950' : 'bg-gray-950'
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-colors duration-150 ${
+        dragging ? 'bg-gray-900' : 'bg-gray-950'
       }`}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onClick={handleClick}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
     >
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".ifc"
-        className="hidden"
-        onChange={handleChange}
-        onClick={(e) => e.stopPropagation()}
-      />
-
-      <div className={`text-center select-none transition-all ${isDragOver ? 'scale-105' : ''}`}>
-        <div className={`text-6xl mb-6 ${isDragOver ? 'text-blue-400' : 'text-gray-700'}`}>
-          ⬡
+      <label
+        htmlFor="ifc-file-input"
+        className={`flex flex-col items-center gap-4 px-16 py-12 border-2 border-dashed cursor-pointer transition-colors duration-150 ${
+          dragging
+            ? 'border-blue-400 bg-blue-950/30'
+            : 'border-gray-600 hover:border-gray-400 bg-gray-900'
+        }`}
+      >
+        <svg
+          className={`w-16 h-16 ${dragging ? 'text-blue-400' : 'text-gray-500'}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1}
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+        <div className="text-center">
+          <p className="text-xl font-medium text-gray-200">
+            {dragging ? 'Déposer le fichier' : 'Charger un fichier IFC'}
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Glisser-déposer ou cliquer pour sélectionner · Formats : .ifc
+          </p>
         </div>
-        <h1 className={`text-2xl font-bold mb-2 ${isDragOver ? 'text-blue-300' : 'text-gray-300'}`}>
-          IFC Data Explorer
-        </h1>
-        <p className={`text-sm mb-6 ${isDragOver ? 'text-blue-400' : 'text-gray-500'}`}>
-          {isDragOver
-            ? 'Déposez le fichier .ifc ici'
-            : 'Glissez un fichier .ifc ici, ou cliquez pour parcourir'}
-        </p>
-        <div className={`inline-block px-4 py-2 border text-sm rounded transition-colors ${
-          isDragOver
-            ? 'border-blue-500 text-blue-400 bg-blue-900'
-            : 'border-gray-700 text-gray-500 bg-gray-900'
-        }`}>
-          .ifc uniquement
-        </div>
-      </div>
+        <input
+          id="ifc-file-input"
+          type="file"
+          accept=".ifc"
+          className="sr-only"
+          onChange={onInputChange}
+        />
+      </label>
     </div>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import * as WebIFC from 'web-ifc';
+import * as WebIFC from 'web-ifc'
 import type {
   EntityTypeSummary,
   IfcEntity,
@@ -7,462 +7,370 @@ import type {
   PsetCoverage,
   WorkerInMessage,
   WorkerOutMessage,
-} from '../lib/types';
+} from '../lib/types'
 
-const api = new WebIFC.IfcAPI();
-let modelId = -1;
+let api: WebIFC.IfcAPI | null = null
+let modelId = -1
+let ifcVersion = 'IFC2X3'
 
-// Map from expressId → storey name (cached)
-const storeyCache = new Map<number, string | null>();
-// Map from expressId → psets (cached)
-const psetCache = new Map<number, PsetData[]>();
-// Per-type coverage cache
-const coverageCache = new Map<string, PsetCoverage[]>();
+// cache: expressId → storey name
+const storeyCache = new Map<number, string | null>()
+// cache: type → coverage
+const coverageCache = new Map<string, PsetCoverage[]>()
 
-function postMsg(msg: WorkerOutMessage) {
-  self.postMessage(msg);
+function post(msg: WorkerOutMessage) {
+  self.postMessage(msg)
+}
+
+function valueToString(v: unknown): string | number | boolean | null {
+  if (v === null || v === undefined) return null
+  if (typeof v === 'string') return v
+  if (typeof v === 'number') return v
+  if (typeof v === 'boolean') return v
+  // web-ifc typed value objects
+  const obj = v as Record<string, unknown>
+  if (obj.value !== undefined) return valueToString(obj.value)
+  if (obj.Value !== undefined) return valueToString(obj.Value)
+  if (typeof obj.type === 'number' && obj.value !== undefined) return valueToString(obj.value)
+  return String(v)
+}
+
+function safeStr(v: unknown): string | null {
+  const s = valueToString(v)
+  if (s === null || s === '') return null
+  return String(s)
 }
 
 async function initApi() {
-  api.SetWasmPath('/');
-  await api.Init();
+  const instance = new WebIFC.IfcAPI()
+  instance.SetWasmPath('/', true)
+  await instance.Init()
+  api = instance
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function safeGetValue(val: any): string | number | boolean | null {
-  if (val == null) return null;
-  if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') return val;
-  if (typeof val === 'object' && 'value' in val) {
-    const v = val.value;
-    if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean' || v === null) {
-      return v;
-    }
-  }
-  return null;
-}
+function getStorey(entityExpressId: number): string | null {
+  if (!api || modelId < 0) return null
+  if (storeyCache.has(entityExpressId)) return storeyCache.get(entityExpressId)!
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractStringValue(val: any): string | null {
-  if (val == null) return null;
-  if (typeof val === 'string') return val;
-  if (typeof val === 'object' && 'value' in val && typeof val.value === 'string') {
-    return val.value;
-  }
-  return null;
-}
-
-function getTypeName(typeCode: number): string {
-  try {
-    return api.GetNameFromTypeCode(typeCode) || `TYPE_${typeCode}`;
-  } catch {
-    return `TYPE_${typeCode}`;
-  }
-}
-
-function resolveStorey(expressId: number): string | null {
-  if (storeyCache.has(expressId)) return storeyCache.get(expressId)!;
-
-  try {
-    // Get all IfcRelContainedInSpatialStructure
-    const relIds = api.GetLineIDsWithType(modelId, WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE);
-    for (let i = 0; i < relIds.size(); i++) {
-      const relId = relIds.get(i);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rel: any = api.GetLine(modelId, relId, true);
-      const relatedElements = rel['RelatedElements'];
-      if (!relatedElements) continue;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const hasElement = (relatedElements as any[]).some((el: any) => {
-        if (typeof el === 'object' && el !== null) {
-          return el['expressID'] === expressId || el['value'] === expressId;
-        }
-        return el === expressId;
-      });
-
-      if (!hasElement) continue;
-
-      const structRef = rel['RelatingStructure'];
-      if (!structRef) continue;
-
-      const structId: number = structRef['expressID'] ?? structRef['value'];
-      if (structId == null) continue;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const struct: any = api.GetLine(modelId, structId, false);
-      const typeCode = struct['type'] as number;
-      const typeName = getTypeName(typeCode);
-
-      if (typeName === 'IFCBUILDINGSTOREY') {
-        const name = extractStringValue(struct['Name']) ?? `Storey_${structId}`;
-        storeyCache.set(expressId, name);
-        return name;
-      }
-
-      // Walk up through IfcRelAggregates to find parent storey
-      const aggIds = api.GetLineIDsWithType(modelId, WebIFC.IFCRELAGGREGATES);
-      for (let j = 0; j < aggIds.size(); j++) {
-        const aggId = aggIds.get(j);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const agg: any = api.GetLine(modelId, aggId, true);
-        const parts = agg['RelatedObjects'];
-        if (!parts) continue;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const hasPart = (parts as any[]).some((p: any) => {
-          if (typeof p === 'object' && p !== null) {
-            return p['expressID'] === structId || p['value'] === structId;
-          }
-          return p === structId;
-        });
-        if (hasPart) {
-          const parentRef = agg['RelatingObject'];
-          if (!parentRef) continue;
-          const parentId: number = parentRef['expressID'] ?? parentRef['value'];
-          if (parentId == null) continue;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const parent: any = api.GetLine(modelId, parentId, false);
-          const parentTypeName = getTypeName(parent['type'] as number);
-          if (parentTypeName === 'IFCBUILDINGSTOREY') {
-            const name = extractStringValue(parent['Name']) ?? `Storey_${parentId}`;
-            storeyCache.set(expressId, name);
-            return name;
+  // Walk IfcRelContainedInSpatialStructure
+  const rels = api.GetLineIDsWithType(modelId, WebIFC.IFCRELCONTAINEDINSPATIALSTRUCTURE)
+  for (let i = 0; i < rels.size(); i++) {
+    const relId = rels.get(i)
+    const rel = api.GetLine(modelId, relId, false)
+    if (!rel) continue
+    const relatedElements = rel.RelatedElements
+    if (!Array.isArray(relatedElements)) continue
+    const found = relatedElements.some((el: unknown) => {
+      const elObj = el as Record<string, unknown>
+      return elObj.value === entityExpressId
+    })
+    if (found) {
+      const structureRef = rel.RelatingStructure as Record<string, unknown>
+      if (structureRef?.value) {
+        const structId = structureRef.value as number
+        const struct = api.GetLine(modelId, structId, false)
+        if (struct) {
+          const typeName = api.GetNameFromTypeCode(struct.type as number)
+          if (typeName === 'IFCBUILDINGSTOREY') {
+            const name = safeStr(struct.Name)
+            storeyCache.set(entityExpressId, name)
+            return name
           }
         }
       }
     }
-  } catch {
-    // Ignore errors in storey resolution
   }
-
-  storeyCache.set(expressId, null);
-  return null;
+  storeyCache.set(entityExpressId, null)
+  return null
 }
 
-function resolvePsets(expressId: number): PsetData[] {
-  if (psetCache.has(expressId)) return psetCache.get(expressId)!;
+// Map from expressId → list of pset data, built lazily per type
+function getPsets(expressId: number): PsetData[] {
+  if (!api || modelId < 0) return []
 
-  const psets: PsetData[] = [];
+  const psets: PsetData[] = []
+  const rels = api.GetLineIDsWithType(modelId, WebIFC.IFCRELDEFINESBYPROPERTIES)
 
-  try {
-    const relIds = api.GetLineIDsWithType(modelId, WebIFC.IFCRELDEFINESBYPROPERTIES);
-    for (let i = 0; i < relIds.size(); i++) {
-      const relId = relIds.get(i);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rel: any = api.GetLine(modelId, relId, true);
-      const relatedObjects = rel['RelatedObjects'];
-      if (!relatedObjects) continue;
+  for (let i = 0; i < rels.size(); i++) {
+    const relId = rels.get(i)
+    const rel = api.GetLine(modelId, relId, false)
+    if (!rel) continue
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const hasEntity = (relatedObjects as any[]).some((obj: any) => {
-        if (typeof obj === 'object' && obj !== null) {
-          return obj['expressID'] === expressId || obj['value'] === expressId;
-        }
-        return obj === expressId;
-      });
+    const relatedObjects = rel.RelatedObjects
+    if (!Array.isArray(relatedObjects)) continue
 
-      if (!hasEntity) continue;
+    const found = relatedObjects.some((obj: unknown) => {
+      const o = obj as Record<string, unknown>
+      return o.value === expressId
+    })
+    if (!found) continue
 
-      const defRef = rel['RelatingPropertyDefinition'];
-      if (!defRef) continue;
+    const pDefRef = rel.RelatingPropertyDefinition as Record<string, unknown>
+    if (!pDefRef?.value) continue
 
-      const defId: number = defRef['expressID'] ?? defRef['value'];
-      if (defId == null) continue;
+    const pDefId = pDefRef.value as number
+    const pDef = api.GetLine(modelId, pDefId, false)
+    if (!pDef) continue
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const def: any = api.GetLine(modelId, defId, false);
-      const defType = getTypeName(def['type'] as number);
+    const typeName = api.GetNameFromTypeCode(pDef.type as number)
+    if (typeName !== 'IFCPROPERTYSET' && typeName !== 'IFCELEMENTQUANTITY') continue
 
-      if (defType !== 'IFCPROPERTYSET') continue;
+    const psetName = safeStr(pDef.Name) ?? 'Unknown'
+    const isStandard =
+      psetName.startsWith('Pset_') || psetName.startsWith('Qto_') || psetName === 'BaseQuantities'
 
-      const psetName = extractStringValue(def['Name']) ?? 'Unknown';
-      const isStandard = psetName.startsWith('Pset_');
+    const properties: PropertyEntry[] = []
+    const hasQuants = typeName === 'IFCELEMENTQUANTITY'
+    const propsRef = hasQuants ? pDef.Quantities : pDef.HasProperties
 
-      // Get full pset with properties
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fullDef: any = api.GetLine(modelId, defId, true);
-      const props = fullDef['HasProperties'];
-      const properties: PropertyEntry[] = [];
+    if (Array.isArray(propsRef)) {
+      for (const propRef of propsRef) {
+        const pRef = propRef as Record<string, unknown>
+        if (!pRef?.value) continue
+        const propId = pRef.value as number
+        const prop = api.GetLine(modelId, propId, false)
+        if (!prop) continue
 
-      if (props) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        for (const prop of (props as any[])) {
-          if (typeof prop !== 'object' || prop === null) continue;
-          const propType = getTypeName(prop['type'] as number);
-          const propName = extractStringValue(prop['Name']) ?? 'Unknown';
+        const propName = safeStr(prop.Name) ?? 'Unknown'
+        let propValue: string | number | boolean | null = null
+        let unit: string | undefined
 
-          if (propType === 'IFCPROPERTYSINGLEVALUE') {
-            const nomVal = prop['NominalValue'];
-            let value: string | number | boolean | null = null;
-            let unit: string | undefined;
-
-            if (nomVal) {
-              value = safeGetValue(nomVal);
-              // Try to get unit
-              const unitRef = prop['Unit'];
-              if (unitRef) {
-                const unitId: number = unitRef['expressID'] ?? unitRef['value'];
-                if (unitId != null) {
-                  try {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const unitLine: any = api.GetLine(modelId, unitId, false);
-                    unit = extractStringValue(unitLine['Name']) ?? undefined;
-                  } catch {
-                    // ignore
-                  }
-                }
+        if (hasQuants) {
+          // IfcQuantityLength, IfcQuantityArea, etc.
+          const qVal =
+            prop.LengthValue ??
+            prop.AreaValue ??
+            prop.VolumeValue ??
+            prop.WeightValue ??
+            prop.CountValue ??
+            prop.TimeValue
+          propValue = valueToString(qVal)
+        } else {
+          // IfcPropertySingleValue
+          const nomVal = prop.NominalValue as Record<string, unknown> | undefined
+          if (nomVal?.value !== undefined) {
+            propValue = valueToString(nomVal.value)
+          }
+          const unitRef = prop.Unit as Record<string, unknown> | undefined
+          if (unitRef?.value) {
+            try {
+              const unitLine = api.GetLine(modelId, unitRef.value as number, false)
+              if (unitLine) {
+                unit = safeStr(unitLine.Name) ?? undefined
               }
+            } catch {
+              // ignore
             }
-
-            properties.push({ name: propName, value, unit });
-          } else if (propType === 'IFCPROPERTYENUMERATEDVALUE') {
-            const enumVals = prop['EnumerationValues'];
-            if (enumVals && (enumVals as unknown[]).length > 0) {
-              properties.push({ name: propName, value: safeGetValue((enumVals as unknown[])[0]) });
-            } else {
-              properties.push({ name: propName, value: null });
-            }
-          } else {
-            properties.push({ name: propName, value: null });
           }
         }
-      }
 
-      psets.push({ name: psetName, isStandard, properties });
-    }
-  } catch {
-    // Ignore errors
-  }
-
-  psetCache.set(expressId, psets);
-  return psets;
-}
-
-function extractEntity(expressId: number, typeName: string): IfcEntity {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const line: any = api.GetLine(modelId, expressId, false);
-
-  const name = extractStringValue(line['Name']);
-  const globalId = extractStringValue(line['GlobalId']);
-  const predefinedTypeRaw = line['PredefinedType'];
-  let predefinedType: string | null = null;
-  if (predefinedTypeRaw != null) {
-    predefinedType = extractStringValue(predefinedTypeRaw) ?? String(predefinedTypeRaw);
-    if (predefinedType === 'null') predefinedType = null;
-  }
-
-  // Build attributes dict from all fields
-  const attributes: Record<string, string | number | boolean | null> = {};
-  for (const [key, val] of Object.entries(line as Record<string, unknown>)) {
-    if (key === 'expressID' || key === 'type') continue;
-    if (val === null || val === undefined) {
-      attributes[key] = null;
-    } else if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
-      attributes[key] = val;
-    } else if (typeof val === 'object') {
-      const v = val as Record<string, unknown>;
-      if ('value' in v) {
-        const sv = v.value;
-        if (typeof sv === 'string' || typeof sv === 'number' || typeof sv === 'boolean' || sv === null) {
-          attributes[key] = sv as string | number | boolean | null;
-        }
+        properties.push({ name: propName, value: propValue, unit })
       }
     }
+
+    psets.push({ name: psetName, isStandard, properties })
   }
 
-  const storey = resolveStorey(expressId);
-  const psets = resolvePsets(expressId);
-
-  return {
-    expressId,
-    type: typeName,
-    name,
-    globalId,
-    predefinedType,
-    storey,
-    attributes,
-    psets,
-  };
+  return psets
 }
 
-function calculateCoverage(instances: IfcEntity[]): PsetCoverage[] {
-  const total = instances.length;
-  if (total === 0) return [];
+function computeCoverage(instances: IfcEntity[]): PsetCoverage[] {
+  const total = instances.length
+  if (total === 0) return []
 
-  const psetMap = new Map<string, { count: number; propCounts: Map<string, { total: number; nonNull: number }> }>();
+  const psetMap = new Map<string, { count: number; propCounts: Map<string, { filled: number; total: number }> }>()
 
   for (const inst of instances) {
     for (const pset of inst.psets) {
       if (!psetMap.has(pset.name)) {
-        psetMap.set(pset.name, { count: 0, propCounts: new Map() });
+        psetMap.set(pset.name, { count: 0, propCounts: new Map() })
       }
-      const entry = psetMap.get(pset.name)!;
-      entry.count++;
-
+      const entry = psetMap.get(pset.name)!
+      entry.count++
       for (const prop of pset.properties) {
         if (!entry.propCounts.has(prop.name)) {
-          entry.propCounts.set(prop.name, { total: 0, nonNull: 0 });
+          entry.propCounts.set(prop.name, { filled: 0, total: 0 })
         }
-        const pc = entry.propCounts.get(prop.name)!;
-        pc.total++;
-        if (prop.value != null) pc.nonNull++;
+        const pc = entry.propCounts.get(prop.name)!
+        pc.total++
+        if (prop.value !== null && prop.value !== '') pc.filled++
       }
     }
   }
 
-  const result: PsetCoverage[] = [];
-  for (const [psetName, data] of psetMap) {
-    const coverage = data.count / total;
-    const propertyCoverage: Record<string, number> = {};
-    for (const [propName, pc] of data.propCounts) {
-      propertyCoverage[propName] = pc.total > 0 ? pc.nonNull / pc.total : 0;
+  const result: PsetCoverage[] = []
+  for (const [psetName, entry] of psetMap.entries()) {
+    const propertyCoverage: Record<string, number> = {}
+    for (const [propName, pc] of entry.propCounts.entries()) {
+      propertyCoverage[propName] = pc.total > 0 ? pc.filled / pc.total : 0
     }
-    result.push({ psetName, coverage, propertyCoverage });
+    result.push({
+      psetName,
+      coverage: entry.count / total,
+      propertyCoverage,
+    })
   }
 
-  return result.sort((a, b) => b.coverage - a.coverage);
+  return result.sort((a, b) => b.coverage - a.coverage)
 }
 
-async function handleLoad(buffer: ArrayBuffer) {
+async function loadFile(buffer: ArrayBuffer) {
+  post({ type: 'progress', percent: 5, phase: 'Initialisation du moteur IFC…' })
+  await initApi()
+  if (!api) return
+
+  post({ type: 'progress', percent: 15, phase: 'Chargement du fichier…' })
+
   try {
-    postMsg({ type: 'progress', percent: 5, phase: 'Initialisation du parseur WASM...' });
-
-    await initApi();
-
-    postMsg({ type: 'progress', percent: 15, phase: 'Chargement du fichier IFC...' });
-
-    const data = new Uint8Array(buffer);
-    modelId = api.OpenModel(data, {
+    modelId = api.OpenModel(new Uint8Array(buffer), {
       COORDINATE_TO_ORIGIN: false,
-    });
-
-    postMsg({ type: 'progress', percent: 30, phase: 'Lecture du schéma IFC...' });
-
-    // Get IFC version from header
-    let ifcVersion = 'UNKNOWN';
-    try {
-      const schema = api.GetModelSchema(modelId);
-      if (schema) ifcVersion = schema;
-    } catch {
-      ifcVersion = 'IFC2X3';
-    }
-
-    postMsg({ type: 'progress', percent: 40, phase: "Inventaire des types d'entités..." });
-
-    // Get all types in model - returns IfcType[] (plain array)
-    const allTypes: WebIFC.IfcType[] = api.GetAllTypesOfModel(modelId);
-    const typeSummaries: EntityTypeSummary[] = [];
-    const totalTypes = allTypes.length;
-
-    for (let i = 0; i < totalTypes; i++) {
-      const ifcType = allTypes[i];
-      const typeCode = ifcType.typeID;
-      const typeName = ifcType.typeName;
-
-      const ids = api.GetLineIDsWithType(modelId, typeCode);
-      const count = ids.size();
-      if (count === 0) continue;
-
-      // Convert IFCWALL → IfcWall
-      const displayName = toIfcCase(typeName);
-
-      typeSummaries.push({
-        type: displayName,
-        count,
-        storeyBreakdown: {},
-      });
-
-      if (i % 20 === 0) {
-        const pct = 40 + Math.round((i / totalTypes) * 40);
-        postMsg({ type: 'progress', percent: pct, phase: `Analyse des types... (${i}/${totalTypes})` });
-      }
-    }
-
-    // Sort by count descending
-    typeSummaries.sort((a, b) => b.count - a.count);
-
-    postMsg({ type: 'progress', percent: 90, phase: 'Finalisation...' });
-
-    // Clear caches for new file
-    storeyCache.clear();
-    psetCache.clear();
-    coverageCache.clear();
-
-    postMsg({ type: 'progress', percent: 100, phase: 'Prêt !' });
-    postMsg({ type: 'ready', entityTypes: typeSummaries, ifcVersion });
-
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    postMsg({ type: 'error', message: `Erreur de chargement: ${msg}` });
+    })
+  } catch (e) {
+    post({ type: 'error', message: `Erreur de chargement: ${e}` })
+    return
   }
-}
 
-function toIfcCase(name: string): string {
-  // Convert IFCWALL → IfcWall
-  if (!name.startsWith('IFC')) return name;
-  const lower = name.toLowerCase();
-  return 'Ifc' + lower.slice(3).charAt(0).toUpperCase() + lower.slice(4);
-}
-
-async function handleSelect(entityType: string) {
+  // Detect IFC version
   try {
-    postMsg({ type: 'progress', percent: 10, phase: `Chargement des instances de ${entityType}...` });
-
-    // Find the type code for this entity type
-    const allTypes: WebIFC.IfcType[] = api.GetAllTypesOfModel(modelId);
-    let typeCode = -1;
-    const upperType = entityType.toUpperCase();
-
-    for (const ifcType of allTypes) {
-      if (ifcType.typeName === upperType) {
-        typeCode = ifcType.typeID;
-        break;
+    const header = api.GetModelSchema(modelId)
+    if (header) {
+      if (header.includes('IFC4X3') || header.includes('IFC4x3')) {
+        ifcVersion = 'IFC4X3'
+      } else if (header.includes('IFC4')) {
+        ifcVersion = 'IFC4'
+      } else {
+        ifcVersion = 'IFC2X3'
       }
     }
-
-    if (typeCode === -1) {
-      postMsg({ type: 'instances', instances: [], psetCoverage: [] });
-      return;
-    }
-
-    const ids = api.GetLineIDsWithType(modelId, typeCode);
-    const count = ids.size();
-    const instances: IfcEntity[] = [];
-
-    for (let i = 0; i < count; i++) {
-      const expressId = ids.get(i);
-      const entity = extractEntity(expressId, entityType);
-      instances.push(entity);
-
-      if (i % 50 === 0) {
-        const pct = 10 + Math.round((i / count) * 80);
-        postMsg({ type: 'progress', percent: pct, phase: `Extraction des instances... (${i + 1}/${count})` });
-      }
-    }
-
-    postMsg({ type: 'progress', percent: 95, phase: 'Calcul de la couverture des PSets...' });
-
-    // Calculate pset coverage
-    let coverage: PsetCoverage[];
-    if (coverageCache.has(entityType)) {
-      coverage = coverageCache.get(entityType)!;
-    } else {
-      coverage = calculateCoverage(instances);
-      coverageCache.set(entityType, coverage);
-    }
-
-    postMsg({ type: 'instances', instances, psetCoverage: coverage });
-
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    postMsg({ type: 'error', message: `Erreur de sélection: ${msg}` });
+  } catch {
+    ifcVersion = 'IFC2X3'
   }
+
+  post({ type: 'progress', percent: 30, phase: 'Analyse des types d\'entités…' })
+
+  // Enumerate all types
+  const typeSummaries: EntityTypeSummary[] = []
+  const allTypes = api.GetAllTypesOfModel(modelId)  // returns IfcType[]
+
+  let processed = 0
+  const typeTotal = allTypes.length
+
+  for (let i = 0; i < typeTotal; i++) {
+    const ifcType = allTypes[i]
+    const typeCode = ifcType.typeID
+    const typeName = ifcType.typeName  // e.g. "IFCWALL"
+    if (!typeName || typeName.startsWith('IFCREL') || !typeName.startsWith('IFC')) continue
+
+    const lineIds = api.GetLineIDsWithType(modelId, typeCode)
+    const count = lineIds.size()
+    if (count === 0) continue
+
+    // Convert IFCWALL → IfcWall
+    const properName = 'Ifc' + typeName.slice(3).charAt(0).toUpperCase() + typeName.slice(4).toLowerCase()
+
+    typeSummaries.push({
+      type: properName,
+      count,
+      storeyBreakdown: {},
+    })
+
+    processed++
+    if (processed % 50 === 0) {
+      const pct = 30 + Math.round((processed / typeTotal) * 40)
+      post({ type: 'progress', percent: pct, phase: `Analyse des types… (${processed}/${typeTotal})` })
+    }
+  }
+
+  typeSummaries.sort((a, b) => b.count - a.count)
+
+  post({ type: 'progress', percent: 95, phase: 'Finalisation…' })
+  post({ type: 'ready', entityTypes: typeSummaries, ifcVersion })
 }
 
-self.onmessage = async (event: MessageEvent<WorkerInMessage>) => {
-  const msg = event.data;
-  if (msg.type === 'load') {
-    await handleLoad(msg.buffer);
-  } else if (msg.type === 'select') {
-    await handleSelect(msg.entityType);
+async function selectEntityType(entityType: string) {
+  if (!api || modelId < 0) return
+
+  if (coverageCache.has(entityType)) {
+    // Already computed — but we still need to re-fetch instances (they may not be cached)
   }
-};
+
+  post({ type: 'progress', percent: 10, phase: `Chargement des ${entityType}…` })
+
+  // Convert PascalCase IfcWall → IFCWALL for web-ifc
+  const typeCodeName = entityType.toUpperCase()
+  const typeCode = (WebIFC as Record<string, unknown>)[typeCodeName] as number | undefined
+  if (typeCode === undefined) {
+    post({ type: 'error', message: `Type inconnu: ${entityType}` })
+    return
+  }
+
+  const lineIds = api.GetLineIDsWithType(modelId, typeCode)
+  const total = lineIds.size()
+  const instances: IfcEntity[] = []
+
+  for (let i = 0; i < total; i++) {
+    const expressId = lineIds.get(i)
+
+    let line: Record<string, unknown>
+    try {
+      line = api.GetLine(modelId, expressId, false) as Record<string, unknown>
+    } catch {
+      continue
+    }
+
+    const name = safeStr(line.Name)
+    const globalId = safeStr(line.GlobalId)
+    const predefinedType = safeStr(line.PredefinedType)
+    const storey = getStorey(expressId)
+
+    // Build attributes map (all native attrs)
+    const attributes: Record<string, string | number | boolean | null> = {}
+    for (const [k, v] of Object.entries(line)) {
+      if (k === 'expressID' || k === 'type') continue
+      const val = valueToString(v)
+      if (val !== null) attributes[k] = val
+    }
+
+    const psets = getPsets(expressId)
+
+    instances.push({
+      expressId,
+      type: entityType,
+      name,
+      globalId,
+      predefinedType,
+      storey,
+      attributes,
+      psets,
+    })
+
+    if (i % 100 === 0) {
+      const pct = 10 + Math.round((i / total) * 80)
+      post({ type: 'progress', percent: pct, phase: `${i + 1}/${total} ${entityType}…` })
+    }
+  }
+
+  let coverage: PsetCoverage[]
+  if (coverageCache.has(entityType)) {
+    coverage = coverageCache.get(entityType)!
+  } else {
+    coverage = computeCoverage(instances)
+    coverageCache.set(entityType, coverage)
+  }
+
+  post({ type: 'progress', percent: 100, phase: 'Terminé' })
+  post({ type: 'instances', instances, psetCoverage: coverage })
+}
+
+self.onmessage = async (e: MessageEvent<WorkerInMessage>) => {
+  const msg = e.data
+  try {
+    if (msg.type === 'load') {
+      await loadFile(msg.buffer)
+    } else if (msg.type === 'select') {
+      await selectEntityType(msg.entityType)
+    }
+  } catch (err) {
+    post({ type: 'error', message: String(err) })
+  }
+}
