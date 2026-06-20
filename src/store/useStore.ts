@@ -1,8 +1,7 @@
 import { create } from 'zustand'
 import type {
   EntityTypeSummary,
-  IfcEntity,
-  PsetCoverage,
+  AggregatedEntityData,
   WorkerOutMessage,
 } from '../lib/types'
 
@@ -15,14 +14,11 @@ interface AppState {
   error: string | null
   entityTypes: EntityTypeSummary[]
   selectedType: string | null
-  instances: IfcEntity[]
-  selectedInstance: IfcEntity | null
-  psetCoverage: PsetCoverage[]
+  aggregatedData: AggregatedEntityData | null
   searchQuery: string
 
   loadFile: (file: File) => void
   selectType: (type: string) => void
-  selectInstance: (instance: IfcEntity) => void
   setSearchQuery: (q: string) => void
   clearError: () => void
 }
@@ -37,7 +33,6 @@ function getOrCreateWorker(set: (s: Partial<AppState>) => void) {
   worker = new Worker(new URL('../workers/ifc.worker.ts', import.meta.url), {
     type: 'module',
   })
-  // Tell the worker where WASM files are (equals the Vite base URL, e.g. /ifc-spatial-explorer/explorer/)
   worker.postMessage({ type: 'init', wasmPath: import.meta.env.BASE_URL })
   worker.onmessage = (e: MessageEvent<WorkerOutMessage>) => {
     const msg = e.data
@@ -51,15 +46,11 @@ function getOrCreateWorker(set: (s: Partial<AppState>) => void) {
         loadProgress: 100,
         loadPhase: '',
         selectedType: null,
-        instances: [],
-        selectedInstance: null,
-        psetCoverage: [],
+        aggregatedData: null,
       })
-    } else if (msg.type === 'instances') {
+    } else if (msg.type === 'aggregated') {
       set({
-        instances: msg.instances,
-        psetCoverage: msg.psetCoverage,
-        selectedInstance: null,
+        aggregatedData: msg.data,
         isLoading: false,
         loadProgress: 100,
         loadPhase: '',
@@ -83,9 +74,7 @@ export const useStore = create<AppState>((set, _get) => ({
   error: null,
   entityTypes: [],
   selectedType: null,
-  instances: [],
-  selectedInstance: null,
-  psetCoverage: [],
+  aggregatedData: null,
   searchQuery: '',
 
   loadFile: (file: File) => {
@@ -96,10 +85,8 @@ export const useStore = create<AppState>((set, _get) => ({
       loadPhase: 'Lecture du fichier…',
       error: null,
       entityTypes: [],
-      instances: [],
-      selectedInstance: null,
+      aggregatedData: null,
       selectedType: null,
-      psetCoverage: [],
     })
     const w = getOrCreateWorker(set)
     file.arrayBuffer().then((buf) => {
@@ -113,16 +100,10 @@ export const useStore = create<AppState>((set, _get) => ({
       selectedType: type,
       isLoading: true,
       loadProgress: 0,
-      loadPhase: `Chargement des ${type}…`,
-      instances: [],
-      selectedInstance: null,
-      psetCoverage: [],
+      loadPhase: `Agrégation des ${type}…`,
+      aggregatedData: null,
     })
     worker.postMessage({ type: 'select', entityType: type })
-  },
-
-  selectInstance: (instance: IfcEntity) => {
-    set({ selectedInstance: instance })
   },
 
   setSearchQuery: (q: string) => {

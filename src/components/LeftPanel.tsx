@@ -102,7 +102,7 @@ export function LeftPanel() {
       <div className="px-3 py-2 border-b border-gray-800 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-gray-500">
-            Types d'entités — {entityTypes.length}
+            Liste des entités IFC — {entityTypes.length}
           </span>
           {/* Sort toggle */}
           <div className="flex gap-0.5 text-xs">

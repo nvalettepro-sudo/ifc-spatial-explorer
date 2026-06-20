@@ -1,10 +1,13 @@
 import * as WebIFC from 'web-ifc'
 import type {
   EntityTypeSummary,
-  IfcEntity,
   PsetData,
   PropertyEntry,
-  PsetCoverage,
+  AggregatedEntityData,
+  AggregatedProperty,
+  AggregatedPset,
+  ValueAggregate,
+  TextValueCount,
   WorkerInMessage,
   WorkerOutMessage,
 } from '../lib/types'
@@ -15,10 +18,10 @@ let ifcVersion = 'IFC2X3'
 let wasmBasePath: string | null = null
 
 // ── caches built once per model ──────────────────────────────────────────────
-const typeCodeMap = new Map<string, number>()       // 'IfcWall' → typeID
-const entityPsetMap = new Map<number, PsetData[]>() // expressId → psets
+const typeCodeMap = new Map<string, number>()          // 'IfcWall' → typeID
+const entityPsetMap = new Map<number, PsetData[]>()    // expressId → psets
 const storeyCache = new Map<number, string | null>()
-const coverageCache = new Map<string, PsetCoverage[]>()
+const aggregationCache = new Map<string, AggregatedEntityData>()
 
 function post(msg: WorkerOutMessage) {
   self.postMessage(msg)
@@ -127,7 +130,6 @@ function extractPsetFromLine(pDef: Record<string, unknown>): PsetData | null {
   return { name: psetName, isStandard, properties }
 }
 
-// Scan all IfcRelDefinesByProperties once and build expressId → psets index
 function buildPsetMap() {
   if (!api || modelId < 0) return
   entityPsetMap.clear()
@@ -159,43 +161,6 @@ function buildPsetMap() {
   }
 }
 
-// ── Coverage ──────────────────────────────────────────────────────────────────
-
-function computeCoverage(instances: IfcEntity[]): PsetCoverage[] {
-  const total = instances.length
-  if (total === 0) return []
-
-  const psetMap = new Map<string, {
-    count: number
-    propCounts: Map<string, { filled: number; total: number }>
-  }>()
-
-  for (const inst of instances) {
-    for (const pset of inst.psets) {
-      if (!psetMap.has(pset.name)) psetMap.set(pset.name, { count: 0, propCounts: new Map() })
-      const entry = psetMap.get(pset.name)!
-      entry.count++
-      for (const prop of pset.properties) {
-        if (!entry.propCounts.has(prop.name)) entry.propCounts.set(prop.name, { filled: 0, total: 0 })
-        const pc = entry.propCounts.get(prop.name)!
-        pc.total++
-        if (prop.value !== null && prop.value !== '') pc.filled++
-      }
-    }
-  }
-
-  const result: PsetCoverage[] = []
-  for (const [psetName, entry] of psetMap.entries()) {
-    const propertyCoverage: Record<string, number> = {}
-    for (const [propName, pc] of entry.propCounts.entries()) {
-      propertyCoverage[propName] = pc.total > 0 ? pc.filled / pc.total : 0
-    }
-    result.push({ psetName, coverage: entry.count / total, propertyCoverage })
-  }
-
-  return result.sort((a, b) => b.coverage - a.coverage)
-}
-
 // ── File loading ──────────────────────────────────────────────────────────────
 
 async function loadFile(buffer: ArrayBuffer) {
@@ -212,13 +177,11 @@ async function loadFile(buffer: ArrayBuffer) {
     return
   }
 
-  // Reset all caches
   typeCodeMap.clear()
   entityPsetMap.clear()
   storeyCache.clear()
-  coverageCache.clear()
+  aggregationCache.clear()
 
-  // Detect IFC version from schema header
   try {
     const header = api.GetModelSchema(modelId)
     if (header?.includes('IFC4X3') || header?.includes('IFC4x3')) ifcVersion = 'IFC4X3'
@@ -232,7 +195,7 @@ async function loadFile(buffer: ArrayBuffer) {
   post({ type: 'progress', percent: 40, phase: 'Index des propriétés (Psets)…' })
   buildPsetMap()
 
-  post({ type: 'progress', percent: 60, phase: 'Analyse des types d\'entités…' })
+  post({ type: 'progress', percent: 60, phase: "Analyse des types d'entités…" })
 
   const typeSummaries: EntityTypeSummary[] = []
   const allTypes = api.GetAllTypesOfModel(modelId)
@@ -260,14 +223,44 @@ async function loadFile(buffer: ArrayBuffer) {
   post({ type: 'ready', entityTypes: typeSummaries, ifcVersion })
 }
 
-// ── Type selection ────────────────────────────────────────────────────────────
+// ── Aggregation helpers ───────────────────────────────────────────────────────
+
+// Native attributes to aggregate (in display order); identifiers excluded
+const ATTR_KEYS = ['Name', 'ObjectType', 'Description', 'PredefinedType']
+
+function buildTextAggregate(
+  textMap: Map<string, number>,
+  presentCount: number,
+  totalCount: number
+): ValueAggregate {
+  const distinctValues: TextValueCount[] = Array.from(textMap.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count)
+  return { kind: 'text', distinctValues, presentCount, totalCount }
+}
+
+function buildNumericAggregate(
+  range: { min: number; max: number },
+  presentCount: number,
+  totalCount: number
+): ValueAggregate {
+  return { kind: 'numeric', min: range.min, max: range.max, presentCount, totalCount }
+}
+
+// ── Type selection → aggregation ──────────────────────────────────────────────
 
 async function selectEntityType(entityType: string) {
   if (!api || modelId < 0) return
 
+  // Return cached result if available
+  if (aggregationCache.has(entityType)) {
+    post({ type: 'progress', percent: 100, phase: 'Terminé' })
+    post({ type: 'aggregated', data: aggregationCache.get(entityType)! })
+    return
+  }
+
   post({ type: 'progress', percent: 10, phase: `Chargement des ${entityType}…` })
 
-  // Use the typeCode from initial scan — reliable, avoids GetTypeCodeFromName mismatches
   const typeCode = typeCodeMap.get(entityType)
   if (typeCode === undefined) {
     post({ type: 'error', message: `Type inconnu: ${entityType}` })
@@ -276,7 +269,25 @@ async function selectEntityType(entityType: string) {
 
   const lineIds = api.GetLineIDsWithType(modelId, typeCode)
   const total = lineIds.size()
-  const instances: IfcEntity[] = []
+
+  // ── Per-attribute aggregation state ─────────────────────────────────────────
+  // attr → text value → count
+  const attrTextMap = new Map<string, Map<string, number>>()
+  // attr → {min, max}
+  const attrNumMap = new Map<string, { min: number; max: number }>()
+  // attr → presentCount
+  const attrPresentCount = new Map<string, number>()
+
+  // ── Per-pset aggregation state ───────────────────────────────────────────────
+  // pset name → count of instances having it
+  const psetPresentCount = new Map<string, number>()
+  const psetIsStandard = new Map<string, boolean>()
+  // pset → prop → text value → count
+  const psetPropTextMap = new Map<string, Map<string, Map<string, number>>>()
+  // pset → prop → {min, max}
+  const psetPropNumMap = new Map<string, Map<string, { min: number; max: number }>>()
+  // pset → prop → presentCount
+  const psetPropPresentCount = new Map<string, Map<string, number>>()
 
   for (let i = 0; i < total; i++) {
     const expressId = lineIds.get(i)
@@ -286,23 +297,67 @@ async function selectEntityType(entityType: string) {
       line = api.GetLine(modelId, expressId, false) as Record<string, unknown>
     } catch { continue }
 
-    const name = safeStr(line.Name)
-    const globalId = safeStr(line.GlobalId)
-    const predefinedType = safeStr(line.PredefinedType)
-    const storey = storeyCache.get(expressId) ?? null
+    // Aggregate native attributes
+    for (const attr of ATTR_KEYS) {
+      const rawVal = line[attr]
+      if (rawVal === null || rawVal === undefined) continue
+      const val = valueToString(rawVal)
+      if (val === null) continue
 
-    // Native attributes
-    const attributes: Record<string, string | number | boolean | null> = {}
-    for (const [k, v] of Object.entries(line)) {
-      if (k === 'expressID' || k === 'type') continue
-      const val = valueToString(v)
-      if (val !== null) attributes[k] = val
+      attrPresentCount.set(attr, (attrPresentCount.get(attr) ?? 0) + 1)
+
+      if (typeof val === 'number') {
+        if (!attrNumMap.has(attr)) {
+          attrNumMap.set(attr, { min: val, max: val })
+        } else {
+          const r = attrNumMap.get(attr)!
+          if (val < r.min) r.min = val
+          if (val > r.max) r.max = val
+        }
+      } else {
+        const strVal = String(val)
+        if (!attrTextMap.has(attr)) attrTextMap.set(attr, new Map())
+        const m = attrTextMap.get(attr)!
+        m.set(strVal, (m.get(strVal) ?? 0) + 1)
+      }
     }
 
-    // PSets from pre-built index (O(1) per entity)
+    // Aggregate PSets
     const psets = entityPsetMap.get(expressId) ?? []
+    for (const pset of psets) {
+      psetPresentCount.set(pset.name, (psetPresentCount.get(pset.name) ?? 0) + 1)
+      psetIsStandard.set(pset.name, pset.isStandard)
 
-    instances.push({ expressId, type: entityType, name, globalId, predefinedType, storey, attributes, psets })
+      if (!psetPropTextMap.has(pset.name)) psetPropTextMap.set(pset.name, new Map())
+      if (!psetPropNumMap.has(pset.name)) psetPropNumMap.set(pset.name, new Map())
+      if (!psetPropPresentCount.has(pset.name)) psetPropPresentCount.set(pset.name, new Map())
+
+      const propTextMap = psetPropTextMap.get(pset.name)!
+      const propNumMap = psetPropNumMap.get(pset.name)!
+      const propCountMap = psetPropPresentCount.get(pset.name)!
+
+      for (const prop of pset.properties) {
+        if (prop.value === null || prop.value === '') continue
+
+        propCountMap.set(prop.name, (propCountMap.get(prop.name) ?? 0) + 1)
+
+        if (typeof prop.value === 'number') {
+          const v = prop.value
+          if (!propNumMap.has(prop.name)) {
+            propNumMap.set(prop.name, { min: v, max: v })
+          } else {
+            const r = propNumMap.get(prop.name)!
+            if (v < r.min) r.min = v
+            if (v > r.max) r.max = v
+          }
+        } else {
+          const strVal = String(prop.value)
+          if (!propTextMap.has(prop.name)) propTextMap.set(prop.name, new Map())
+          const m = propTextMap.get(prop.name)!
+          m.set(strVal, (m.get(strVal) ?? 0) + 1)
+        }
+      }
+    }
 
     if (i % 200 === 0) {
       const pct = 10 + Math.round((i / total) * 85)
@@ -310,16 +365,80 @@ async function selectEntityType(entityType: string) {
     }
   }
 
-  let coverage: PsetCoverage[]
-  if (coverageCache.has(entityType)) {
-    coverage = coverageCache.get(entityType)!
-  } else {
-    coverage = computeCoverage(instances)
-    coverageCache.set(entityType, coverage)
+  // ── Build result: attributes ──────────────────────────────────────────────
+  const attributes: AggregatedProperty[] = []
+  for (const attr of ATTR_KEYS) {
+    const presentCount = attrPresentCount.get(attr) ?? 0
+    if (presentCount === 0) continue
+
+    let aggregate: ValueAggregate
+    if (attrNumMap.has(attr)) {
+      aggregate = buildNumericAggregate(attrNumMap.get(attr)!, presentCount, total)
+    } else if (attrTextMap.has(attr)) {
+      aggregate = buildTextAggregate(attrTextMap.get(attr)!, presentCount, total)
+    } else {
+      aggregate = { kind: 'empty', presentCount, totalCount: total }
+    }
+    attributes.push({ name: attr, aggregate })
   }
 
+  // ── Build result: psets ───────────────────────────────────────────────────
+  const standardPsets: AggregatedPset[] = []
+  const customPsets: AggregatedPset[] = []
+
+  for (const [psetName, presentCount] of psetPresentCount.entries()) {
+    const isStandard = psetIsStandard.get(psetName) ?? false
+    const propTextMap = psetPropTextMap.get(psetName) ?? new Map()
+    const propNumMap = psetPropNumMap.get(psetName) ?? new Map()
+    const propCountMap = psetPropPresentCount.get(psetName) ?? new Map()
+
+    // Collect all property names seen across all instances
+    const allPropNames = new Set([...propTextMap.keys(), ...propNumMap.keys(), ...propCountMap.keys()])
+    const properties: AggregatedProperty[] = []
+
+    for (const propName of allPropNames) {
+      const propPresent = propCountMap.get(propName) ?? 0
+      let aggregate: ValueAggregate
+
+      if (propNumMap.has(propName)) {
+        aggregate = buildNumericAggregate(propNumMap.get(propName)!, propPresent, total)
+      } else if (propTextMap.has(propName)) {
+        aggregate = buildTextAggregate(propTextMap.get(propName)!, propPresent, total)
+      } else {
+        aggregate = { kind: 'empty', presentCount: propPresent, totalCount: total }
+      }
+      properties.push({ name: propName, aggregate })
+    }
+
+    properties.sort((a, b) => a.name.localeCompare(b.name))
+
+    const aggPset: AggregatedPset = {
+      name: psetName,
+      isStandard,
+      presentCount,
+      totalCount: total,
+      properties,
+    }
+
+    if (isStandard) standardPsets.push(aggPset)
+    else customPsets.push(aggPset)
+  }
+
+  standardPsets.sort((a, b) => b.presentCount - a.presentCount)
+  customPsets.sort((a, b) => b.presentCount - a.presentCount)
+
+  const data: AggregatedEntityData = {
+    entityType,
+    totalCount: total,
+    attributes,
+    standardPsets,
+    customPsets,
+  }
+
+  aggregationCache.set(entityType, data)
+
   post({ type: 'progress', percent: 100, phase: 'Terminé' })
-  post({ type: 'instances', instances, psetCoverage: coverage })
+  post({ type: 'aggregated', data })
 }
 
 // ── Message handler ───────────────────────────────────────────────────────────

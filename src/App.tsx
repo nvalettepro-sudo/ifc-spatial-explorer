@@ -1,8 +1,7 @@
 import { useStore } from './store/useStore'
 import { TopBar } from './components/TopBar'
 import { LeftPanel } from './components/LeftPanel'
-import { CenterPanel } from './components/CenterPanel'
-import { RightPanel } from './components/RightPanel'
+import { InfoPanel } from './components/InfoPanel'
 import { FileDropZone } from './components/FileDropZone'
 
 export function App() {
@@ -13,27 +12,19 @@ export function App() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-950 text-gray-100 overflow-hidden">
-      {/* Show drop zone if no file loaded */}
       {!fileName && !isLoading && <FileDropZone />}
 
       <TopBar />
 
-      {/* Main 3-panel layout */}
+      {/* Main 2-panel layout */}
       <div className="flex flex-1 min-h-0">
-        {/* Left panel */}
-        <div className="w-48 flex-shrink-0 min-h-0">
+        {/* Left panel — entity list */}
+        <div className="w-56 flex-shrink-0 min-h-0">
           <LeftPanel />
         </div>
 
-        {/* Center panel */}
-        <div className="flex-1 min-w-0 min-h-0">
-          <CenterPanel />
-        </div>
-
-        {/* Right panel */}
-        <div className="w-72 flex-shrink-0 min-h-0">
-          <RightPanel />
-        </div>
+        {/* Right panel — aggregated info */}
+        <InfoPanel />
       </div>
 
       {/* Error toast */}
