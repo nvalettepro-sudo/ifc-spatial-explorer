@@ -977,7 +977,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-02</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-03</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -8549,6 +8549,58 @@ function filterHierTree(q){
    ce qui garantit qu'aucun secteur ne peut en chevaucher un autre.
    ══════════════════════════════════════════════════════════════════════ */
 
+/* Trace un texte courbé le long d'un arc de rayon r centré sur l'angle mid.
+   Le contexte doit déjà être translaté au centre du diagramme. */
+function heritArcText(ctx, txt, r, mid){
+  if(r <= 1) return;
+  const totalA = ctx.measureText(txt).width / r;
+  // Dans la moitié basse du cercle, le texte serait à l'envers : on inverse
+  // le sens de lecture et on le pose sous l'arc.
+  // L'ordre des caractères reste naturel : c'est le sens de parcours angulaire
+  // qui s'inverse, sans quoi le texte apparaîtrait en miroir.
+  const upside = Math.sin(mid) > 0;
+  let a = mid + (upside ? totalA/2 : -totalA/2);
+  Array.from(txt).forEach(ch => {
+    const ca = ctx.measureText(ch).width / r;
+    ctx.save();
+    if(upside){
+      ctx.rotate(a - ca/2 - Math.PI/2);
+      ctx.translate(0, r);
+    } else {
+      ctx.rotate(a + ca/2 + Math.PI/2);
+      ctx.translate(0, -r);
+    }
+    ctx.fillText(ch, 0, 0);
+    ctx.restore();
+    a += upside ? -ca : ca;
+  });
+}
+
+/* Portion réellement visible d'un arc, en angles. Au zoom fort, le milieu
+   angulaire d'un secteur sort souvent du cadre : sans ce recadrage, l'anneau
+   que l'on est en train d'observer apparaîtrait sans nom. Retourne le plus
+   long segment continu visible, ou null si l'arc est entièrement hors champ. */
+function heritVisibleArc(cx, cy, r, a0, a1, W, H){
+  const N = 48, M = 6;
+  let bestStart = -1, bestLen = 0, curStart = -1;
+  for(let i = 0; i <= N; i++){
+    const a = a0 + (a1 - a0) * i / N;
+    const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+    const inside = x >= M && x <= W - M && y >= M && y <= H - M;
+    if(inside){
+      if(curStart < 0) curStart = i;
+      if(i === N && i - curStart > bestLen){ bestLen = i - curStart; bestStart = curStart; }
+    } else if(curStart >= 0){
+      if(i - 1 - curStart > bestLen){ bestLen = i - 1 - curStart; bestStart = curStart; }
+      curStart = -1;
+    }
+  }
+  if(bestStart < 0 || bestLen === 0) return null;
+  const s0 = a0 + (a1 - a0) * bestStart / N;
+  const s1 = a0 + (a1 - a0) * (bestStart + bestLen) / N;
+  return {mid: (s0 + s1) / 2, span: s1 - s0};
+}
+
 /* Convertit une couleur hex en composantes, avec éclaircissement/assombrissement */
 function heritShade(hex, amt){
   const h = String(hex).trim().replace('#','');
@@ -8697,28 +8749,90 @@ function heritDraw(){
     ctx.stroke();
   });
 
-  /* Libellés le long des arcs — uniquement là où ils tiennent */
+  /* Libellés. Chaque secteur dispose de deux directions possibles :
+       — le long de l'arc : la longueur utile est l'ouverture angulaire,
+         la hauteur du texte est bornée par l'épaisseur de l'anneau ;
+       — le long du rayon : l'inverse exactement.
+     On retient l'orientation qui fait tenir le nom complet, en privilégiant
+     l'arc (plus lisible). Si aucune ne suffit, on tronque dans la direction
+     la plus généreuse plutôt que de masquer le nom — le survol donne
+     toujours le nom entier. */
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  // La taille de police croît doucement avec le zoom : le texte suit
+  // l'agrandissement sans devenir disproportionné.
+  const fsCap = Math.min(24, 13 * Math.pow(_heritZoom, 0.3));
+  const clipToView = _heritZoom > 1.05;
   _heritSegs.forEach(s => {
     const thickness = s.r1 - s.r0;
-    if(thickness < 12) return;
-    const mid = (s.a0 + s.a1) / 2;
     const rm  = (s.r0 + s.r1) / 2;
-    const arcLen = (s.a1 - s.a0) * rm;
-    const txt = s.name.replace(/^Ifc/, '');
-    const fs = Math.min(13, Math.max(8, thickness * 0.32));
-    ctx.font = `${s.node.key ? 600 : 400} ${fs}px system-ui, sans-serif`;
-    if(arcLen < ctx.measureText(txt).width + 8) return;
+    let mid = (s.a0 + s.a1) / 2;
+    let arcLen = (s.a1 - s.a0) * rm;
+    if(clipToView){
+      const vis = heritVisibleArc(cx, cy, rm, s.a0, s.a1, W, H);
+      if(!vis) return;
+      mid = vis.mid;
+      arcLen = vis.span * rm;
+    }
+    const full = s.name.replace(/^Ifc/, '');
+    const weight = s.node.key ? 600 : 400;
+
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.rotate(mid);
-    ctx.translate(rm, 0);
-    if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
     ctx.fillStyle = s.node.key
       ? (dark ? 'rgba(255,255,255,.94)' : '#11161F')
-      : (dark ? 'rgba(255,255,255,.55)' : 'rgba(0,0,0,.5)');
-    ctx.fillText(txt, 0, 0);
+      : (dark ? 'rgba(255,255,255,.58)' : 'rgba(0,0,0,.5)');
+
+    // Option 1 — le long de l'arc
+    const fsArc = Math.min(fsCap, thickness * 0.5);
+    let done = false;
+    if(fsArc >= 6.5){
+      ctx.font = `${weight} ${fsArc}px system-ui, sans-serif`;
+      if(ctx.measureText(full).width <= arcLen - 6){
+        heritArcText(ctx, full, rm, mid);
+        done = true;
+      }
+    }
+
+    // Option 2 — le long du rayon
+    const fsRad = Math.min(fsCap, arcLen * 0.62);
+    if(!done && fsRad >= 6.5 && thickness >= 14){
+      ctx.font = `${weight} ${fsRad}px system-ui, sans-serif`;
+      if(ctx.measureText(full).width <= thickness - 7){
+        ctx.rotate(mid);
+        ctx.translate(rm, 0);
+        if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
+        ctx.fillText(full, 0, 0);
+        done = true;
+      }
+    }
+
+    // Repli — troncature dans la direction offrant le plus de place
+    if(!done){
+      const arcFits = fsArc >= 6.5 && arcLen - 6 >= thickness - 7;
+      const fs = arcFits ? fsArc : fsRad;
+      const avail = arcFits ? arcLen - 6 : thickness - 7;
+      if(fs >= 6.5 && avail > 12){
+        ctx.font = `${weight} ${fs}px system-ui, sans-serif`;
+        let lo = 1, hi = full.length;
+        while(lo < hi){
+          const m = Math.ceil((lo + hi) / 2);
+          if(ctx.measureText(full.slice(0, m) + '…').width <= avail) lo = m;
+          else hi = m - 1;
+        }
+        if(lo >= 3){
+          const txt = full.slice(0, lo) + '…';
+          if(arcFits){
+            heritArcText(ctx, txt, rm, mid);
+          } else {
+            ctx.rotate(mid);
+            ctx.translate(rm, 0);
+            if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
+            ctx.fillText(txt, 0, 0);
+          }
+        }
+      }
+    }
     ctx.restore();
   });
 
@@ -14263,7 +14377,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
-          <tr><td>27/07/2026</td><td>v27/07/26-02</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
+          <tr><td>27/07/2026</td><td>v27/07/26-03</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
           <tr><td>15/06/2026</td><td>v15/06/26-01</td><td>Fiche détaillée : mise en page 2 colonnes pour attributs et Psets. Types EXPRESS lisibles (Étiquette, Texte libre, Objet lié…). Unités en toutes lettres (mètres, degrés…).</td></tr>
           <tr><td>14/06/2026</td><td>v14/06/26-11</td><td>Types EXPRESS IFC2x3 + unités SI dans les fiches (attributs et Psets). Liens buildingSMART directs par entité pour IFC2x3, IFC4 et IFC4.3. Catégorie <em>infra</em> pour les entités transport IFC4.3.</td></tr>
           <tr><td>11/06/2026</td><td>v11/06/26-xx</td><td>Filtres par catégorie dans le catalogue. Onglet Favoris. Liens URL hash + bouton Retour. Mise en évidence des blocs try/catch. 26 labels de groupes harmonisés avec suffixe "— IFC 2x3".</td></tr>
