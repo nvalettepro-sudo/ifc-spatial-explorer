@@ -506,30 +506,30 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 .aside-pane{display:none;flex:1;overflow-y:auto;padding:.75rem 1rem}
 .aside-pane.active{display:block}
-.aside-pane#pane-rel.active{display:flex;flex-direction:column}
+.aside-pane#pane-herit.active{display:flex;flex-direction:column}
 
-/* ── DIAGRAMME RADIAL DES RELATIONS ── */
-.rel-toolbar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.5rem .75rem;border-bottom:1px solid var(--border);flex:0 0 auto}
-.rel-crumb{display:flex;align-items:center;gap:.25rem;flex-wrap:wrap;flex:1;min-width:0}
-.rel-crumb button{background:var(--card2,transparent);border:1px solid var(--border);color:var(--sp);border-radius:4px;padding:.15rem .45rem;font-family:ui-monospace,Menlo,monospace;font-size:.66rem;cursor:pointer;white-space:nowrap}
-.rel-crumb button:hover{border-color:var(--sp)}
-.rel-crumb button:last-child{color:var(--text);font-weight:600}
-.rel-crumb .rel-sep{color:var(--muted);font-size:.66rem}
-.rel-tools{display:flex;align-items:center;gap:.3rem;flex:0 0 auto}
-.rel-btn{width:1.7rem;height:1.7rem;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:.85rem;line-height:1;cursor:pointer;padding:0}
-.rel-btn:hover{border-color:var(--sp);color:var(--sp)}
-.rel-zoom-val{font-family:ui-monospace,Menlo,monospace;font-size:.62rem;color:var(--muted);min-width:3.2rem;text-align:right;font-variant-numeric:tabular-nums}
-.rel-stage{position:relative;flex:1;min-height:0;overflow:hidden}
-.rel-stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
-.rel-stage canvas.dragging{cursor:grabbing}
-.rel-tip{position:absolute;pointer-events:none;display:none;z-index:6;background:var(--card);border:1px solid var(--sp);border-radius:6px;padding:.4rem .55rem;max-width:15rem;box-shadow:0 4px 16px rgba(0,0,0,.35)}
-.rel-tip .rt-ifc{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;color:var(--sp)}
-.rel-tip .rt-fr{font-size:.75rem;font-weight:600;color:var(--text);margin:.1rem 0}
-.rel-tip .rt-meta{font-size:.63rem;color:var(--muted);line-height:1.45}
-.rel-legend{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;padding:.4rem .75rem;border-top:1px solid var(--border);font-size:.62rem;color:var(--muted);flex:0 0 auto}
-.rel-legend-item{display:flex;align-items:center;gap:.3rem}
-.rel-sw{width:.55rem;height:.55rem;border-radius:2px;display:inline-block}
-.rel-legend-hint{margin-left:auto;opacity:.75}
+/* ── CARTE D'HÉRITAGE : DIAGRAMME RADIAL ── */
+.herit-toolbar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.5rem .75rem;border-bottom:1px solid var(--border);flex:0 0 auto}
+.herit-crumb{display:flex;align-items:center;gap:.25rem;flex-wrap:wrap;flex:1;min-width:0}
+.herit-crumb button{background:var(--card2,transparent);border:1px solid var(--border);color:var(--sp);border-radius:4px;padding:.15rem .45rem;font-family:ui-monospace,Menlo,monospace;font-size:.66rem;cursor:pointer;white-space:nowrap}
+.herit-crumb button:hover{border-color:var(--sp)}
+.herit-crumb button:last-child{color:var(--text);font-weight:600}
+.herit-crumb .herit-sep{color:var(--muted);font-size:.66rem}
+.herit-tools{display:flex;align-items:center;gap:.3rem;flex:0 0 auto}
+.herit-btn{width:1.7rem;height:1.7rem;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:.85rem;line-height:1;cursor:pointer;padding:0}
+.herit-btn:hover{border-color:var(--sp);color:var(--sp)}
+.herit-zoom-val{font-family:ui-monospace,Menlo,monospace;font-size:.62rem;color:var(--muted);min-width:3.2rem;text-align:right;font-variant-numeric:tabular-nums}
+.herit-stage{position:relative;flex:1;min-height:0;overflow:hidden}
+.herit-stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+.herit-stage canvas.dragging{cursor:grabbing}
+.herit-tip{position:absolute;pointer-events:none;display:none;z-index:6;background:var(--card);border:1px solid var(--sp);border-radius:6px;padding:.4rem .55rem;max-width:15rem;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+.herit-tip .ht-ifc{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;color:var(--sp)}
+.herit-tip .ht-fr{font-size:.75rem;font-weight:600;color:var(--text);margin:.1rem 0}
+.herit-tip .ht-meta{font-size:.63rem;color:var(--muted);line-height:1.45}
+.herit-legend{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;padding:.4rem .75rem;border-top:1px solid var(--border);font-size:.62rem;color:var(--muted);flex:0 0 auto}
+.herit-legend-item{display:flex;align-items:center;gap:.3rem}
+.herit-sw{width:.55rem;height:.55rem;border-radius:2px;display:inline-block}
+.herit-legend-hint{margin-left:auto;opacity:.75}
 
 /* ── ARBRE HIÉRARCHIQUE ── */
 .hier-search{width:100%;padding:.32rem .65rem;border:1.5px solid var(--border);border-radius:7px;font-size:.72rem;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;margin-bottom:.65rem;display:block}
@@ -977,7 +977,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-01</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-02</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1034,7 +1034,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <div class="aside-tab active" id="tab-data" onclick="switchTab('data')">Entités IFC</div>
       <div class="aside-tab" id="tab-arbo" onclick="switchTab('arbo')">Arborescence</div>
       <div class="aside-tab" id="tab-hier" onclick="switchTab('hier')">Hiérarchie</div>
-      <div class="aside-tab" id="tab-rel" onclick="switchTab('rel')">Relations</div>
+      <div class="aside-tab" id="tab-herit" onclick="switchTab('herit')">Carte d'héritage</div>
       <div class="aside-tab" id="tab-fav" onclick="switchTab('fav')">★ Favoris</div>
       <div class="aside-tab" id="tab-search" onclick="switchTab('search')" style="display:none">
         Résultats <span class="aside-badge" id="search-badge">0</span>
@@ -1110,26 +1110,26 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       </div>
     </div>
 
-    <!-- Onglet Relations — diagramme radial d'héritage -->
-    <div class="aside-pane" id="pane-rel" style="padding:0;overflow:hidden">
-      <div class="rel-toolbar">
-        <div class="rel-crumb" id="rel-crumb"></div>
-        <div class="rel-tools">
-          <button class="rel-btn" onclick="relZoomBy(1.25)" title="Zoomer">+</button>
-          <button class="rel-btn" onclick="relZoomBy(0.8)" title="Dézoomer">−</button>
-          <button class="rel-btn" onclick="relReset()" title="Réinitialiser la vue">↺</button>
-          <span class="rel-zoom-val" id="rel-zoom-val">100 %</span>
+    <!-- Onglet Carte d'héritage — diagramme radial du mécanisme SUBTYPE OF -->
+    <div class="aside-pane" id="pane-herit" style="padding:0;overflow:hidden">
+      <div class="herit-toolbar">
+        <div class="herit-crumb" id="herit-crumb"></div>
+        <div class="herit-tools">
+          <button class="herit-btn" onclick="heritZoomBy(1.25)" title="Zoomer">+</button>
+          <button class="herit-btn" onclick="heritZoomBy(0.8)" title="Dézoomer">−</button>
+          <button class="herit-btn" onclick="heritReset()" title="Réinitialiser la vue">↺</button>
+          <span class="herit-zoom-val" id="herit-zoom-val">100 %</span>
         </div>
       </div>
-      <div class="rel-stage" id="rel-stage">
-        <canvas id="rel-canvas"></canvas>
-        <div class="rel-tip" id="rel-tip"></div>
+      <div class="herit-stage" id="herit-stage">
+        <canvas id="herit-canvas"></canvas>
+        <div class="herit-tip" id="herit-tip"></div>
       </div>
-      <div class="rel-legend">
-        <span class="rel-legend-item"><span class="rel-sw" style="background:rgba(140,150,175,.4)"></span>Classe abstraite</span>
-        <span class="rel-legend-item"><span class="rel-sw" style="background:linear-gradient(90deg,#6BB8B2,#E8A850,#60A0D8)"></span>Classe concrète — couleur de catégorie</span>
-        <span class="rel-legend-item">Anneau N1…N9 = niveau d'emboîtement</span>
-        <span class="rel-legend-hint">Molette = zoom · glisser = déplacer · clic = descendre d'un niveau · clic au centre = remonter</span>
+      <div class="herit-legend">
+        <span class="herit-legend-item"><span class="herit-sw" style="background:rgba(140,150,175,.4)"></span>Classe abstraite</span>
+        <span class="herit-legend-item"><span class="herit-sw" style="background:linear-gradient(90deg,#6BB8B2,#E8A850,#60A0D8)"></span>Classe concrète — couleur de catégorie</span>
+        <span class="herit-legend-item">Anneau N1…N9 = niveau d'emboîtement</span>
+        <span class="herit-legend-hint">Mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS, pas les relations <code>IfcRelationship</code> · Molette = zoom · glisser = déplacer · clic = descendre d'un niveau · clic au centre = remonter</span>
       </div>
     </div>
 
@@ -8541,14 +8541,16 @@ function filterHierTree(q){
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   DIAGRAMME RADIAL DES RELATIONS D'HÉRITAGE
+   CARTE D'HÉRITAGE — DIAGRAMME RADIAL DU MÉCANISME SUBTYPE OF
+   Attention : ceci n'est PAS IfcRelationship. On visualise ici la chaîne
+   supertype/sous-type du schéma EXPRESS, pas les relations objectivées.
    Sunburst : un anneau = un niveau d'emboîtement (N1 → N9).
    L'angle alloué à une classe est proportionnel à son nombre de feuilles,
    ce qui garantit qu'aucun secteur ne peut en chevaucher un autre.
    ══════════════════════════════════════════════════════════════════════ */
 
 /* Convertit une couleur hex en composantes, avec éclaircissement/assombrissement */
-function relShade(hex, amt){
+function heritShade(hex, amt){
   const h = String(hex).trim().replace('#','');
   if(h.length < 6) return hex;
   let r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
@@ -8559,10 +8561,10 @@ function relShade(hex, amt){
 
 /* Couleur d'un secteur : catégorie du projet pour les classes concrètes,
    gris neutre dégradé par profondeur pour les classes abstraites. */
-function relSegColor(node, name, dark, hovered){
+function heritSegColor(node, name, dark, hovered){
   if(node.key && E[node.key]){
     const base = getCatColor(E[node.key].cat) || (dark ? '#90CAF9' : '#1D5FA5');
-    return relShade(base, hovered ? (dark ? 0.28 : -0.22) : (dark ? -0.08 : 0.18));
+    return heritShade(base, hovered ? (dark ? 0.28 : -0.22) : (dark ? -0.08 : 0.18));
   }
   // Abstraite : gris qui s'éclaircit légèrement à mesure qu'on s'éloigne du centre
   const t = Math.min(1, (node._d || 1) / 9);
@@ -8572,53 +8574,53 @@ function relSegColor(node, name, dark, hovered){
   return `rgb(${c},${c + (dark?3:0)},${c + (dark?7:4)})`;
 }
 
-let _relRoot = null;      // nœud courant au centre
-let _relPath = [];        // fil d'Ariane [{name,node}, …]
-let _relSegs = [];        // secteurs calculés au dernier rendu
-let _relZoom = 1;
-let _relPanX = 0, _relPanY = 0;
-let _relHover = null;
-let _relInit = false;
+let _heritRoot = null;      // nœud courant au centre
+let _heritPath = [];        // fil d'Ariane [{name,node}, …]
+let _heritSegs = [];        // secteurs calculés au dernier rendu
+let _heritZoom = 1;
+let _heritPanX = 0, _heritPanY = 0;
+let _heritHover = null;
+let _heritInit = false;
 
 /* Prépare l'arbre : profondeur et tri des enfants par taille décroissante */
-function relPrepare(name, node, depth){
+function heritPrepare(name, node, depth){
   node._d = depth;
   const kids = Object.entries(node.children);
   kids.sort((a,b) => b[1].leafCount - a[1].leafCount);
   node._kids = kids;
-  kids.forEach(([kn, kv]) => relPrepare(kn, kv, depth + 1));
+  kids.forEach(([kn, kv]) => heritPrepare(kn, kv, depth + 1));
 }
 
-function relEnsureTree(){
+function heritEnsureTree(){
   if(!_hierTree) _hierTree = buildHierTree();
-  if(!_relRoot){
+  if(!_heritRoot){
     const rootNode = _hierTree['IfcRoot'];
     if(!rootNode) return false;
-    relPrepare('IfcRoot', rootNode, 0);
-    _relRoot = {name:'IfcRoot', node:rootNode};
-    _relPath = [_relRoot];
+    heritPrepare('IfcRoot', rootNode, 0);
+    _heritRoot = {name:'IfcRoot', node:rootNode};
+    _heritPath = [_heritRoot];
   }
   return true;
 }
 
-function relIsDark(){
+function heritIsDark(){
   return document.documentElement.getAttribute('data-theme') === 'dark';
 }
 
 /* Calcule les secteurs : anneau = niveau, angle ∝ nombre de feuilles */
-function relLayout(W, H){
-  _relSegs = [];
-  const root = _relRoot.node;
+function heritLayout(W, H){
+  _heritSegs = [];
+  const root = _heritRoot.node;
   const remaining = Math.max(1, 9 - root._d);
   const base = Math.min(W, H) / 2 - 18;
-  const R0 = 44 * _relZoom;
-  const RMAX = base * _relZoom;
+  const R0 = 44 * _heritZoom;
+  const RMAX = base * _heritZoom;
   const ring = Math.max(6, (RMAX - R0) / remaining);
 
   (function walk(name, node, a0, a1){
     const rel = node._d - root._d;
     if(rel > 0){
-      _relSegs.push({
+      _heritSegs.push({
         name, node, a0, a1,
         r0: R0 + (rel - 1) * ring,
         r1: R0 + rel * ring
@@ -8636,15 +8638,15 @@ function relLayout(W, H){
       const end = (i === n - 1) ? a1 : a0 + (a1 - a0) * acc / total;
       walk(kn, kv, start, end);
     });
-  })(_relRoot.name, root, -Math.PI/2, -Math.PI/2 + Math.PI*2);
+  })(_heritRoot.name, root, -Math.PI/2, -Math.PI/2 + Math.PI*2);
 
   return {R0, ring, rings: remaining};
 }
 
-function relDraw(){
-  const cv = document.getElementById('rel-canvas');
-  if(!cv || !relEnsureTree()) return;
-  const stage = document.getElementById('rel-stage');
+function heritDraw(){
+  const cv = document.getElementById('herit-canvas');
+  if(!cv || !heritEnsureTree()) return;
+  const stage = document.getElementById('herit-stage');
   const W = stage.clientWidth, H = stage.clientHeight;
   if(W < 10 || H < 10) return;
 
@@ -8656,7 +8658,7 @@ function relDraw(){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
 
-  const dark = relIsDark();
+  const dark = heritIsDark();
   const cs = getComputedStyle(document.documentElement);
   const colBg     = cs.getPropertyValue('--bg').trim() || (dark ? '#121212' : '#F5F3EF');
   const colCard   = cs.getPropertyValue('--card').trim() || (dark ? '#1E1E1E' : '#fff');
@@ -8664,9 +8666,9 @@ function relDraw(){
   const colMuted  = dark ? 'rgba(255,255,255,.42)' : '#8A8880';
   const colSp     = cs.getPropertyValue('--sp').trim() || '#90CAF9';
 
-  const {R0, ring, rings} = relLayout(W, H);
-  const cx = W/2 + _relPanX, cy = H/2 + _relPanY;
-  const root = _relRoot.node;
+  const {R0, ring, rings} = heritLayout(W, H);
+  const cx = W/2 + _heritPanX, cy = H/2 + _heritPanY;
+  const root = _heritRoot.node;
 
   ctx.save();
 
@@ -8682,13 +8684,13 @@ function relDraw(){
   ctx.setLineDash([]);
 
   /* Secteurs */
-  _relSegs.forEach(s => {
-    const hovered = !!_relHover && _relHover.name === s.name;
+  _heritSegs.forEach(s => {
+    const hovered = !!_heritHover && _heritHover.name === s.name;
     ctx.beginPath();
     ctx.arc(cx, cy, Math.max(0, s.r1 - 1), s.a0, s.a1);
     ctx.arc(cx, cy, Math.max(0, s.r0 + 1), s.a1, s.a0, true);
     ctx.closePath();
-    ctx.fillStyle = relSegColor(s.node, s.name, dark, hovered);
+    ctx.fillStyle = heritSegColor(s.node, s.name, dark, hovered);
     ctx.fill();
     ctx.strokeStyle = colBg;
     ctx.lineWidth = 1;
@@ -8698,7 +8700,7 @@ function relDraw(){
   /* Libellés le long des arcs — uniquement là où ils tiennent */
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  _relSegs.forEach(s => {
+  _heritSegs.forEach(s => {
     const thickness = s.r1 - s.r0;
     if(thickness < 12) return;
     const mid = (s.a0 + s.a1) / 2;
@@ -8750,7 +8752,7 @@ function relDraw(){
   ctx.stroke();
 
   if(R0 > 26){
-    const words = _relRoot.name.replace(/([A-Z])/g, ' $1').trim().split(/\s+/);
+    const words = _heritRoot.name.replace(/([A-Z])/g, ' $1').trim().split(/\s+/);
     const lines = [];
     let ln = '';
     words.forEach(w => {
@@ -8770,81 +8772,81 @@ function relDraw(){
 
   ctx.restore();
 
-  const zv = document.getElementById('rel-zoom-val');
-  if(zv) zv.textContent = Math.round(_relZoom * 100) + ' %';
+  const zv = document.getElementById('herit-zoom-val');
+  if(zv) zv.textContent = Math.round(_heritZoom * 100) + ' %';
 }
 
-function relHit(mx, my){
-  const stage = document.getElementById('rel-stage');
-  const cx = stage.clientWidth/2 + _relPanX, cy = stage.clientHeight/2 + _relPanY;
+function heritHit(mx, my){
+  const stage = document.getElementById('herit-stage');
+  const cx = stage.clientWidth/2 + _heritPanX, cy = stage.clientHeight/2 + _heritPanY;
   const dx = mx - cx, dy = my - cy;
   const r = Math.hypot(dx, dy);
   let a = Math.atan2(dy, dx);
   const A0 = -Math.PI/2;
   while(a < A0) a += Math.PI*2;
   while(a >= A0 + Math.PI*2) a -= Math.PI*2;
-  return _relSegs.find(s => r >= s.r0 && r <= s.r1 && a >= s.a0 && a <= s.a1) || null;
+  return _heritSegs.find(s => r >= s.r0 && r <= s.r1 && a >= s.a0 && a <= s.a1) || null;
 }
 
-function relCenterRadius(){ return 44 * _relZoom; }
+function heritCenterRadius(){ return 44 * _heritZoom; }
 
-function relZoomBy(f, ax, ay){
-  const stage = document.getElementById('rel-stage');
+function heritZoomBy(f, ax, ay){
+  const stage = document.getElementById('herit-stage');
   if(!stage) return;
-  const prev = _relZoom;
-  _relZoom = Math.min(14, Math.max(0.35, _relZoom * f));
-  const k = _relZoom / prev;
+  const prev = _heritZoom;
+  _heritZoom = Math.min(14, Math.max(0.35, _heritZoom * f));
+  const k = _heritZoom / prev;
   // Zoom centré sur le pointeur : le point survolé reste sous le curseur
   if(ax !== undefined){
     const cx = stage.clientWidth/2, cy = stage.clientHeight/2;
-    _relPanX = ax - cx - (ax - cx - _relPanX) * k;
-    _relPanY = ay - cy - (ay - cy - _relPanY) * k;
+    _heritPanX = ax - cx - (ax - cx - _heritPanX) * k;
+    _heritPanY = ay - cy - (ay - cy - _heritPanY) * k;
   }
-  relDraw();
+  heritDraw();
 }
 
-function relReset(){
-  _relZoom = 1; _relPanX = 0; _relPanY = 0; _relHover = null;
-  relDraw();
+function heritReset(){
+  _heritZoom = 1; _heritPanX = 0; _heritPanY = 0; _heritHover = null;
+  heritDraw();
 }
 
-function relCrumb(){
-  const el = document.getElementById('rel-crumb');
+function heritCrumb(){
+  const el = document.getElementById('herit-crumb');
   if(!el) return;
-  el.innerHTML = _relPath.map((p, i) =>
-    `<button onclick="relJump(${i})" title="${p.name}">${p.name}</button>`
-  ).join('<span class="rel-sep">›</span>');
+  el.innerHTML = _heritPath.map((p, i) =>
+    `<button onclick="heritJump(${i})" title="${p.name}">${p.name}</button>`
+  ).join('<span class="herit-sep">›</span>');
 }
 
-function relJump(i){
-  _relPath = _relPath.slice(0, i + 1);
-  _relRoot = _relPath[i];
-  _relZoom = 1; _relPanX = 0; _relPanY = 0; _relHover = null;
-  relCrumb();
-  relDraw();
+function heritJump(i){
+  _heritPath = _heritPath.slice(0, i + 1);
+  _heritRoot = _heritPath[i];
+  _heritZoom = 1; _heritPanX = 0; _heritPanY = 0; _heritHover = null;
+  heritCrumb();
+  heritDraw();
 }
 
-function relDrillTo(name, node){
-  _relRoot = {name, node};
-  _relPath.push(_relRoot);
-  _relZoom = 1; _relPanX = 0; _relPanY = 0; _relHover = null;
-  relCrumb();
-  relDraw();
+function heritDrillTo(name, node){
+  _heritRoot = {name, node};
+  _heritPath.push(_heritRoot);
+  _heritZoom = 1; _heritPanX = 0; _heritPanY = 0; _heritHover = null;
+  heritCrumb();
+  heritDraw();
 }
 
-function relBindEvents(){
-  const cv = document.getElementById('rel-canvas');
-  const stage = document.getElementById('rel-stage');
-  const tip = document.getElementById('rel-tip');
-  if(!cv || _relInit) return;
-  _relInit = true;
+function heritBindEvents(){
+  const cv = document.getElementById('herit-canvas');
+  const stage = document.getElementById('herit-stage');
+  const tip = document.getElementById('herit-tip');
+  if(!cv || _heritInit) return;
+  _heritInit = true;
 
   let dragging = false, moved = false, lastX = 0, lastY = 0;
 
   cv.addEventListener('wheel', e => {
     e.preventDefault();
     const r = cv.getBoundingClientRect();
-    relZoomBy(e.deltaY < 0 ? 1.15 : 1/1.15, e.clientX - r.left, e.clientY - r.top);
+    heritZoomBy(e.deltaY < 0 ? 1.15 : 1/1.15, e.clientX - r.left, e.clientY - r.top);
   }, {passive:false});
 
   cv.addEventListener('mousedown', e => {
@@ -8865,17 +8867,17 @@ function relBindEvents(){
     if(dragging){
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       if(Math.abs(dx) + Math.abs(dy) > 2) moved = true;
-      _relPanX += dx; _relPanY += dy;
+      _heritPanX += dx; _heritPanY += dy;
       lastX = e.clientX; lastY = e.clientY;
       tip.style.display = 'none';
-      relDraw();
+      heritDraw();
       return;
     }
 
-    const s = relHit(mx, my);
-    // relDraw() reconstruit _relSegs : comparer par nom, pas par identité d'objet
-    if((s && s.name) !== (_relHover && _relHover.name)){ _relHover = s; relDraw(); }
-    else _relHover = s;
+    const s = heritHit(mx, my);
+    // heritDraw() reconstruit _heritSegs : comparer par nom, pas par identité d'objet
+    if((s && s.name) !== (_heritHover && _heritHover.name)){ _heritHover = s; heritDraw(); }
+    else _heritHover = s;
 
     if(s){
       const en = s.node.key ? E[s.node.key] : null;
@@ -8884,9 +8886,9 @@ function relBindEvents(){
       const nbSub = s.node._kids ? s.node._kids.length : 0;
       tip.style.display = 'block';
       tip.innerHTML =
-        `<div class="rt-ifc">${s.name}</div>` +
-        (fr ? `<div class="rt-fr">${fr}</div>` : '') +
-        `<div class="rt-meta">Niveau ${s.node._d} · ${en ? 'classe concrète' : 'classe abstraite'}<br>` +
+        `<div class="ht-ifc">${s.name}</div>` +
+        (fr ? `<div class="ht-fr">${fr}</div>` : '') +
+        `<div class="ht-meta">Niveau ${s.node._d} · ${en ? 'classe concrète' : 'classe abstraite'}<br>` +
         (nbSub ? `${nbSub} sous-type${nbSub>1?'s':''} · ${s.node.leafCount} entité${s.node.leafCount>1?'s':''} au total` : 'aucun sous-type') +
         `</div>`;
       const tw = tip.offsetWidth, th = tip.offsetHeight;
@@ -8898,46 +8900,46 @@ function relBindEvents(){
   });
 
   cv.addEventListener('mouseleave', () => {
-    _relHover = null;
+    _heritHover = null;
     tip.style.display = 'none';
-    relDraw();
+    heritDraw();
   });
 
   cv.addEventListener('click', e => {
     if(moved){ moved = false; return; }
     const r = cv.getBoundingClientRect();
     const mx = e.clientX - r.left, my = e.clientY - r.top;
-    const cx = stage.clientWidth/2 + _relPanX, cy = stage.clientHeight/2 + _relPanY;
+    const cx = stage.clientWidth/2 + _heritPanX, cy = stage.clientHeight/2 + _heritPanY;
 
     // Clic au centre : remonter d'un niveau
-    if(Math.hypot(mx - cx, my - cy) < relCenterRadius()){
-      if(_relPath.length > 1) relJump(_relPath.length - 2);
+    if(Math.hypot(mx - cx, my - cy) < heritCenterRadius()){
+      if(_heritPath.length > 1) heritJump(_heritPath.length - 2);
       return;
     }
 
-    const s = relHit(mx, my);
+    const s = heritHit(mx, my);
     if(!s) return;
     // Même comportement que l'arbre Hiérarchie : le clic ouvre toujours la fiche,
     // et descend d'un niveau si la classe a des sous-types.
     if(s.node.key) showDetail(s.node.key);
     else if(ABSTRACT_CLASSES[s.name]) showAbstractDetail(s.name);
-    if(s.node._kids && s.node._kids.length) relDrillTo(s.name, s.node);
+    if(s.node._kids && s.node._kids.length) heritDrillTo(s.name, s.node);
   });
 
   // Le canvas est en display:none tant que l'onglet est inactif :
   // ResizeObserver redessine dès qu'il reçoit ses dimensions réelles.
   if(window.ResizeObserver){
-    new ResizeObserver(() => { if(stage.clientWidth > 10) relDraw(); }).observe(stage);
+    new ResizeObserver(() => { if(stage.clientWidth > 10) heritDraw(); }).observe(stage);
   } else {
-    window.addEventListener('resize', relDraw);
+    window.addEventListener('resize', heritDraw);
   }
 }
 
-function renderRelDiagram(){
-  if(!relEnsureTree()) return;
-  relBindEvents();
-  relCrumb();
-  requestAnimationFrame(relDraw);
+function renderHeritMap(){
+  if(!heritEnsureTree()) return;
+  heritBindEvents();
+  heritCrumb();
+  requestAnimationFrame(heritDraw);
 }
 
 function switchTab(tab){
@@ -8958,7 +8960,7 @@ function switchTab(tab){
   }
   // La fiche (panneau droit) est toujours visible — pas de switchTab pour elle
   if(tab==='fav') renderFavs();
-  if(tab==='rel') renderRelDiagram();
+  if(tab==='herit') renderHeritMap();
 }
 
 const PSET_DATA = {
@@ -14168,7 +14170,7 @@ function toggleTheme(){
   html.setAttribute('data-theme', next);
   document.getElementById('btn-theme').textContent = isDark ? '☀' : '🌙';
   try{ localStorage.setItem('ifc-theme', next); }catch(e){}
-  if(document.getElementById('pane-rel')?.classList.contains('active')) relDraw();
+  if(document.getElementById('pane-herit')?.classList.contains('active')) heritDraw();
 }
 
 /* Appliquer le thème sauvegardé — défaut : dark */
@@ -14261,7 +14263,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
-          <tr><td>27/07/2026</td><td>v27/07/26-01</td><td>Nouvel onglet <strong>Relations</strong> : diagramme radial de l'héritage IFC. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
+          <tr><td>27/07/2026</td><td>v27/07/26-02</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
           <tr><td>15/06/2026</td><td>v15/06/26-01</td><td>Fiche détaillée : mise en page 2 colonnes pour attributs et Psets. Types EXPRESS lisibles (Étiquette, Texte libre, Objet lié…). Unités en toutes lettres (mètres, degrés…).</td></tr>
           <tr><td>14/06/2026</td><td>v14/06/26-11</td><td>Types EXPRESS IFC2x3 + unités SI dans les fiches (attributs et Psets). Liens buildingSMART directs par entité pour IFC2x3, IFC4 et IFC4.3. Catégorie <em>infra</em> pour les entités transport IFC4.3.</td></tr>
           <tr><td>11/06/2026</td><td>v11/06/26-xx</td><td>Filtres par catégorie dans le catalogue. Onglet Favoris. Liens URL hash + bouton Retour. Mise en évidence des blocs try/catch. 26 labels de groupes harmonisés avec suffixe "— IFC 2x3".</td></tr>
