@@ -3131,7 +3131,7 @@ const E = {
   relcoverssp:{fr:"Revêtement d'un espace",ifc:'IfcRelCoversSpaces',cat:'prop',ver:'IFC2x3',
     desc:"Lie un revêtement (IfcCovering) à l'espace qu'il borne. Complémentaire de IfcRelCoversBldgElements : l'espace sait quels revêtements définissent ses surfaces intérieures.",
     heritage:['IfcRoot','IfcRelationship','IfcRelConnects','IfcRelCoversSpaces'],
-    attrs:['GlobalId','OwnerHistory','Name','Description','RelatingSpace','RelatedCoverings'],
+    attrs:['GlobalId','OwnerHistory','Name','Description','RelatedSpace','RelatedCoverings'],
     ex:["L'espace 'Bureau 201' est associé à son parquet, ses peintures et son faux-plafond","La salle de bain connaît ses revêtements : faïence murs et sol","Le couloir liste ses revêtements de sol et de plafond"]},
 
   relspaceb:{fr:"Limite d'espace",ifc:'IfcRelSpaceBoundary',cat:'prop',ver:'IFC2x3',
@@ -8659,8 +8659,8 @@ const PSET_DATA = {
   Pset_CoveringCeiling:{classes:['IfcCovering'],props:[
     {n:'FragilityRating',t:'IfcLabel',d:'The level of fragility of the ceiling. It is giving according to the national building code.'},
     {n:'Permeability',t:'IfcNormalisedRatioMeasure',d:'Ratio of the permeability of the ceiling. The ration can be used to indicate an open ceiling (that enables identification of whether ceiling construction should be considered as impeding distribution of sprinkler water, light etc. from installations within the ceiling area) .'},
-    {n:'TileLength',t:'IfcPositiveLengthMeasure ',d:'Length of ceiling tiles. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
-    {n:'TileWidth',t:'IfcPositiveLengthMeasure ',d:'Width of ceiling tiles. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'}
+    {n:'TileLength',t:'IfcPositiveLengthMeasure',d:'Length of ceiling tiles. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
+    {n:'TileWidth',t:'IfcPositiveLengthMeasure',d:'Width of ceiling tiles. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'}
   ]},
   Pset_CoveringCommon:{classes:['IfcCovering','IfcCoveringType'],props:[
     {n:'Reference',t:'IfcIdentifier',d:'Reference ID for this specified type in this project (e.g. type \'A-1\')'},
@@ -8743,7 +8743,7 @@ const PSET_DATA = {
     {n:'NominalHeight',t:'IfcPositiveLengthMeasure',d:'The nominal height of the duct segment. Refer to NominalDiameterOrWidth for comments about interpretation of multiple items in the list.'},
     {n:'EndStyleTreatment',t:'IfcText',d:'The end-style treatment of the duct segment manufactured. If the list contains only one value, then this end-style applies to all ports. For more than one value in the list, the end-style value applies to the port that corresponds to the list index.The following suggested items should be utilized whenever possible for correlation with port enumerations: ANGLE: Angle.  BEADEDSLEEVE: Beaded Sleeve.  BRAZED: Brazed.  COMPRESSION: Compression.  CRIMP: Crimp.  DRAWBAND: Drawband.  DRIVESLIP: Drive slip.  FLANGED: Flanged.  OUTSIDESLEEVE: Outside Sleeve.  SLIPON: Slipon.  SOLDERED: Soldered.  SSLIP: S-Slip.  STANDINGSEAM: Standing seam.  SWEDGE: Swedge.  WELDED: Welded.  NONE: No end-style treatment has been applied. NOTDEFINED: Undefined end-style type.'},
     {n:'Reinforcement',t:'IfcLabel',d:'The type of reinforcement, if any, used for the duct segment.'},
-    {n:'ReinforcementSpacing',t:'IfcPositiveLengthMeasure ',d:'The spacing between reinforcing elements.'}
+    {n:'ReinforcementSpacing',t:'IfcPositiveLengthMeasure',d:'The spacing between reinforcing elements.'}
   ]},
   Pset_ElectricDistributionPointCommon:{classes:['IfcElectricDistributionPoint'],props:[
     {n:'IsMain',t:'IfcBoolean',d:'Identifies if the current instance is a main distribution point or topmost level in an electrical distribution hierarchy (= TRUE) or a sub-main distribution point (= FALSE).'},
@@ -8957,7 +8957,7 @@ const PSET_DATA = {
     {n:'FireRating',t:'IfcLabel',d:'Fire rating for this object. It is given according to the national fire safety classification.'},
     {n:'Combustible',t:'IfcBoolean',d:'Indication whether the object is made from combustible material (TRUE) or not (FALSE).'},
     {n:'SurfaceSpreadOfFlame',t:'IfcLabel',d:'Indication on how the flames spread around the surface, It is given according to the national building code that governs the fire behaviour for materials.'},
-    {n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure ',d:'Thermal transmittance coefficient (U-Value) of a material. Here the total thermal transmittance coefficient through the slab (including all materials).'},
+    {n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'Thermal transmittance coefficient (U-Value) of a material. Here the total thermal transmittance coefficient through the slab (including all materials).'},
     {n:'IsExternal',t:'IfcBoolean',d:'Indication whether the element is designed for use in the exterior (TRUE) or not (FALSE). If (TRUE) it is an external element and faces the outside of the building'},
     {n:'LoadBearing',t:'IfcBoolean',d:'Indicates whether the object is intended to carry loads (TRUE) or not (FALSE).'},
     {n:'Compartmentation',t:'IfcBoolean',d:'Indication whether the object is designed to serve as a fire compartmentation (TRUE) or not (FALSE).'},
@@ -8996,12 +8996,12 @@ const PSET_DATA = {
     {n:'IsOutlookDesirable',t:'IfcBoolean',d:'An indication of whether the outlook is desirable (set TRUE) or not (set FALSE)'}
   ]},
   Pset_SpaceThermalRequirements:{classes:['IfcSpace','IfcZone'],props:[
-    {n:'SpaceTemperatureMax',t:'IfcThermodynamicTemperatureMeasure ',d:'Temperature of the space or zone, that is required from user/designer view point.  If no summer or winter space temperature requirements are given, it applies all year, otherwise for the intermediate period.'},
-    {n:'SpaceTemperatureMin',t:'IfcThermodynamicTemperatureMeasure ',d:'Minimal temperature of the space or zone, that is required from user/designer view point. If no summer or winter space temperature requirements are given, it applies all year, otherwise for the intermediate period.'},
-    {n:'SpaceTemperatureSummerMax',t:'IfcThermodynamicTemperatureMeasure ',d:'Maximal temperature of the space or zone for the hot (summer) period, that is required from user/designer view point.'},
-    {n:'SpaceTemperatureSummerMin',t:'IfcThermodynamicTemperatureMeasure ',d:'Minimal temperature of the space or zone for the hot (summer) period, that is required from user/designer view point.'},
-    {n:'SpaceTemperatureWinterMax',t:'IfcThermodynamicTemperatureMeasure ',d:'Maximal temperature of the space or zone for the cold (winter) period, that is required from user/designer view point.'},
-    {n:'SpaceTemperatureWinterMin',t:'IfcThermodynamicTemperatureMeasure ',d:'Minimal temperature of the space or zone for the cold (winter) period, that is required from user/designer view point.'},
+    {n:'SpaceTemperatureMax',t:'IfcThermodynamicTemperatureMeasure',d:'Temperature of the space or zone, that is required from user/designer view point.  If no summer or winter space temperature requirements are given, it applies all year, otherwise for the intermediate period.'},
+    {n:'SpaceTemperatureMin',t:'IfcThermodynamicTemperatureMeasure',d:'Minimal temperature of the space or zone, that is required from user/designer view point. If no summer or winter space temperature requirements are given, it applies all year, otherwise for the intermediate period.'},
+    {n:'SpaceTemperatureSummerMax',t:'IfcThermodynamicTemperatureMeasure',d:'Maximal temperature of the space or zone for the hot (summer) period, that is required from user/designer view point.'},
+    {n:'SpaceTemperatureSummerMin',t:'IfcThermodynamicTemperatureMeasure',d:'Minimal temperature of the space or zone for the hot (summer) period, that is required from user/designer view point.'},
+    {n:'SpaceTemperatureWinterMax',t:'IfcThermodynamicTemperatureMeasure',d:'Maximal temperature of the space or zone for the cold (winter) period, that is required from user/designer view point.'},
+    {n:'SpaceTemperatureWinterMin',t:'IfcThermodynamicTemperatureMeasure',d:'Minimal temperature of the space or zone for the cold (winter) period, that is required from user/designer view point.'},
     {n:'SpaceHumidity',t:'IfcRatioMeasure',d:'Humidity of the space or zone that is required from user/designer view point.  If no summer or winter space humidity requirements are given, it applies all year, otherwise for the intermediate period.'},
     {n:'SpaceHumiditySummer',t:'IfcRatioMeasure',d:'Humidity of the space or zone for the hot (summer) period, that is required from user/designer view point.'},
     {n:'SpaceHumidityWinter',t:'IfcRatioMeasure',d:'Humidity of the space or zone for the cold (winter) period that is required from user/designer view point.'},
@@ -9144,8 +9144,8 @@ const PSET_DATA = {
   Pset_CoveringCeiling:{classes:['IfcCovering'],props:[
     {n:'FragilityRating',t:'IfcLabel',d:'The level of fragility of the ceiling. It is giving according to the national building code.'},
     {n:'Permeability',t:'IfcNormalisedRatioMeasure',d:'Ratio of the permeability of the ceiling. The ration can be used to indicate an open ceiling (that enables identification of whether ceiling construction should be considered as impeding distribution of sprinkler water, light etc. from installations within the ceiling area) .'},
-    {n:'TileLength',t:'IfcPositiveLengthMeasure ',d:'Length of ceiling tiles. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
-    {n:'TileWidth',t:'IfcPositiveLengthMeasure ',d:'Width of ceiling tiles. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'}
+    {n:'TileLength',t:'IfcPositiveLengthMeasure',d:'Length of ceiling tiles. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
+    {n:'TileWidth',t:'IfcPositiveLengthMeasure',d:'Width of ceiling tiles. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'}
   ]},
   Pset_CoveringFlooring:{classes:['IfcCovering'],props:[
     {n:'HasNonSkidSurface',t:'IfcBoolean',d:'Indication whether the surface finish is designed to prevent slippery (TRUE) or not (FALSE).'},
@@ -9270,9 +9270,9 @@ const PSET_DATA = {
   Pset_FurnitureTypeCommon:{classes:['IfcFurnitureType'],props:[
     {n:'Description',t:'IfcText',d:'Specific description of this type of furniture.'},
     {n:'Style',t:'IfcLabel',d:'Description of the furniture style'},
-    {n:'NominalHeight',t:'IfcPositiveLengthMeasure ',d:'The nominal height of the furniture of this type. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
-    {n:'NominalLength',t:'IfcPositiveLengthMeasure ',d:'The nominal length of the furniture of this type. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
-    {n:'NominalDepth',t:'IfcPositiveLengthMeasure ',d:'The nominal depth of the furniture of this type. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
+    {n:'NominalHeight',t:'IfcPositiveLengthMeasure',d:'The nominal height of the furniture of this type. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
+    {n:'NominalLength',t:'IfcPositiveLengthMeasure',d:'The nominal length of the furniture of this type. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
+    {n:'NominalDepth',t:'IfcPositiveLengthMeasure',d:'The nominal depth of the furniture of this type. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.'},
     {n:'MainColor',t:'IfcLabel',d:'The main color of the furniture of this type'}
   ]},
   Pset_ElectricDistributionPointCommon:{classes:['IfcElectricDistributionPoint'],props:[
