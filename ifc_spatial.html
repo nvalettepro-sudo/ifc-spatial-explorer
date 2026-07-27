@@ -518,6 +518,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .herit-tools{display:flex;align-items:center;gap:.3rem;flex:0 0 auto}
 .herit-btn{width:1.7rem;height:1.7rem;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:.85rem;line-height:1;cursor:pointer;padding:0}
 .herit-btn:hover{border-color:var(--sp);color:var(--sp)}
+.herit-btn-wide{width:auto;padding:0 .55rem;font-size:.66rem;font-weight:600;font-family:'DM Sans',sans-serif}
 .herit-zoom-val{font-family:ui-monospace,Menlo,monospace;font-size:.62rem;color:var(--muted);min-width:3.2rem;text-align:right;font-variant-numeric:tabular-nums}
 .herit-stage{position:relative;flex:1;min-height:0;overflow:hidden}
 .herit-stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
@@ -526,10 +527,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .herit-tip .ht-ifc{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;color:var(--sp)}
 .herit-tip .ht-fr{font-size:.75rem;font-weight:600;color:var(--text);margin:.1rem 0}
 .herit-tip .ht-meta{font-size:.63rem;color:var(--muted);line-height:1.45}
-.herit-legend{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;padding:.4rem .75rem;border-top:1px solid var(--border);font-size:.62rem;color:var(--muted);flex:0 0 auto}
-.herit-legend-item{display:flex;align-items:center;gap:.3rem}
-.herit-sw{width:.55rem;height:.55rem;border-radius:2px;display:inline-block}
-.herit-legend-hint{margin-left:auto;opacity:.75}
+.herit-legend{position:relative;display:flex;flex-direction:column;gap:.3rem;padding:.4rem .75rem;border-top:1px solid var(--border);font-size:.62rem;color:var(--muted);flex:0 0 auto}
+.herit-legend-row{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;max-height:3.4rem;overflow-y:auto}
+.herit-legend-item{display:flex;align-items:center;gap:.3rem;cursor:default;white-space:nowrap}
+.herit-legend-item:hover{color:var(--text)}
+.herit-sw{width:.55rem;height:.55rem;border-radius:2px;display:inline-block;flex:0 0 auto}
+.herit-legend-hint{opacity:.75}
+.herit-legend-tip{position:absolute;pointer-events:none;display:none;z-index:8;background:var(--card);border:1px solid var(--sp);border-radius:6px;padding:.4rem .55rem;max-width:16rem;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+.herit-legend-tip .ht-ifc{font-family:ui-monospace,Menlo,monospace;font-size:.68rem;color:var(--sp)}
+.herit-legend-tip .ht-fr{font-size:.75rem;font-weight:600;color:var(--text);margin:.1rem 0}
+.herit-legend-tip .ht-meta{font-size:.63rem;color:var(--muted);line-height:1.45}
 
 /* ── ARBRE HIÉRARCHIQUE ── */
 .hier-search{width:100%;padding:.32rem .65rem;border:1.5px solid var(--border);border-radius:7px;font-size:.72rem;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;margin-bottom:.65rem;display:block}
@@ -977,7 +984,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-03</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-04</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1115,6 +1122,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <div class="herit-toolbar">
         <div class="herit-crumb" id="herit-crumb"></div>
         <div class="herit-tools">
+          <button class="herit-btn herit-btn-wide" onclick="heritCycleColorMode()" id="herit-mode-btn" title="Changer le mode de coloration">Nature</button>
           <button class="herit-btn" onclick="heritZoomBy(1.25)" title="Zoomer">+</button>
           <button class="herit-btn" onclick="heritZoomBy(0.8)" title="Dézoomer">−</button>
           <button class="herit-btn" onclick="heritReset()" title="Réinitialiser la vue">↺</button>
@@ -1126,10 +1134,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
         <div class="herit-tip" id="herit-tip"></div>
       </div>
       <div class="herit-legend">
-        <span class="herit-legend-item"><span class="herit-sw" style="background:rgba(140,150,175,.4)"></span>Classe abstraite</span>
-        <span class="herit-legend-item"><span class="herit-sw" style="background:linear-gradient(90deg,#6BB8B2,#E8A850,#60A0D8)"></span>Classe concrète — couleur de catégorie</span>
-        <span class="herit-legend-item">Anneau N1…N9 = niveau d'emboîtement</span>
-        <span class="herit-legend-hint">Mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS, pas les relations <code>IfcRelationship</code> · Molette = zoom · glisser = déplacer · clic = descendre d'un niveau · clic au centre = remonter</span>
+        <div class="herit-legend-row" id="herit-legend-items"></div>
+        <span class="herit-legend-hint">Anneau N1…N9 = niveau d'emboîtement · Mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS, pas les relations <code>IfcRelationship</code> · Molette = zoom · glisser = déplacer · clic = descendre d'un niveau · clic au centre = remonter</span>
+        <div class="herit-legend-tip" id="herit-legend-tip"></div>
       </div>
     </div>
 
@@ -8611,19 +8618,197 @@ function heritShade(hex, amt){
   return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
 }
 
-/* Couleur d'un secteur : catégorie du projet pour les classes concrètes,
-   gris neutre dégradé par profondeur pour les classes abstraites. */
-function heritSegColor(node, name, dark, hovered){
-  if(node.key && E[node.key]){
-    const base = getCatColor(E[node.key].cat) || (dark ? '#90CAF9' : '#1D5FA5');
-    return heritShade(base, hovered ? (dark ? 0.28 : -0.22) : (dark ? -0.08 : 0.18));
-  }
-  // Abstraite : gris qui s'éclaircit légèrement à mesure qu'on s'éloigne du centre
+/* ══════════════════════════════════════════════════════════════════════
+   MODES DE COLORATION — la carte peut encoder 4 lectures différentes
+   du même arbre. Chacune est une fonction pure (node, name, dark, hovered)
+   → couleur CSS, sélectionnée par _heritColorMode.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Nuance de gris pour les classes abstraites, quel que soit le mode :
+   s'éclaircit légèrement en s'éloignant du centre pour garder les
+   anneaux distinguables même sans autre signal de couleur. */
+function heritAbstractGray(node, dark, hovered){
   const t = Math.min(1, (node._d || 1) / 9);
   const v = dark ? Math.round(52 + t*30) : Math.round(214 - t*34);
   const hv = hovered ? (dark ? 30 : -28) : 0;
   const c = Math.max(0, Math.min(255, v + hv));
   return `rgb(${c},${c + (dark?3:0)},${c + (dark?7:4)})`;
+}
+
+/* Mode A — Nature du nœud : Occurrence / Type / Relation / Propriété.
+   Les 4 familles descendent directement d'IfcRoot (Relation, Propriété)
+   ou d'IfcObjectDefinition (Occurrence = IfcObject, Type = IfcTypeObject). */
+const HERIT_NATURE_COLORS = {
+  IfcObject:             {dark:'#7FC8A9', light:'#0A6B4A'},
+  IfcTypeObject:         {dark:'#8FB4E8', light:'#1D4E9E'},
+  IfcRelationship:       {dark:'#E8A6C4', light:'#9E2060'},
+  IfcPropertyDefinition: {dark:'#E8C87A', light:'#8A5D00'}
+};
+function heritNatureKey(path){
+  if(path[1] === 'IfcObjectDefinition') return path[2] || null;
+  return path[1] || null;
+}
+function heritColorA(node, path, dark, hovered){
+  const key = heritNatureKey(path);
+  const def = key && HERIT_NATURE_COLORS[key];
+  if(!def) return heritAbstractGray(node, dark, hovered);
+  const base = dark ? def.dark : def.light;
+  if(!node.key) return heritShade(base, dark ? -0.45 : 0.62); // abstraite : assourdie
+  return heritShade(base, hovered ? (dark ? 0.28 : -0.22) : 0);
+}
+
+/* Mode B — Grande famille héritée : une teinte par branche structurante,
+   transmise à tous les descendants sans changer. */
+const HERIT_FAMS = ['IfcElement','IfcElementType','IfcSpatialStructureElement','IfcControl',
+  'IfcGroup','IfcProcess','IfcResource','IfcActor','IfcRelAssigns','IfcRelAssociates',
+  'IfcRelConnects','IfcRelDecomposes','IfcRelDefines','IfcPropertyDefinition','IfcAnnotation','IfcGrid'];
+const HERIT_HUES = [205,172,32,300,145,350,55,265,15,190,100,320,225,60,280,140];
+function heritFamilyOf(path){
+  for(let i = path.length - 1; i >= 1; i--){ if(HERIT_FAMS.includes(path[i])) return path[i]; }
+  return path[1] || path[0];
+}
+function heritColorB(node, path, dark, hovered){
+  const fam = heritFamilyOf(path);
+  const hue = HERIT_HUES[Math.max(0, HERIT_FAMS.indexOf(fam)) % HERIT_HUES.length];
+  let sat = node.key ? (dark?52:58) : (dark?16:20);
+  let light = node.key ? (dark?46:64) : (dark?27:87);
+  if(hovered){ sat += 18; light += dark ? 14 : -13; }
+  return `hsl(${hue} ${sat}% ${light}%)`;
+}
+
+/* Mode D — Abstrait / concret : deux teintes seulement. */
+function heritColorD(node, dark, hovered){
+  if(!node.key) return heritAbstractGray(node, dark, hovered);
+  const base = dark ? '#90CAF9' : '#1D5FA5';
+  return heritShade(base, hovered ? (dark ? 0.28 : -0.22) : (dark ? -0.08 : 0.18));
+}
+
+/* Mode E — Catégorie métier : couleur du catalogue (déjà utilisée dans
+   l'arbre Hiérarchie et le catalogue). Certaines catégories (infra, gen)
+   n'ont pas encore de couleur dédiée et retombent sur un gris de repli. */
+function heritColorE(node, dark, hovered){
+  if(!node.key) return heritAbstractGray(node, dark, hovered);
+  const en = E[node.key];
+  const base = (en && getCatColor(en.cat)) || (dark ? 'rgba(255,255,255,.30)' : 'rgba(0,0,0,.25)');
+  return heritShade(base, hovered ? (dark ? 0.28 : -0.22) : (dark ? -0.08 : 0.18));
+}
+
+const HERIT_COLOR_MODES = {
+  A: { label:'Nature', fn:(node,path,dark,hov)=>heritColorA(node,path,dark,hov) },
+  B: { label:'Famille', fn:(node,path,dark,hov)=>heritColorB(node,path,dark,hov) },
+  D: { label:'Abstrait / concret', fn:(node,path,dark,hov)=>heritColorD(node,dark,hov) },
+  E: { label:'Catégorie métier', fn:(node,path,dark,hov)=>heritColorE(node,dark,hov) },
+};
+const HERIT_COLOR_ORDER = ['A','B','D','E'];
+let _heritColorMode = 'A';
+try{ _heritColorMode = localStorage.getItem('ifc-herit-color') || 'A'; }catch(e){}
+
+/* Couleur d'un secteur, déléguée au mode courant */
+function heritSegColor(node, name, dark, hovered){
+  return HERIT_COLOR_MODES[_heritColorMode].fn(node, node._path || [name], dark, hovered);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LÉGENDE DYNAMIQUE + INFO-BULLES PÉDAGOGIQUES
+   Chaque pastille de légende peut se survoler pour afficher une définition.
+   On réutilise ABSTRACT_CLASSES quand la clé y existe déjà (c'est la même
+   fiche que celle ouverte depuis l'onglet Hiérarchie) ; sinon on complète
+   avec de courtes définitions propres à la légende.
+   ══════════════════════════════════════════════════════════════════════ */
+const HERIT_LEGEND_DEFS = {
+  abstract: {fr:'Classe abstraite', desc:"Classe du schéma IFC qui ne peut jamais être instanciée telle quelle dans un fichier .ifc : elle sert uniquement à factoriser des attributs et des règles communs à ses sous-types."},
+  concrete: {fr:'Classe concrète', desc:"Classe instanciable : elle peut apparaître comme une ligne réelle dans un fichier .ifc, avec ses propres valeurs d'attributs."},
+  IfcTypeObject: {fr:'Type', desc:"Modèle de bibliothèque réutilisable (ex : IfcWallType). Regroupe les propriétés et représentations communes à toutes les occurrences qui en dérivent, via la relation IfcRelDefinesByType."},
+  IfcRelAssigns: {fr:'Assignation', desc:"Relations qui affectent un objet à un contexte : groupe (IfcRelAssignsToGroup), acteur (IfcRelAssignsToActor), processus (IfcRelAssignsToProcess)…"},
+  IfcRelDecomposes: {fr:'Décomposition', desc:"Relations exprimant qu'un objet est composé d'autres objets : agrégation tout-parties (IfcRelAggregates) ou imbrication ordonnée (IfcRelNests)."},
+};
+/* Résout la définition d'une clé de légende : ABSTRACT_CLASSES d'abord
+   (fiche déjà utilisée ailleurs dans l'app), puis le complément ci-dessus. */
+function heritLegendDef(key){
+  const ac = ABSTRACT_CLASSES[key];
+  if(ac) return {fr: ac.fr, ifc: key, desc: ac.desc};
+  const own = HERIT_LEGEND_DEFS[key];
+  if(own) return {fr: own.fr, ifc: /^Ifc/.test(key) ? key : null, desc: own.desc};
+  return null;
+}
+
+function heritLegendSwatchHtml(key, colorCss, label){
+  return `<span class="herit-legend-item" data-legend-key="${key}">`
+    + `<span class="herit-sw" style="background:${colorCss}"></span>${label}</span>`;
+}
+
+function heritRenderLegend(){
+  const el = document.getElementById('herit-legend-items');
+  if(!el) return;
+  const dark = heritIsDark();
+  let items = [];
+  if(_heritColorMode === 'A'){
+    items = Object.entries(HERIT_NATURE_COLORS).map(([key, def]) =>
+      heritLegendSwatchHtml(key, dark ? def.dark : def.light, {IfcObject:'Occurrence', IfcTypeObject:'Type', IfcRelationship:'Relation', IfcPropertyDefinition:'Propriété'}[key]));
+  } else if(_heritColorMode === 'B'){
+    // Seulement les familles réellement présentes sous la racine courante
+    const present = new Set();
+    (function walk(n){ present.add(heritFamilyOf(n._path)); n._kids.forEach(([,k])=>walk(k)); })(_heritRoot.node);
+    items = HERIT_FAMS.filter(f => present.has(f)).map(f => {
+      const hue = HERIT_HUES[HERIT_FAMS.indexOf(f) % HERIT_HUES.length];
+      return heritLegendSwatchHtml(f, `hsl(${hue} ${dark?52:58}% ${dark?46:64}%)`, f.replace(/^Ifc/,''));
+    });
+  } else if(_heritColorMode === 'D'){
+    items = [
+      heritLegendSwatchHtml('concrete', dark ? '#90CAF9' : '#1D5FA5', 'Classe concrète'),
+      heritLegendSwatchHtml('abstract', dark ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.2)', 'Classe abstraite'),
+    ];
+  } else if(_heritColorMode === 'E'){
+    const present = new Set();
+    (function walk(n){ if(n.key && E[n.key]) present.add(E[n.key].cat); n._kids.forEach(([,k])=>walk(k)); })(_heritRoot.node);
+    items = Object.keys(CAT_LABELS).filter(c => present.has(c)).map(c =>
+      heritLegendSwatchHtml('cat:'+c, getCatColor(c), CAT_LABELS[c]));
+    items.push(heritLegendSwatchHtml('abstract', dark ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.2)', 'Classe abstraite'));
+  }
+  el.innerHTML = items.join('');
+  document.getElementById('herit-mode-btn').textContent = HERIT_COLOR_MODES[_heritColorMode].label;
+}
+
+function heritCycleColorMode(){
+  const i = HERIT_COLOR_ORDER.indexOf(_heritColorMode);
+  _heritColorMode = HERIT_COLOR_ORDER[(i + 1) % HERIT_COLOR_ORDER.length];
+  try{ localStorage.setItem('ifc-herit-color', _heritColorMode); }catch(e){}
+  heritRenderLegend();
+  heritDraw();
+}
+
+function heritLegendTooltip(){
+  const legend = document.querySelector('.herit-legend');
+  const tip = document.getElementById('herit-legend-tip');
+  if(!legend || !tip || legend._heritTipBound) return;
+  legend._heritTipBound = true;
+  legend.addEventListener('mouseover', e => {
+    const item = e.target.closest('[data-legend-key]');
+    if(!item) return;
+    let key = item.dataset.legendKey;
+    let def;
+    if(key.startsWith('cat:')){
+      const cat = key.slice(4);
+      def = {fr: CAT_LABELS[cat] || cat, ifc: null, desc: `Catégorie sémantique du catalogue de l'application, regroupant les entités liées à « ${(CAT_LABELS[cat]||cat).toLowerCase()} ».`};
+    } else {
+      def = heritLegendDef(key);
+      // Mode Nature : le libellé affiché (Occurrence/Type/Relation/Propriété) diffère
+      // du nom français de la classe elle-même — l'infobulle reprend le même libellé.
+      const natureLabel = {IfcObject:'Occurrence', IfcTypeObject:'Type', IfcRelationship:'Relation', IfcPropertyDefinition:'Propriété'}[key];
+      if(_heritColorMode === 'A' && natureLabel && def) def = {...def, fr: `${natureLabel} — ${def.fr}`};
+    }
+    if(!def) return;
+    tip.innerHTML = `<div class="ht-fr">${def.fr}</div>` + (def.ifc ? `<div class="ht-ifc">${def.ifc}</div>` : '') + `<div class="ht-meta">${def.desc}</div>`;
+    tip.style.display = 'block';
+    const ir = item.getBoundingClientRect(), lr = legend.getBoundingClientRect();
+    tip.style.left = Math.max(4, Math.min(ir.left - lr.left, lr.width - tip.offsetWidth - 4)) + 'px';
+    tip.style.bottom = (lr.height + 4) + 'px';
+  });
+  legend.addEventListener('mouseout', e => {
+    if(!e.target.closest('[data-legend-key]')) return;
+    if(e.relatedTarget && e.relatedTarget.closest('[data-legend-key]')) return;
+    tip.style.display = 'none';
+  });
 }
 
 let _heritRoot = null;      // nœud courant au centre
@@ -8634,13 +8819,16 @@ let _heritPanX = 0, _heritPanY = 0;
 let _heritHover = null;
 let _heritInit = false;
 
-/* Prépare l'arbre : profondeur et tri des enfants par taille décroissante */
-function heritPrepare(name, node, depth){
+/* Prépare l'arbre : profondeur, chemin de noms depuis IfcRoot (utilisé par
+   les modes de coloration A et B pour retrouver la branche d'origine),
+   et tri des enfants par taille décroissante. */
+function heritPrepare(name, node, depth, path){
   node._d = depth;
+  node._path = path;
   const kids = Object.entries(node.children);
   kids.sort((a,b) => b[1].leafCount - a[1].leafCount);
   node._kids = kids;
-  kids.forEach(([kn, kv]) => heritPrepare(kn, kv, depth + 1));
+  kids.forEach(([kn, kv]) => heritPrepare(kn, kv, depth + 1, path.concat([kn])));
 }
 
 function heritEnsureTree(){
@@ -8648,7 +8836,7 @@ function heritEnsureTree(){
   if(!_heritRoot){
     const rootNode = _hierTree['IfcRoot'];
     if(!rootNode) return false;
-    heritPrepare('IfcRoot', rootNode, 0);
+    heritPrepare('IfcRoot', rootNode, 0, ['IfcRoot']);
     _heritRoot = {name:'IfcRoot', node:rootNode};
     _heritPath = [_heritRoot];
   }
@@ -8937,6 +9125,7 @@ function heritJump(i){
   _heritRoot = _heritPath[i];
   _heritZoom = 1; _heritPanX = 0; _heritPanY = 0; _heritHover = null;
   heritCrumb();
+  heritRenderLegend(); // les modes Famille/Catégorie n'affichent que ce qui est présent sous la racine
   heritDraw();
 }
 
@@ -8945,6 +9134,7 @@ function heritDrillTo(name, node){
   _heritPath.push(_heritRoot);
   _heritZoom = 1; _heritPanX = 0; _heritPanY = 0; _heritHover = null;
   heritCrumb();
+  heritRenderLegend();
   heritDraw();
 }
 
@@ -9053,6 +9243,8 @@ function renderHeritMap(){
   if(!heritEnsureTree()) return;
   heritBindEvents();
   heritCrumb();
+  heritRenderLegend();
+  heritLegendTooltip();
   requestAnimationFrame(heritDraw);
 }
 
@@ -14377,7 +14569,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
-          <tr><td>27/07/2026</td><td>v27/07/26-03</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
+          <tr><td>27/07/2026</td><td>v27/07/26-04</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
           <tr><td>15/06/2026</td><td>v15/06/26-01</td><td>Fiche détaillée : mise en page 2 colonnes pour attributs et Psets. Types EXPRESS lisibles (Étiquette, Texte libre, Objet lié…). Unités en toutes lettres (mètres, degrés…).</td></tr>
           <tr><td>14/06/2026</td><td>v14/06/26-11</td><td>Types EXPRESS IFC2x3 + unités SI dans les fiches (attributs et Psets). Liens buildingSMART directs par entité pour IFC2x3, IFC4 et IFC4.3. Catégorie <em>infra</em> pour les entités transport IFC4.3.</td></tr>
           <tr><td>11/06/2026</td><td>v11/06/26-xx</td><td>Filtres par catégorie dans le catalogue. Onglet Favoris. Liens URL hash + bouton Retour. Mise en évidence des blocs try/catch. 26 labels de groupes harmonisés avec suffixe "— IFC 2x3".</td></tr>
