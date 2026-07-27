@@ -1,0 +1,26 @@
+{
+  "IFC2X3": {
+    "schema": "IFC2X3",
+    "entities": 653,
+    "types": 327,
+    "functions": 38,
+    "rules": 2,
+    "psets": 317
+  },
+  "IFC4": {
+    "schema": "IFC4_ADD2_TC1",
+    "entities": 776,
+    "types": 397,
+    "functions": 47,
+    "rules": 2,
+    "psets": 513
+  },
+  "IFC4X3": {
+    "schema": "IFC4X3_DEV_923b0514",
+    "entities": 876,
+    "types": 436,
+    "functions": 48,
+    "rules": 2,
+    "psets": 760
+  }
+}
