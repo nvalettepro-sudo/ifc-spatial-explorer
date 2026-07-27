@@ -984,7 +984,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-04</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-05</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -8937,20 +8937,19 @@ function heritDraw(){
     ctx.stroke();
   });
 
-  /* Libellés. Chaque secteur dispose de deux directions possibles :
-       — le long de l'arc : la longueur utile est l'ouverture angulaire,
-         la hauteur du texte est bornée par l'épaisseur de l'anneau ;
-       — le long du rayon : l'inverse exactement.
-     On retient l'orientation qui fait tenir le nom complet, en privilégiant
-     l'arc (plus lisible). Si aucune ne suffit, on tronque dans la direction
-     la plus généreuse plutôt que de masquer le nom — le survol donne
-     toujours le nom entier. */
+  /* Libellés. Taille de police UNIQUE pour tout le diagramme (elle grandit
+     avec le zoom, mais reste identique d'un secteur à l'autre) : c'est ce
+     qui rend la carte lisible d'un coup d'œil plutôt que comme un nuage de
+     tailles disparates. À taille fixée, un secteur ne peut pas toujours
+     accueillir son nom complet ; dans ce cas le nom est simplement omis —
+     jamais tronqué avec une ellipse — et reste disponible au survol.
+     Deux orientations sont tentées, l'arc d'abord (plus lisible), puis le
+     rayon, chacune testée sur les deux frontières qui la limitent. */
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  // La taille de police croît doucement avec le zoom : le texte suit
-  // l'agrandissement sans devenir disproportionné.
-  const fsCap = Math.min(24, 13 * Math.pow(_heritZoom, 0.3));
+  const fs = Math.min(24, Math.max(9, 11 * Math.pow(_heritZoom, 0.3)));
   const clipToView = _heritZoom > 1.05;
+  ctx.font = `9999px system-ui, sans-serif`; // valeur bidon, écrasée ci-dessous par secteur
   _heritSegs.forEach(s => {
     const thickness = s.r1 - s.r0;
     const rm  = (s.r0 + s.r1) / 2;
@@ -8964,6 +8963,15 @@ function heritDraw(){
     }
     const full = s.name.replace(/^Ifc/, '');
     const weight = s.node.key ? 600 : 400;
+    ctx.font = `${weight} ${fs}px system-ui, sans-serif`;
+    const textW = ctx.measureText(full).width;
+
+    // Le texte tient le long de l'arc s'il y a assez d'ouverture ET assez
+    // d'épaisseur pour porter la hauteur de police.
+    const fitsArc = thickness >= fs * 1.3 && textW <= arcLen - 6;
+    // … ou le long du rayon, conditions inverses.
+    const fitsRad = arcLen >= fs * 1.3 && textW <= thickness - 7;
+    if(!fitsArc && !fitsRad) return; // aucune place : on n'affiche rien, jamais de troncature
 
     ctx.save();
     ctx.translate(cx, cy);
@@ -8971,55 +8979,13 @@ function heritDraw(){
       ? (dark ? 'rgba(255,255,255,.94)' : '#11161F')
       : (dark ? 'rgba(255,255,255,.58)' : 'rgba(0,0,0,.5)');
 
-    // Option 1 — le long de l'arc
-    const fsArc = Math.min(fsCap, thickness * 0.5);
-    let done = false;
-    if(fsArc >= 6.5){
-      ctx.font = `${weight} ${fsArc}px system-ui, sans-serif`;
-      if(ctx.measureText(full).width <= arcLen - 6){
-        heritArcText(ctx, full, rm, mid);
-        done = true;
-      }
-    }
-
-    // Option 2 — le long du rayon
-    const fsRad = Math.min(fsCap, arcLen * 0.62);
-    if(!done && fsRad >= 6.5 && thickness >= 14){
-      ctx.font = `${weight} ${fsRad}px system-ui, sans-serif`;
-      if(ctx.measureText(full).width <= thickness - 7){
-        ctx.rotate(mid);
-        ctx.translate(rm, 0);
-        if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
-        ctx.fillText(full, 0, 0);
-        done = true;
-      }
-    }
-
-    // Repli — troncature dans la direction offrant le plus de place
-    if(!done){
-      const arcFits = fsArc >= 6.5 && arcLen - 6 >= thickness - 7;
-      const fs = arcFits ? fsArc : fsRad;
-      const avail = arcFits ? arcLen - 6 : thickness - 7;
-      if(fs >= 6.5 && avail > 12){
-        ctx.font = `${weight} ${fs}px system-ui, sans-serif`;
-        let lo = 1, hi = full.length;
-        while(lo < hi){
-          const m = Math.ceil((lo + hi) / 2);
-          if(ctx.measureText(full.slice(0, m) + '…').width <= avail) lo = m;
-          else hi = m - 1;
-        }
-        if(lo >= 3){
-          const txt = full.slice(0, lo) + '…';
-          if(arcFits){
-            heritArcText(ctx, txt, rm, mid);
-          } else {
-            ctx.rotate(mid);
-            ctx.translate(rm, 0);
-            if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
-            ctx.fillText(txt, 0, 0);
-          }
-        }
-      }
+    if(fitsArc){
+      heritArcText(ctx, full, rm, mid);
+    } else {
+      ctx.rotate(mid);
+      ctx.translate(rm, 0);
+      if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
+      ctx.fillText(full, 0, 0);
     }
     ctx.restore();
   });
@@ -14569,7 +14535,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
-          <tr><td>27/07/2026</td><td>v27/07/26-04</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
+          <tr><td>27/07/2026</td><td>v27/07/26-05</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
           <tr><td>15/06/2026</td><td>v15/06/26-01</td><td>Fiche détaillée : mise en page 2 colonnes pour attributs et Psets. Types EXPRESS lisibles (Étiquette, Texte libre, Objet lié…). Unités en toutes lettres (mètres, degrés…).</td></tr>
           <tr><td>14/06/2026</td><td>v14/06/26-11</td><td>Types EXPRESS IFC2x3 + unités SI dans les fiches (attributs et Psets). Liens buildingSMART directs par entité pour IFC2x3, IFC4 et IFC4.3. Catégorie <em>infra</em> pour les entités transport IFC4.3.</td></tr>
           <tr><td>11/06/2026</td><td>v11/06/26-xx</td><td>Filtres par catégorie dans le catalogue. Onglet Favoris. Liens URL hash + bouton Retour. Mise en évidence des blocs try/catch. 26 labels de groupes harmonisés avec suffixe "— IFC 2x3".</td></tr>
