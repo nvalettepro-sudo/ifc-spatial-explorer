@@ -984,7 +984,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-05</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-06</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -8608,6 +8608,31 @@ function heritVisibleArc(cx, cy, r, a0, a1, W, H){
   return {mid: (s0 + s1) / 2, span: s1 - s0};
 }
 
+/* Découpe un nom IFC en mots sur ses frontières CamelCase, ex.
+   "DistributionFlowElementType" → ["Distribution","Flow","Element","Type"].
+   Sert à habiller le texte sur plusieurs lignes sans jamais couper un mot. */
+function heritCamelWords(name){
+  return name.match(/[A-Z][a-z0-9]*/g) || [name];
+}
+
+/* Regroupe des mots en lignes tenant chacune dans maxWidth (sans séparateur,
+   les mots CamelCase se recollent naturellement). Si un mot dépasse à lui
+   seul maxWidth, aucune ligne ne peut le contenir sans le couper : on
+   refuse alors tout le découpage (retour null) plutôt que de laisser une
+   ligne déborder — c'est ce qui évite le chevauchement avec les secteurs
+   voisins sur les petits segments. */
+function heritWrapWords(ctx, words, maxWidth){
+  const lines = [];
+  let cur = '';
+  words.forEach(w => {
+    const test = cur + w;
+    if(cur && ctx.measureText(test).width > maxWidth){ lines.push(cur); cur = w; }
+    else cur = test;
+  });
+  if(cur) lines.push(cur);
+  return lines.some(l => ctx.measureText(l).width > maxWidth) ? null : lines;
+}
+
 /* Convertit une couleur hex en composantes, avec éclaircissement/assombrissement */
 function heritShade(hex, amt){
   const h = String(hex).trim().replace('#','');
@@ -8938,16 +8963,19 @@ function heritDraw(){
   });
 
   /* Libellés. Taille de police UNIQUE pour tout le diagramme (elle grandit
-     avec le zoom, mais reste identique d'un secteur à l'autre) : c'est ce
-     qui rend la carte lisible d'un coup d'œil plutôt que comme un nuage de
-     tailles disparates. À taille fixée, un secteur ne peut pas toujours
-     accueillir son nom complet ; dans ce cas le nom est simplement omis —
-     jamais tronqué avec une ellipse — et reste disponible au survol.
-     Deux orientations sont tentées, l'arc d'abord (plus lisible), puis le
-     rayon, chacune testée sur les deux frontières qui la limitent. */
+     avec le zoom, mais reste identique d'un secteur à l'autre). À taille
+     fixée, un nom long tient rarement sur une ligne à un zoom modéré : au
+     lieu d'exiger un zoom plus fort ou de tronquer, on l'habille sur
+     plusieurs lignes en coupant uniquement aux frontières CamelCase
+     ("Distribution / Flow / Element / Type") — jamais au milieu d'un mot,
+     donc jamais d'ellipse. Un nom n'est omis que si même une seule syllabe
+     ne tient nulle part.
+     Deux orientations : le long de l'arc (lignes empilées par rayon) ou
+     le long du rayon (lignes empilées par angle). L'arc est préféré. */
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   const fs = Math.min(24, Math.max(9, 11 * Math.pow(_heritZoom, 0.3)));
+  const lineH = fs * 1.14;
   const clipToView = _heritZoom > 1.05;
   ctx.font = `9999px system-ui, sans-serif`; // valeur bidon, écrasée ci-dessous par secteur
   _heritSegs.forEach(s => {
@@ -8964,14 +8992,28 @@ function heritDraw(){
     const full = s.name.replace(/^Ifc/, '');
     const weight = s.node.key ? 600 : 400;
     ctx.font = `${weight} ${fs}px system-ui, sans-serif`;
-    const textW = ctx.measureText(full).width;
 
-    // Le texte tient le long de l'arc s'il y a assez d'ouverture ET assez
-    // d'épaisseur pour porter la hauteur de police.
-    const fitsArc = thickness >= fs * 1.3 && textW <= arcLen - 6;
-    // … ou le long du rayon, conditions inverses.
-    const fitsRad = arcLen >= fs * 1.3 && textW <= thickness - 7;
-    if(!fitsArc && !fitsRad) return; // aucune place : on n'affiche rien, jamais de troncature
+    const words = heritCamelWords(full);
+    const maxLines = 4;
+
+    // Nombre de lignes empilées que la dimension "hauteur" peut porter
+    const nArc = Math.max(0, Math.min(maxLines, Math.floor((thickness - 4) / lineH)));
+    const nRad = Math.max(0, Math.min(maxLines, Math.floor((arcLen - 4) / lineH)));
+
+    let mode = null, lines = null;
+    // Le long de l'arc d'abord (plus lisible) : le nombre de lignes est
+    // celui que l'habillage produit réellement, à condition qu'il tienne
+    // dans la hauteur disponible.
+    if(nArc >= 1){
+      const wrapped = heritWrapWords(ctx, words, arcLen - 6);
+      if(wrapped && wrapped.length <= nArc){ lines = wrapped; mode = 'arc'; }
+    }
+    // Sinon le long du rayon, même logique avec les dimensions inversées
+    if(!lines && nRad >= 1){
+      const wrapped = heritWrapWords(ctx, words, thickness - 6);
+      if(wrapped && wrapped.length <= nRad){ lines = wrapped; mode = 'rad'; }
+    }
+    if(!lines) return; // même une syllabe ne tient nulle part : on n'affiche rien
 
     ctx.save();
     ctx.translate(cx, cy);
@@ -8979,13 +9021,18 @@ function heritDraw(){
       ? (dark ? 'rgba(255,255,255,.94)' : '#11161F')
       : (dark ? 'rgba(255,255,255,.58)' : 'rgba(0,0,0,.5)');
 
-    if(fitsArc){
-      heritArcText(ctx, full, rm, mid);
+    const n = lines.length;
+    if(mode === 'arc'){
+      lines.forEach((l, i) => heritArcText(ctx, l, rm + (i - (n-1)/2) * lineH, mid));
     } else {
+      // Même repère que le rendu radial mono-ligne : on tourne jusqu'à
+      // l'angle, on avance jusqu'au rayon, puis on empile les lignes le
+      // long de l'axe local perpendiculaire (celui du rayon, à cette étape).
       ctx.rotate(mid);
       ctx.translate(rm, 0);
-      if(Math.cos(mid) < 0) ctx.rotate(Math.PI);
-      ctx.fillText(full, 0, 0);
+      const flip = Math.cos(mid) < 0;
+      if(flip) ctx.rotate(Math.PI);
+      lines.forEach((l, i) => ctx.fillText(l, 0, (flip ? -1 : 1) * (i - (n-1)/2) * lineH));
     }
     ctx.restore();
   });
@@ -14535,7 +14582,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
-          <tr><td>27/07/2026</td><td>v27/07/26-05</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
+          <tr><td>27/07/2026</td><td>v27/07/26-06</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
           <tr><td>15/06/2026</td><td>v15/06/26-01</td><td>Fiche détaillée : mise en page 2 colonnes pour attributs et Psets. Types EXPRESS lisibles (Étiquette, Texte libre, Objet lié…). Unités en toutes lettres (mètres, degrés…).</td></tr>
           <tr><td>14/06/2026</td><td>v14/06/26-11</td><td>Types EXPRESS IFC2x3 + unités SI dans les fiches (attributs et Psets). Liens buildingSMART directs par entité pour IFC2x3, IFC4 et IFC4.3. Catégorie <em>infra</em> pour les entités transport IFC4.3.</td></tr>
           <tr><td>11/06/2026</td><td>v11/06/26-xx</td><td>Filtres par catégorie dans le catalogue. Onglet Favoris. Liens URL hash + bouton Retour. Mise en évidence des blocs try/catch. 26 labels de groupes harmonisés avec suffixe "— IFC 2x3".</td></tr>
