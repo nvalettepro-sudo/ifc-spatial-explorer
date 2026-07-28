@@ -987,7 +987,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-07</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-08</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -8979,8 +8979,11 @@ function heritDraw(){
      ("Distribution / Flow / Element / Type") — jamais au milieu d'un mot,
      donc jamais d'ellipse. Un nom n'est omis que si même une seule syllabe
      ne tient nulle part.
-     Deux orientations : le long de l'arc (lignes empilées par rayon) ou
-     le long du rayon (lignes empilées par angle). L'arc est préféré. */
+     Un seul sens d'écriture par secteur, déterminé par son côté le plus
+     long : le long de l'arc si l'ouverture angulaire dépasse l'épaisseur
+     de l'anneau, le long du rayon sinon — jamais les deux tentés tour à
+     tour, ce qui évite qu'un même diagramme mélange des orientations
+     choisies au hasard des essais successifs. */
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   const fs = Math.min(19, Math.max(7, 8.5 * Math.pow(_heritZoom, 0.3)));
@@ -9005,24 +9008,19 @@ function heritDraw(){
     const words = heritCamelWords(full);
     const maxLines = 4;
 
-    // Nombre de lignes empilées que la dimension "hauteur" peut porter
-    const nArc = Math.max(0, Math.min(maxLines, Math.floor((thickness - 4) / lineH)));
-    const nRad = Math.max(0, Math.min(maxLines, Math.floor((arcLen - 4) / lineH)));
+    // Le côté le plus long fixe le sens d'écriture — décision unique,
+    // aucun essai de repli dans l'autre sens.
+    const mode = arcLen >= thickness ? 'arc' : 'rad';
+    const lineDim  = mode === 'arc' ? thickness : arcLen;   // porte l'empilement des lignes
+    const wrapDim  = mode === 'arc' ? arcLen    : thickness; // porte la largeur d'une ligne
+    const nMax = Math.max(0, Math.min(maxLines, Math.floor((lineDim - 4) / lineH)));
 
-    let mode = null, lines = null;
-    // Le long de l'arc d'abord (plus lisible) : le nombre de lignes est
-    // celui que l'habillage produit réellement, à condition qu'il tienne
-    // dans la hauteur disponible.
-    if(nArc >= 1){
-      const wrapped = heritWrapWords(ctx, words, arcLen - 6);
-      if(wrapped && wrapped.length <= nArc){ lines = wrapped; mode = 'arc'; }
+    let lines = null;
+    if(nMax >= 1){
+      const wrapped = heritWrapWords(ctx, words, wrapDim - 6);
+      if(wrapped && wrapped.length <= nMax) lines = wrapped;
     }
-    // Sinon le long du rayon, même logique avec les dimensions inversées
-    if(!lines && nRad >= 1){
-      const wrapped = heritWrapWords(ctx, words, thickness - 6);
-      if(wrapped && wrapped.length <= nRad){ lines = wrapped; mode = 'rad'; }
-    }
-    if(!lines) return; // même une syllabe ne tient nulle part : on n'affiche rien
+    if(!lines) return; // même une syllabe ne tient nulle part dans ce sens : on n'affiche rien
 
     ctx.save();
     ctx.translate(cx, cy);
@@ -14591,7 +14589,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
-          <tr><td>27/07/2026</td><td>v27/07/26-07</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
+          <tr><td>27/07/2026</td><td>v27/07/26-08</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
           <tr><td>15/06/2026</td><td>v15/06/26-01</td><td>Fiche détaillée : mise en page 2 colonnes pour attributs et Psets. Types EXPRESS lisibles (Étiquette, Texte libre, Objet lié…). Unités en toutes lettres (mètres, degrés…).</td></tr>
           <tr><td>14/06/2026</td><td>v14/06/26-11</td><td>Types EXPRESS IFC2x3 + unités SI dans les fiches (attributs et Psets). Liens buildingSMART directs par entité pour IFC2x3, IFC4 et IFC4.3. Catégorie <em>infra</em> pour les entités transport IFC4.3.</td></tr>
           <tr><td>11/06/2026</td><td>v11/06/26-xx</td><td>Filtres par catégorie dans le catalogue. Onglet Favoris. Liens URL hash + bouton Retour. Mise en évidence des blocs try/catch. 26 labels de groupes harmonisés avec suffixe "— IFC 2x3".</td></tr>
