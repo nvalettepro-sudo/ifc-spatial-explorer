@@ -547,6 +547,30 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .herit-search-status{font-size:.62rem;color:var(--muted);white-space:nowrap;min-width:4.2rem;text-align:right}
 .herit-search-clear{flex:0 0 auto}
 
+/* ── ONGLET RELATIONS ── */
+.rel-intro{font-size:.66rem;color:var(--muted);line-height:1.55;margin:.6rem 0 1rem}
+.rel-intro b{color:var(--text)}
+.rel-fam-head{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin:1.5rem 0 .3rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
+.rel-fam-head:first-child{margin-top:0}
+.rel-fam-name{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.rel-fam-ifc{font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace}
+.rel-fam-count{margin-left:auto;font-size:.58rem;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:.05rem .5rem;font-variant-numeric:tabular-nums}
+.rel-fam-sub{font-size:.65rem;color:var(--muted);margin:0 0 .7rem;max-width:70ch;line-height:1.5}
+.rel-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.7rem .8rem;margin-bottom:.6rem}
+.rel-card-head{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem}
+.rel-fr{font-size:.78rem;font-weight:700}
+.rel-ifc{font-size:.62rem;color:var(--sp);font-family:'DM Mono',monospace}
+.rel-desc{font-size:.68rem;color:var(--text);opacity:.85;margin:0 0 .65rem;max-width:72ch;line-height:1.55}
+.rel-schema{display:flex;align-items:center;background:rgba(0,0,0,.03);border-radius:8px;padding:.5rem .45rem;overflow-x:auto}
+[data-theme="dark"] .rel-schema{background:rgba(255,255,255,.04)}
+.rel-schema-box{flex:0 0 auto;display:flex;flex-direction:column;gap:.1rem;padding:.35rem .6rem;border-radius:7px;border:1.5px solid;min-width:6.4rem;max-width:11rem;text-align:center}
+.rsb-fr{font-size:.66rem;font-weight:700;line-height:1.2}
+.rsb-ifc{font-size:.55rem;font-family:'DM Mono',monospace;color:var(--muted)}
+.rel-schema-arrow{flex:1 1 auto;min-width:2.8rem;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 .4rem}
+.rsa-label{font-size:.58rem;font-weight:600;color:var(--muted);white-space:nowrap;margin-bottom:.15rem}
+.rel-schema-arrow svg{width:100%;height:14px;display:block;overflow:visible}
+.rel-empty{font-size:.7rem;color:var(--muted);padding:1rem 0}
+
 /* ── ARBRE HIÉRARCHIQUE ── */
 .hier-search{width:100%;padding:.32rem .65rem;border:1.5px solid var(--border);border-radius:7px;font-size:.72rem;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;margin-bottom:.65rem;display:block}
 .hier-search:focus{border-color:var(--sp)}
@@ -993,7 +1017,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-09</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-10</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1051,6 +1075,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <div class="aside-tab" id="tab-arbo" onclick="switchTab('arbo')">Arborescence</div>
       <div class="aside-tab" id="tab-hier" onclick="switchTab('hier')" title="Hiérarchie d'héritage IFC — vue arbre dépliable">Hiérarchie · Arbre</div>
       <div class="aside-tab" id="tab-herit" onclick="switchTab('herit')" title="Hiérarchie d'héritage IFC — vue carte radiale">Hiérarchie · Carte</div>
+      <div class="aside-tab" id="tab-rel" onclick="switchTab('rel')" title="Comment les éléments IFC se relient entre eux">Relations</div>
       <div class="aside-tab" id="tab-fav" onclick="switchTab('fav')">★ Favoris</div>
       <div class="aside-tab" id="tab-search" onclick="switchTab('search')" style="display:none">
         Résultats <span class="aside-badge" id="search-badge">0</span>
@@ -1157,6 +1182,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
         <span class="herit-legend-hint">Anneau N1…N9 = niveau d'emboîtement · Mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS, pas les relations <code>IfcRelationship</code> · Molette = zoom · glisser = déplacer · clic = descendre d'un niveau · clic au centre = remonter</span>
         <div class="herit-legend-tip" id="herit-legend-tip"></div>
       </div>
+    </div>
+
+    <!-- Onglet Relations — comment les instances IFC se relient entre elles (IfcRelationship) -->
+    <div class="aside-pane" id="pane-rel" style="padding:.75rem;overflow:auto">
+      <input class="hier-search" id="rel-search" type="text" placeholder="Filtrer les relations (FR ou IFC)…" oninput="filterRelations(this.value)" autocomplete="off" spellcheck="false">
+      <p class="rel-intro">Comment un mur, une porte, un tuyau ou un espace se relient entre eux dans une maquette IFC — à ne pas confondre avec la <b>Hiérarchie</b> (le mécanisme <code>SUBTYPE OF</code> du schéma).</p>
+      <div id="rel-list"></div>
     </div>
 
     <!-- Onglet Favoris -->
@@ -8823,6 +8855,148 @@ function heritSetColorMode(mode){
 }
 
 /* ══════════════════════════════════════════════════════════════════════
+   ONGLET RELATIONS — les 44 relations concrètes IFC2x3 (IfcRelXxx),
+   groupées par famille (Assigns/Associates/Connects/Decomposes/Defines),
+   chacune avec un mini-schéma "boîte → boîte" sur des éléments concrets.
+   À ne pas confondre avec la Hiérarchie (mécanisme SUBTYPE OF).
+   ══════════════════════════════════════════════════════════════════════ */
+const REL_FAMILY_ORDER = ['IfcRelConnects','IfcRelAssigns','IfcRelAssociates','IfcRelDecomposes','IfcRelDefines'];
+const REL_FAMILY_INFO = {
+  IfcRelConnects:   {fr:'Connexions',    desc:"Relie des éléments physiques entre eux, ou à l'espace / la structure qui les entoure. C'est la seule famille dont les schémas ressemblent à un vrai plan."},
+  IfcRelAssigns:    {fr:'Affectations',  desc:"Relie des objets par appartenance logique (groupe, processus, ressource, acteur) sans lien géométrique direct."},
+  IfcRelAssociates: {fr:'Associations',  desc:"Relie un objet à une donnée externe : matériau, classification, document, bibliothèque, contrainte, approbation…"},
+  IfcRelDecomposes: {fr:'Décomposition', desc:"Structure un objet en sous-objets — c'est le mécanisme derrière l'onglet Arborescence spatiale."},
+  IfcRelDefines:    {fr:'Définition',    desc:"Attache des données (jeu de propriétés, type) à un ou plusieurs objets."},
+};
+
+const REL_SCENES = {
+  // Connexions
+  IfcRelConnectsElements:{a:{fr:'Chemin de câbles',ifc:'IfcCableCarrierSegment',cat:'elec'},b:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},verb:'fixé sur'},
+  IfcRelConnectsPathElements:{a:{fr:'Cloison voisine',ifc:'IfcWall',cat:'arch'},b:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},verb:'raccordé à'},
+  IfcRelConnectsWithRealizingElements:{a:{fr:'Poteau',ifc:'IfcColumn',cat:'struct'},b:{fr:'Poutre',ifc:'IfcBeam',cat:'struct'},verb:'assemblés par (platine)'},
+  IfcRelConnectsPortToElement:{a:{fr:'Port de raccordement',ifc:'IfcDistributionPort',cat:'mep'},b:{fr:'Radiateur',ifc:'IfcFlowTerminal',cat:'mep'},verb:'appartient à'},
+  IfcRelConnectsPorts:{a:{fr:'Tuyau A',ifc:'IfcFlowSegment',cat:'mep'},b:{fr:'Tuyau B',ifc:'IfcFlowSegment',cat:'mep'},verb:'raccordé (via ports)'},
+  IfcRelConnectsStructuralActivity:{a:{fr:'Poutre',ifc:'IfcBeam',cat:'struct'},b:{fr:'Charge appliquée',ifc:'IfcStructuralAction',cat:'struct'},verb:'reçoit'},
+  IfcRelConnectsStructuralElement:{a:{fr:'Membrure filaire',ifc:'IfcStructuralMember',cat:'struct'},b:{fr:'Poteau',ifc:'IfcColumn',cat:'struct'},verb:'connecté à'},
+  IfcRelConnectsStructuralMember:{a:{fr:'Poteau',ifc:'IfcColumn',cat:'struct'},b:{fr:'Poutre',ifc:'IfcBeam',cat:'struct'},verb:'connexion entre membrures'},
+  IfcRelConnectsWithEccentricity:{a:{fr:'Poutre',ifc:'IfcBeam',cat:'struct'},b:{fr:'Poteau (excentré)',ifc:'IfcColumn',cat:'struct'},verb:'connexion avec excentricité'},
+  IfcRelContainedInSpatialStructure:{a:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},b:{fr:'Niveau — RDC',ifc:'IfcBuildingStorey',cat:'arch'},verb:'situé dans'},
+  IfcRelCoversBldgElements:{a:{fr:'Revêtement de sol',ifc:'IfcCovering',cat:'fin'},b:{fr:'Dalle',ifc:'IfcSlab',cat:'struct'},verb:'recouvre'},
+  IfcRelCoversSpaces:{a:{fr:'Faux-plafond',ifc:'IfcCovering',cat:'fin'},b:{fr:'Espace « Salon »',ifc:'IfcSpace',cat:'sp'},verb:'recouvre'},
+  IfcRelFillsElement:{a:{fr:'Porte',ifc:'IfcDoor',cat:'ouv'},b:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},verb:'remplit un vide dans'},
+  IfcRelFlowControlElements:{a:{fr:'Vanne',ifc:'IfcFlowController',cat:'mep'},b:{fr:'Tuyau',ifc:'IfcFlowSegment',cat:'mep'},verb:'contrôle le flux de'},
+  IfcRelInteractionRequirements:{a:{fr:'Open space',ifc:'IfcSpace',cat:'sp'},b:{fr:'Salle de réunion',ifc:'IfcSpace',cat:'sp'},verb:'interaction requise avec'},
+  IfcRelProjectsElement:{a:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},b:{fr:'Corniche (ajout)',ifc:'IfcFeatureElementAddition',cat:'fin'},verb:'porte en saillie'},
+  IfcRelReferencedInSpatialStructure:{a:{fr:'Dalle',ifc:'IfcSlab',cat:'struct'},b:{fr:'Niveau — RDC',ifc:'IfcBuildingStorey',cat:'arch'},verb:'référencé dans'},
+  IfcRelSequence:{a:{fr:'Tâche « Fondations »',ifc:'IfcTask',cat:'plan'},b:{fr:'Tâche « Élévation »',ifc:'IfcTask',cat:'plan'},verb:'précède'},
+  IfcRelServicesBuildings:{a:{fr:'Système CVC central',ifc:'IfcSystem',cat:'mep'},b:{fr:'Bâtiment',ifc:'IfcBuilding',cat:'arch'},verb:'dessert'},
+  IfcRelSpaceBoundary:{a:{fr:'Espace « Salon »',ifc:'IfcSpace',cat:'sp'},b:{fr:'Cloison (face intérieure)',ifc:'IfcWall',cat:'arch'},verb:'délimité par'},
+  IfcRelVoidsElement:{a:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},b:{fr:'Trémie fenêtre',ifc:'IfcOpeningElement',cat:'ouv'},verb:'possède un vide'},
+
+  // Affectations
+  IfcRelAssignsToGroup:{a:{fr:'Tuyau',ifc:'IfcFlowSegment',cat:'mep'},b:{fr:'Système CVC',ifc:'IfcSystem',cat:'mep'},verb:'appartient à'},
+  IfcRelAssignsToProcess:{a:{fr:'Tâche « Pose cloisons »',ifc:'IfcTask',cat:'plan'},b:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},verb:'mobilise'},
+  IfcRelAssignsToProduct:{a:{fr:'Commande fenêtres',ifc:'IfcConstructionProductResource',cat:'plan'},b:{fr:'Fenêtre',ifc:'IfcWindow',cat:'ouv'},verb:'produit'},
+  IfcRelAssignsToResource:{a:{fr:'Tâche « Coulage dalle »',ifc:'IfcTask',cat:'plan'},b:{fr:'Grue',ifc:'IfcConstructionEquipmentResource',cat:'plan'},verb:'mobilise (ressource)'},
+  IfcRelAssignsToControl:{a:{fr:'Permis de construire',ifc:'IfcPermit',cat:'actor'},b:{fr:'Bâtiment',ifc:'IfcBuilding',cat:'arch'},verb:'encadre'},
+  IfcRelAssignsToActor:{a:{fr:'Entreprise Gros-Œuvre',ifc:'IfcActor',cat:'actor'},b:{fr:'Poteaux & dalles',ifc:'IfcElement',cat:'struct'},verb:'responsable de'},
+  IfcRelOccupiesSpaces:{a:{fr:'Espace « Bureau 201 »',ifc:'IfcSpace',cat:'sp'},b:{fr:'Service comptabilité',ifc:'IfcActor',cat:'actor'},verb:'occupé par'},
+  IfcRelAssignsTasks:{a:{fr:'Tâche « Gros-œuvre »',ifc:'IfcTask',cat:'plan'},b:{fr:'Tâche « Couler dalle RDC »',ifc:'IfcTask',cat:'plan'},verb:'ordonnance'},
+  IfcRelAssignsToProjectOrder:{a:{fr:'Bon de commande n°42',ifc:'IfcProjectOrder',cat:'plan'},b:{fr:'Lot Menuiseries',ifc:'IfcTask',cat:'plan'},verb:'porte sur'},
+  IfcRelSchedulesCostItems:{a:{fr:'Poste « Terrassement »',ifc:'IfcCostItem',cat:'plan'},b:{fr:'Tâche « Terrassement »',ifc:'IfcTask',cat:'plan'},verb:'planifie'},
+
+  // Associations
+  IfcRelAssociatesMaterial:{a:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},b:{fr:'Béton + isolant + parement',ifc:'IfcMaterialLayerSetUsage',cat:'prop'},verb:'composé de'},
+  IfcRelAssociatesClassification:{a:{fr:'Poutre',ifc:'IfcBeam',cat:'struct'},b:{fr:'Uniclass Ss_25_31',ifc:'IfcClassification',cat:'prop'},verb:'classé sous'},
+  IfcRelAssociatesDocument:{a:{fr:'Porte coupe-feu',ifc:'IfcDoor',cat:'ouv'},b:{fr:"PV d'essai EI60",ifc:'IfcDocumentReference',cat:'actor'},verb:'justifié par'},
+  IfcRelAssociatesLibrary:{a:{fr:'Radiateur',ifc:'IfcFlowTerminal',cat:'mep'},b:{fr:'Bibliothèque fabricant',ifc:'IfcLibraryReference',cat:'prop'},verb:'référencé dans'},
+  IfcRelAssociatesConstraint:{a:{fr:'Espace « Salle serveurs »',ifc:'IfcSpace',cat:'sp'},b:{fr:'Contrainte 22 °C ± 1°',ifc:'IfcConstraint',cat:'prop'},verb:'soumis à'},
+  IfcRelAssociatesApproval:{a:{fr:'Note de calcul structure',ifc:'IfcStructuralItem',cat:'struct'},b:{fr:'Approbation BE',ifc:'IfcApproval',cat:'actor'},verb:'validé par'},
+  IfcRelAssociatesProfileProperties:{a:{fr:'Poteau métallique',ifc:'IfcColumn',cat:'struct'},b:{fr:'Profil IPE 200',ifc:'IfcProfileDef',cat:'prop'},verb:'section'},
+  IfcRelAssociatesAppliedValue:{a:{fr:'Lot Charpente',ifc:'IfcWorkPlan',cat:'plan'},b:{fr:'Montant 45 000 €',ifc:'IfcAppliedValue',cat:'plan'},verb:'valorisé à'},
+
+  // Décomposition
+  IfcRelAggregates:{a:{fr:'Bâtiment',ifc:'IfcBuilding',cat:'arch'},b:{fr:'Niveau — RDC',ifc:'IfcBuildingStorey',cat:'arch'},verb:'agrège'},
+  IfcRelNests:{a:{fr:'Type « Radiateur 2000W »',ifc:'IfcElementType',cat:'mep'},b:{fr:'Port de connexion',ifc:'IfcDistributionPort',cat:'mep'},verb:'imbrique'},
+
+  // Définition
+  IfcRelDefinesByProperties:{a:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},b:{fr:'Pset_WallCommon',ifc:'IfcPropertySet',cat:'prop'},verb:'porte les propriétés'},
+  IfcRelDefinesByType:{a:{fr:'42 cloisons',ifc:'IfcWall',cat:'arch'},b:{fr:'Type « Cloison BA13 »',ifc:'IfcWallType',cat:'arch'},verb:'occurrences du type'},
+  IfcRelOverridesProperties:{a:{fr:'Cloison (cas particulier)',ifc:'IfcWall',cat:'arch'},b:{fr:'Pset_WallCommon modifié',ifc:'IfcPropertySet',cat:'prop'},verb:'déroge à'},
+};
+
+function relFamilyOf(en){
+  if(!en.heritage) return null;
+  for(const h of en.heritage){ if(REL_FAMILY_ORDER.includes(h)) return h; }
+  return null;
+}
+
+// IfcRelSpaceBoundary2ndLevel est mal étiqueté ver:'IFC2x3' dans E{} (bug de donnée
+// pré-existant) alors qu'il n'existe qu'en IFC4+ — vérifié via le skill ifc-standard.
+const REL_NON_2X3 = new Set(['IfcRelSpaceBoundary2ndLevel', 'IfcRelPositions']);
+
+function collectRelations(){
+  const byIfc = new Map();
+  Object.entries(E).forEach(([key, en])=>{
+    if(!en.heritage || !en.heritage.includes('IfcRelationship')) return;
+    if(en.ifc === 'IfcRelationship' || REL_FAMILY_ORDER.includes(en.ifc)) return; // abstrait / en-tête de famille
+    if(REL_NON_2X3.has(en.ifc)) return;
+    if(en.ver && en.ver !== 'IFC2x3') return;
+    const fam = relFamilyOf(en);
+    if(!fam) return;
+    const cur = byIfc.get(en.ifc);
+    if(!cur || en.heritage.length > cur.en.heritage.length) byIfc.set(en.ifc, {key, en, fam});
+  });
+  return Array.from(byIfc.values());
+}
+
+function relSchemaHtml(scene){
+  if(!scene) return '';
+  const ca = getCatColor(scene.a.cat), cb = getCatColor(scene.b.cat);
+  return `<div class="rel-schema">
+    <div class="rel-schema-box" style="border-color:${ca}"><span class="rsb-fr" style="color:${ca}">${scene.a.fr}</span><span class="rsb-ifc">${scene.a.ifc}</span></div>
+    <div class="rel-schema-arrow">
+      <span class="rsa-label">${scene.verb}</span>
+      <svg viewBox="0 0 100 14" preserveAspectRatio="none"><line x1="0" y1="7" x2="90" y2="7" stroke="var(--muted)" stroke-width="1.5"/><polygon points="90,2 100,7 90,12" fill="var(--muted)"/></svg>
+    </div>
+    <div class="rel-schema-box" style="border-color:${cb}"><span class="rsb-fr" style="color:${cb}">${scene.b.fr}</span><span class="rsb-ifc">${scene.b.ifc}</span></div>
+  </div>`;
+}
+
+function renderRelations(filterText){
+  const list = document.getElementById('rel-list');
+  if(!list) return;
+  const q = (filterText || '').trim().toLowerCase();
+  const all = collectRelations();
+  let html = '';
+  REL_FAMILY_ORDER.forEach(fam=>{
+    let items = all.filter(x => x.fam === fam);
+    if(q){
+      items = items.filter(({en}) =>
+        en.fr.toLowerCase().includes(q) ||
+        en.ifc.toLowerCase().includes(q) ||
+        (en.desc || '').toLowerCase().includes(q)
+      );
+    }
+    if(!items.length) return;
+    items.sort((a, b) => a.en.fr.localeCompare(b.en.fr, 'fr'));
+    const info = REL_FAMILY_INFO[fam];
+    html += `<div class="rel-fam-head"><span class="rel-fam-name">${info.fr}</span><span class="rel-fam-ifc">${fam}*</span><span class="rel-fam-count">${items.length}</span></div>`;
+    html += `<p class="rel-fam-sub">${info.desc}</p>`;
+    items.forEach(({en}) => {
+      html += `<div class="rel-card">
+        <div class="rel-card-head"><span class="rel-fr">${en.fr}</span><span class="rel-ifc">${en.ifc}</span></div>
+        <p class="rel-desc">${en.desc || ''}</p>
+        ${relSchemaHtml(REL_SCENES[en.ifc])}
+      </div>`;
+    });
+  });
+  list.innerHTML = html || '<p class="rel-empty">Aucune relation ne correspond à la recherche.</p>';
+}
+
+function filterRelations(v){ renderRelations(v); }
+
+/* ══════════════════════════════════════════════════════════════════════
    RECHERCHE — localise dans la carte tous les nœuds (FR ou IFC) dont le
    nom contient la saisie, et surligne le chemin complet depuis IfcRoot
    jusqu'à chacun d'eux (plusieurs chemins possibles à la fois). Le reste
@@ -9384,7 +9558,9 @@ function switchTab(tab){
   // La fiche (panneau droit) est toujours visible — pas de switchTab pour elle
   if(tab==='fav') renderFavs();
   if(tab==='herit') renderHeritMap();
+  if(tab==='rel' && !_relRendered){ renderRelations(''); _relRendered = true; }
 }
+let _relRendered = false;
 
 const PSET_DATA = {
   Pset_ActuatorTypeCommon:{classes:['IfcActuatorType'],props:[
@@ -14594,6 +14770,7 @@ function toggleTheme(){
   document.getElementById('btn-theme').textContent = isDark ? '☀' : '🌙';
   try{ localStorage.setItem('ifc-theme', next); }catch(e){}
   if(document.getElementById('pane-herit')?.classList.contains('active')) heritDraw();
+  if(document.getElementById('pane-rel')?.classList.contains('active')) renderRelations(document.getElementById('rel-search')?.value || '');
 }
 
 /* Appliquer le thème sauvegardé — défaut : dark */
@@ -14686,6 +14863,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>27/07/2026</td><td>v27/07/26-10</td><td>Nouvel onglet <strong>Relations</strong> : les 44 relations concrètes IFC2x3 (<code>IfcRelXxx</code>), groupées par famille (Connexions, Affectations, Associations, Décomposition, Définition), chaque fiche avec définition FR + mini-schéma "boîte → boîte" sur des éléments concrets (mur, porte, tuyau, espace…). Filtre texte inclus. À ne pas confondre avec la Hiérarchie (mécanisme <code>SUBTYPE OF</code>).</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-09</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
           <tr><td>15/06/2026</td><td>v15/06/26-01</td><td>Fiche détaillée : mise en page 2 colonnes pour attributs et Psets. Types EXPRESS lisibles (Étiquette, Texte libre, Objet lié…). Unités en toutes lettres (mètres, degrés…).</td></tr>
           <tr><td>14/06/2026</td><td>v14/06/26-11</td><td>Types EXPRESS IFC2x3 + unités SI dans les fiches (attributs et Psets). Liens buildingSMART directs par entité pour IFC2x3, IFC4 et IFC4.3. Catégorie <em>infra</em> pour les entités transport IFC4.3.</td></tr>
