@@ -560,6 +560,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .rel-card-head{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem}
 .rel-fr{font-size:.78rem;font-weight:700}
 .rel-ifc{font-size:.62rem;color:var(--sp);font-family:'DM Mono',monospace}
+.rel-ver-badge{margin-left:auto;font-size:.58rem;font-weight:700;color:var(--sp);font-family:'DM Mono',monospace;letter-spacing:.02em;white-space:nowrap}
 .rel-desc{font-size:.68rem;color:var(--text);opacity:.85;margin:0 0 .65rem;max-width:72ch;line-height:1.55}
 .rel-schema{display:flex;align-items:center;background:rgba(0,0,0,.03);border-radius:8px;padding:.5rem .45rem;overflow-x:auto}
 [data-theme="dark"] .rel-schema{background:rgba(255,255,255,.04)}
@@ -1017,7 +1018,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-10</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-11</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1186,8 +1187,15 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
     <!-- Onglet Relations — comment les instances IFC se relient entre elles (IfcRelationship) -->
     <div class="aside-pane" id="pane-rel" style="padding:.75rem;overflow:auto">
+      <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.75rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)">
+        <a class="nav-pill ver-filter-btn active-ver" id="rvf-all"   onclick="setRelVer('all')">Toutes</a>
+        <a class="nav-pill ver-filter-btn" id="rvf-IFC2x3" onclick="setRelVer('IFC2x3')">IFC 2x3</a>
+        <a class="nav-pill ver-filter-btn" id="rvf-IFC4"   onclick="setRelVer('IFC4')">IFC 4</a>
+        <a class="nav-pill ver-filter-btn" id="rvf-IFC4x1" onclick="setRelVer('IFC4x1')">IFC 4.1</a>
+        <a class="nav-pill ver-filter-btn" id="rvf-IFC4x3" onclick="setRelVer('IFC4x3')">IFC 4.3</a>
+      </div>
       <input class="hier-search" id="rel-search" type="text" placeholder="Filtrer les relations (FR ou IFC)…" oninput="filterRelations(this.value)" autocomplete="off" spellcheck="false">
-      <p class="rel-intro">Comment un mur, une porte, un tuyau ou un espace se relient entre eux dans une maquette IFC — à ne pas confondre avec la <b>Hiérarchie</b> (le mécanisme <code>SUBTYPE OF</code> du schéma).</p>
+      <p class="rel-intro">Comment un mur, une porte, un tuyau ou un espace se relient entre eux dans une maquette IFC — à ne pas confondre avec la <b>Hiérarchie</b> (le mécanisme <code>SUBTYPE OF</code> du schéma). Le badge bleu de chaque fiche indique la version d'apparition de la relation.</p>
       <div id="rel-list"></div>
     </div>
 
@@ -2814,11 +2822,60 @@ const E = {
     attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatingControl"],
     ex:["Budget lot charpente → éléments structuraux R+2","Phase 2 permis → extensions bâtiment B","Planning maintenance → 45 équipements CVC bâtiment"]},
 
-  relspaceboundary2ndlevel:{fr:"Limite d'espace 2e niveau",ifc:"IfcRelSpaceBoundary2ndLevel",cat:"prop",ver:'IFC2x3',
-    desc:"Limite d'espace de second niveau (2b) pour le calcul thermique selon EN ISO 10211 et les simulations énergétiques. Distingue les limites virtuelles des limites physiques et précise le type de contact (adjacent, extérieur, sol).",
-    heritage:["IfcRoot","IfcRelationship","IfcRelConnects","IfcRelAssociates","IfcRelSpaceBoundary","IfcRelSpaceBoundary2ndLevel"],
+  relspaceboundary2ndlevel:{fr:"Limite d'espace 2e niveau",ifc:"IfcRelSpaceBoundary2ndLevel",cat:"prop",ver:'IFC4',
+    desc:"Limite d'espace de second niveau (2b) pour le calcul thermique selon EN ISO 10211 et les simulations énergétiques. Distingue les limites virtuelles des limites physiques et précise le type de contact (adjacent, extérieur, sol). N'existe qu'à partir d'IFC4 — absente d'IFC2x3.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelConnects","IfcRelSpaceBoundary","IfcRelSpaceBoundary1stLevel","IfcRelSpaceBoundary2ndLevel"],
     attrs:["GlobalId","OwnerHistory","Name","Description","RelatingSpace","RelatedBuildingElement","ConnectionGeometry","PhysicalOrVirtualBoundary","InternalOrExternalBoundary","CorrespondingBoundary"],
     ex:["Mur RDC/extérieur — limite 2b avec géométrie connexion précise","Dalle inter-niveaux — limite 2b avec résistance de contact","Limite virtuelle entre deux zones thermiques adjacentes"]},
+
+  /* ── Relations apparues après l'IFC2x3 (IFC4 / IFC4.3) ── */
+  relspaceboundary1stlevel:{fr:"Limite d'espace (1er niveau)",ifc:"IfcRelSpaceBoundary1stLevel",cat:"prop",ver:'IFC4',
+    desc:"Spécialise IfcRelSpaceBoundary pour le calcul énergétique standard : une limite par face d'élément, sans découpage fin. Introduite en IFC4 pour distinguer ce niveau de précision du niveau 2 (2ndLevel), plus détaillé.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelConnects","IfcRelSpaceBoundary","IfcRelSpaceBoundary1stLevel"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatingSpace","RelatedBuildingElement","ConnectionGeometry","PhysicalOrVirtualBoundary","InternalOrExternalBoundary","ParentBoundary"],
+    ex:["Le salon liste une limite par mur, sans sous-découpage","Bilan thermique simplifié d'un local avant étude fine"]},
+
+  relassignstogroupbyfactor:{fr:"Affectation à un groupe (pondérée)",ifc:"IfcRelAssignsToGroupByFactor",cat:"prop",ver:'IFC4',
+    desc:"Variante d'IfcRelAssignsToGroup qui ajoute un facteur de répartition (Factor) — utile pour répartir un coût, une quantité ou une responsabilité entre plusieurs groupes selon un pourcentage. N'existe pas en IFC2x3.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssigns","IfcRelAssignsToGroup","IfcRelAssignsToGroupByFactor"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatedObjectsType","RelatingGroup","Factor"],
+    ex:["Un poteau mitoyen partagé à 50 % entre deux lots de structure","Une façade répartie entre le lot Menuiserie et le lot Étanchéité"]},
+
+  reldeclares:{fr:"Déclaration dans un contexte",ifc:"IfcRelDeclares",cat:"prop",ver:'IFC4',
+    desc:"Relation directe (hors des 5 familles habituelles) qui déclare qu'un ensemble d'objets appartient à un contexte de projet partagé (RelatingContext) — introduite en IFC4 pour les scénarios multi-modèles fédérés.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelDeclares"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedDefinitions","RelatingContext"],
+    ex:["Le projet fédéré déclare les types de porte partagés entre plusieurs maquettes disciplines","Un référentiel central déclare sa bibliothèque de types réutilisables"]},
+
+  reldefinesbyobject:{fr:"Définition par objet",ifc:"IfcRelDefinesByObject",cat:"prop",ver:'IFC4',
+    desc:"Lie des objets à un autre objet qui leur sert de référence, sans passer par un type formel (IfcTypeObject) — introduite en IFC4 pour les cas où la définition partagée n'est pas un vrai type de catalogue.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelDefines","IfcRelDefinesByObject"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatingObject"],
+    ex:["Plusieurs cloisons secondaires reprennent la définition d'une cloison de référence","Un groupe d'équipements copie les caractéristiques d'un équipement pilote"]},
+
+  reldefinesbytemplate:{fr:"Définition par gabarit de propriétés",ifc:"IfcRelDefinesByTemplate",cat:"prop",ver:'IFC4',
+    desc:"Lie un jeu de propriétés (PropertySet) à son gabarit de définition (IfcPropertySetTemplate), garantissant qu'il respecte une structure standardisée — introduite en IFC4 pour fiabiliser l'échange de Psets personnalisés.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelDefines","IfcRelDefinesByTemplate"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedPropertySets","RelatingTemplate"],
+    ex:["Pset_WallCommon suit son gabarit officiel buildingSMART","Un Pset personnalisé suit un gabarit défini par le BIM Manager"]},
+
+  relinterfereselements:{fr:"Interférence entre éléments",ifc:"IfcRelInterferesElements",cat:"prop",ver:'IFC4',
+    desc:"Signale une collision ou un conflit géométrique détecté entre deux éléments — la relation standard pour exporter un rapport de détection de clashs. Remplace IfcRelInteractionRequirements, retirée en IFC4.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelConnects","IfcRelInterferesElements"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatingElement","RelatedElement","InterferenceGeometry","InterferenceType","ImpliedOrder"],
+    ex:["Une gaine de ventilation entre en collision avec une poutre","Un chemin de câbles chevauche un tuyau de plomberie"]},
+
+  reladherestoelement:{fr:"Adhérence à un élément",ifc:"IfcRelAdheresToElement",cat:"geo",ver:'IFC4x3',
+    desc:"Relation IFC4.3 qui rattache un élément de surface (marquage au sol, signalétique peinte) à l'élément support sur lequel il adhère, sans le traverser ni le remplir — pensée pour l'infrastructure routière et ferroviaire.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelDecomposes","IfcRelAdheresToElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatingElement","RelatedSurfaceFeatures"],
+    ex:["Un marquage au sol adhère à la chaussée","Une signalétique peinte adhère à un mur de tunnel"]},
+
+  relassociatesprofiledef:{fr:"Association profil (IFC4.3)",ifc:"IfcRelAssociatesProfileDef",cat:"prop",ver:'IFC4x3',
+    desc:"Remplace IfcRelAssociatesProfileProperties (retirée en IFC4) : associe un élément à un profil de section (IfcProfileDef) directement, avec une définition simplifiée par rapport à l'ancienne relation IFC2x3.",
+    heritage:["IfcRoot","IfcRelationship","IfcRelAssociates","IfcRelAssociatesProfileDef"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","RelatedObjects","RelatingProfileDef"],
+    ex:["Un rail ferroviaire associé à son profil UIC 60","Une poutre de pont associée à son profil composite"]},
 
   relconnectswitheccentricity:{fr:"Connexion avec excentricité",ifc:"IfcRelConnectsWithEccentricity",cat:"struct",ver:'IFC2x3',
     desc:"Connexion entre éléments structuraux avec décalage (excentricité) par rapport aux axes neutres. Permet de modéliser les assemblages où les axes des éléments ne se croisent pas en un même point.",
@@ -8860,13 +8917,14 @@ function heritSetColorMode(mode){
    chacune avec un mini-schéma "boîte → boîte" sur des éléments concrets.
    À ne pas confondre avec la Hiérarchie (mécanisme SUBTYPE OF).
    ══════════════════════════════════════════════════════════════════════ */
-const REL_FAMILY_ORDER = ['IfcRelConnects','IfcRelAssigns','IfcRelAssociates','IfcRelDecomposes','IfcRelDefines'];
+const REL_FAMILY_ORDER = ['IfcRelConnects','IfcRelAssigns','IfcRelAssociates','IfcRelDecomposes','IfcRelDefines','__DECLARES__'];
 const REL_FAMILY_INFO = {
   IfcRelConnects:   {fr:'Connexions',    desc:"Relie des éléments physiques entre eux, ou à l'espace / la structure qui les entoure. C'est la seule famille dont les schémas ressemblent à un vrai plan."},
   IfcRelAssigns:    {fr:'Affectations',  desc:"Relie des objets par appartenance logique (groupe, processus, ressource, acteur) sans lien géométrique direct."},
   IfcRelAssociates: {fr:'Associations',  desc:"Relie un objet à une donnée externe : matériau, classification, document, bibliothèque, contrainte, approbation…"},
   IfcRelDecomposes: {fr:'Décomposition', desc:"Structure un objet en sous-objets — c'est le mécanisme derrière l'onglet Arborescence spatiale."},
   IfcRelDefines:    {fr:'Définition',    desc:"Attache des données (jeu de propriétés, type) à un ou plusieurs objets."},
+  __DECLARES__:     {fr:'Déclaration',   desc:"Relation directe (hors des 5 familles ci-dessus), apparue en IFC4, pour les scénarios multi-modèles fédérés."},
 };
 
 const REL_SCENES = {
@@ -8923,25 +8981,35 @@ const REL_SCENES = {
   IfcRelDefinesByProperties:{a:{fr:'Cloison',ifc:'IfcWall',cat:'arch'},b:{fr:'Pset_WallCommon',ifc:'IfcPropertySet',cat:'prop'},verb:'porte les propriétés'},
   IfcRelDefinesByType:{a:{fr:'42 cloisons',ifc:'IfcWall',cat:'arch'},b:{fr:'Type « Cloison BA13 »',ifc:'IfcWallType',cat:'arch'},verb:'occurrences du type'},
   IfcRelOverridesProperties:{a:{fr:'Cloison (cas particulier)',ifc:'IfcWall',cat:'arch'},b:{fr:'Pset_WallCommon modifié',ifc:'IfcPropertySet',cat:'prop'},verb:'déroge à'},
+
+  // Apparues après l'IFC2x3
+  IfcRelSpaceBoundary1stLevel:{a:{fr:'Espace « Salon »',ifc:'IfcSpace',cat:'sp'},b:{fr:'Cloison (limite simple)',ifc:'IfcWall',cat:'arch'},verb:'délimité par (niveau 1)'},
+  IfcRelSpaceBoundary2ndLevel:{a:{fr:'Espace « Salon »',ifc:'IfcSpace',cat:'sp'},b:{fr:'Cloison (limite détaillée)',ifc:'IfcWall',cat:'arch'},verb:'délimité par (niveau 2)'},
+  IfcRelAssignsToGroupByFactor:{a:{fr:'Poteau mitoyen',ifc:'IfcColumn',cat:'struct'},b:{fr:'Lot Structure (50 %)',ifc:'IfcGroup',cat:'plan'},verb:'appartient à (pondéré)'},
+  IfcRelDeclares:{a:{fr:'Projet fédéré',ifc:'IfcProject',cat:'sp'},b:{fr:'Type « Porte standard »',ifc:'IfcDoorType',cat:'ouv'},verb:'déclare'},
+  IfcRelDefinesByObject:{a:{fr:'Cloison secondaire',ifc:'IfcWall',cat:'arch'},b:{fr:'Cloison de référence',ifc:'IfcWall',cat:'arch'},verb:'reprend la définition de'},
+  IfcRelDefinesByTemplate:{a:{fr:'Pset_WallCommon',ifc:'IfcPropertySet',cat:'prop'},b:{fr:'Gabarit officiel',ifc:'IfcPropertySetTemplate',cat:'prop'},verb:'suit le gabarit'},
+  IfcRelInterferesElements:{a:{fr:'Gaine de ventilation',ifc:'IfcDuctSegment',cat:'vent'},b:{fr:'Poutre',ifc:'IfcBeam',cat:'struct'},verb:'entre en collision avec'},
+  IfcRelAdheresToElement:{a:{fr:'Marquage au sol',ifc:'IfcElementAssembly',cat:'geo'},b:{fr:'Chaussée',ifc:'IfcPavement',cat:'geo'},verb:'adhère à'},
+  IfcRelAssociatesProfileDef:{a:{fr:'Rail ferroviaire',ifc:'IfcRail',cat:'geo'},b:{fr:'Profil UIC 60',ifc:'IfcProfileDef',cat:'prop'},verb:'section'},
 };
 
 function relFamilyOf(en){
+  if(en.ifc === 'IfcRelDeclares') return '__DECLARES__';
   if(!en.heritage) return null;
   for(const h of en.heritage){ if(REL_FAMILY_ORDER.includes(h)) return h; }
   return null;
 }
 
-// IfcRelSpaceBoundary2ndLevel est mal étiqueté ver:'IFC2x3' dans E{} (bug de donnée
-// pré-existant) alors qu'il n'existe qu'en IFC4+ — vérifié via le skill ifc-standard.
-const REL_NON_2X3 = new Set(['IfcRelSpaceBoundary2ndLevel', 'IfcRelPositions']);
+// Version d'apparition d'une relation : IFC2x3 par défaut (schéma le plus ancien
+// couvert par l'app), sinon la valeur explicite ver:'IFC4'|'IFC4x1'|'IFC4x3'.
+function relFirstVer(en){ return en.ver || 'IFC2x3'; }
 
 function collectRelations(){
   const byIfc = new Map();
   Object.entries(E).forEach(([key, en])=>{
     if(!en.heritage || !en.heritage.includes('IfcRelationship')) return;
     if(en.ifc === 'IfcRelationship' || REL_FAMILY_ORDER.includes(en.ifc)) return; // abstrait / en-tête de famille
-    if(REL_NON_2X3.has(en.ifc)) return;
-    if(en.ver && en.ver !== 'IFC2x3') return;
     const fam = relFamilyOf(en);
     if(!fam) return;
     const cur = byIfc.get(en.ifc);
@@ -8950,9 +9018,15 @@ function collectRelations(){
   return Array.from(byIfc.values());
 }
 
+function relCatColor(cat){
+  const g = getGrpColors()[cat];
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return g ? g.dot : (dark ? '#8A8880' : '#888');
+}
+
 function relSchemaHtml(scene){
   if(!scene) return '';
-  const ca = getCatColor(scene.a.cat), cb = getCatColor(scene.b.cat);
+  const ca = relCatColor(scene.a.cat), cb = relCatColor(scene.b.cat);
   return `<div class="rel-schema">
     <div class="rel-schema-box" style="border-color:${ca}"><span class="rsb-fr" style="color:${ca}">${scene.a.fr}</span><span class="rsb-ifc">${scene.a.ifc}</span></div>
     <div class="rel-schema-arrow">
@@ -8963,11 +9037,25 @@ function relSchemaHtml(scene){
   </div>`;
 }
 
+function relVerBadge(en){
+  const v = relFirstVer(en);
+  return `<span class="rel-ver-badge" title="Relation apparue en ${VER_LABELS[v] || v}">${VER_LABELS[v] || v}</span>`;
+}
+
+let relVerFilter = 'all';
+function setRelVer(ver){
+  relVerFilter = ver;
+  document.querySelectorAll('#pane-rel .ver-filter-btn').forEach(b => b.classList.remove('active-ver'));
+  const btn = document.getElementById('rvf-' + ver);
+  if(btn) btn.classList.add('active-ver');
+  renderRelations(document.getElementById('rel-search')?.value || '');
+}
+
 function renderRelations(filterText){
   const list = document.getElementById('rel-list');
   if(!list) return;
   const q = (filterText || '').trim().toLowerCase();
-  const all = collectRelations();
+  const all = collectRelations().filter(x => relVerFilter === 'all' || relFirstVer(x.en) === relVerFilter);
   let html = '';
   REL_FAMILY_ORDER.forEach(fam=>{
     let items = all.filter(x => x.fam === fam);
@@ -8981,11 +9069,11 @@ function renderRelations(filterText){
     if(!items.length) return;
     items.sort((a, b) => a.en.fr.localeCompare(b.en.fr, 'fr'));
     const info = REL_FAMILY_INFO[fam];
-    html += `<div class="rel-fam-head"><span class="rel-fam-name">${info.fr}</span><span class="rel-fam-ifc">${fam}*</span><span class="rel-fam-count">${items.length}</span></div>`;
+    html += `<div class="rel-fam-head"><span class="rel-fam-name">${info.fr}</span><span class="rel-fam-ifc">${fam === '__DECLARES__' ? 'IfcRelDeclares' : fam + '*'}</span><span class="rel-fam-count">${items.length}</span></div>`;
     html += `<p class="rel-fam-sub">${info.desc}</p>`;
     items.forEach(({en}) => {
       html += `<div class="rel-card">
-        <div class="rel-card-head"><span class="rel-fr">${en.fr}</span><span class="rel-ifc">${en.ifc}</span></div>
+        <div class="rel-card-head"><span class="rel-fr">${en.fr}</span><span class="rel-ifc">${en.ifc}</span>${relVerBadge(en)}</div>
         <p class="rel-desc">${en.desc || ''}</p>
         ${relSchemaHtml(REL_SCENES[en.ifc])}
       </div>`;
@@ -14864,6 +14952,7 @@ function toggleTheme(){
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
           <tr><td>27/07/2026</td><td>v27/07/26-10</td><td>Nouvel onglet <strong>Relations</strong> : les 44 relations concrètes IFC2x3 (<code>IfcRelXxx</code>), groupées par famille (Connexions, Affectations, Associations, Décomposition, Définition), chaque fiche avec définition FR + mini-schéma "boîte → boîte" sur des éléments concrets (mur, porte, tuyau, espace…). Filtre texte inclus. À ne pas confondre avec la Hiérarchie (mécanisme <code>SUBTYPE OF</code>).</td></tr>
+          <tr><td>27/07/2026</td><td>v27/07/26-11</td><td>Onglet <strong>Relations</strong> : filtre par version (IFC2x3/4/4.1/4.3) façon Arborescence, et badge bleu "version d'apparition" sur chaque fiche. Ajout de 8 relations apparues après l'IFC2x3 (IfcRelInterferesElements, IfcRelDeclares, IfcRelSpaceBoundary1stLevel, IfcRelAdheresToElement...) portant le total à 54. Correction d'un bug de couleur (getCatColor ne couvrait pas toutes les catégories des mini-schémas) et d'un héritage/version erronés sur IfcRelSpaceBoundary2ndLevel.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-09</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
           <tr><td>15/06/2026</td><td>v15/06/26-01</td><td>Fiche détaillée : mise en page 2 colonnes pour attributs et Psets. Types EXPRESS lisibles (Étiquette, Texte libre, Objet lié…). Unités en toutes lettres (mètres, degrés…).</td></tr>
           <tr><td>14/06/2026</td><td>v14/06/26-11</td><td>Types EXPRESS IFC2x3 + unités SI dans les fiches (attributs et Psets). Liens buildingSMART directs par entité pour IFC2x3, IFC4 et IFC4.3. Catégorie <em>infra</em> pour les entités transport IFC4.3.</td></tr>
