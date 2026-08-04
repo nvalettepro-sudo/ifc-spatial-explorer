@@ -572,6 +572,33 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .rel-schema-arrow svg{width:100%;height:14px;display:block;overflow:visible}
 .rel-empty{font-size:.7rem;color:var(--muted);padding:1rem 0}
 
+/* ── SCHÉMA HIÉRARCHIQUE DES SCOPES (panneau droit, onglet Relations) ── */
+.relsch-intro{font-size:.66rem;color:var(--muted);line-height:1.55;margin:0 0 1rem}
+.relsch-chain{display:flex;flex-direction:column;align-items:stretch}
+.relsch-scope{border:1.5px solid var(--border);border-radius:12px;background:var(--card);padding:.6rem .8rem;cursor:pointer;transition:border-color .15s}
+.relsch-scope:hover{border-color:var(--sp)}
+.relsch-scope.open{border-color:var(--sp);cursor:default}
+.relsch-head{display:flex;align-items:baseline;gap:.5rem;cursor:pointer}
+.relsch-title{font-size:.78rem;font-weight:700}
+.relsch-ifc{font-size:.58rem;color:var(--muted);font-family:'DM Mono',monospace}
+.relsch-count{margin-left:auto;font-size:.58rem;color:var(--muted);display:flex;align-items:center;gap:.35rem}
+.relsch-caret{font-size:.58rem;color:var(--sp);display:inline-block;transition:transform .15s}
+.relsch-scope.open .relsch-caret{transform:rotate(90deg)}
+.relsch-note{font-size:.62rem;color:var(--muted);margin:.3rem 0 0;line-height:1.5}
+.relsch-body{display:none;margin-top:.55rem}
+.relsch-scope.open .relsch-body{display:block}
+.relsch-row{display:flex;align-items:baseline;gap:.4rem;padding:.32rem 0;border-top:1px solid var(--border);font-size:.63rem;flex-wrap:wrap;cursor:pointer;border-radius:4px}
+.relsch-row:first-of-type{border-top:none}
+.relsch-row:hover{background:var(--bg)}
+.relsch-row.hl{background:var(--sp-bg,rgba(144,202,249,.15));box-shadow:inset 0 0 0 1px var(--sp)}
+.relsch-dot{width:6px;height:6px;border-radius:2px;flex-shrink:0;margin-top:.28rem}
+.relsch-b{color:var(--text)}
+.relsch-verb{color:var(--muted)}
+.relsch-ifcname{margin-left:auto;color:var(--muted);font-family:'DM Mono',monospace;font-size:.56rem}
+.relsch-connector{width:1.5px;height:20px;background:var(--border);align-self:center}
+.relsch-backbar{display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;cursor:pointer;color:var(--sp);font-size:.66rem;font-weight:600}
+.relsch-backbar:hover{text-decoration:underline}
+
 /* ── ARBRE HIÉRARCHIQUE ── */
 .hier-search{width:100%;padding:.32rem .65rem;border:1.5px solid var(--border);border-radius:7px;font-size:.72rem;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;margin-bottom:.65rem;display:block}
 .hier-search:focus{border-color:var(--sp)}
@@ -1018,7 +1045,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-11</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-12</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -9072,7 +9099,7 @@ function renderRelations(filterText){
     html += `<div class="rel-fam-head"><span class="rel-fam-name">${info.fr}</span><span class="rel-fam-ifc">${fam === '__DECLARES__' ? 'IfcRelDeclares' : fam + '*'}</span><span class="rel-fam-count">${items.length}</span></div>`;
     html += `<p class="rel-fam-sub">${info.desc}</p>`;
     items.forEach(({en}) => {
-      html += `<div class="rel-card">
+      html += `<div class="rel-card" data-ifc="${en.ifc}" onclick="highlightRelInSchema('${en.ifc}')">
         <div class="rel-card-head"><span class="rel-fr">${en.fr}</span><span class="rel-ifc">${en.ifc}</span>${relVerBadge(en)}</div>
         <p class="rel-desc">${en.desc || ''}</p>
         ${relSchemaHtml(REL_SCENES[en.ifc])}
@@ -9083,6 +9110,141 @@ function renderRelations(filterText){
 }
 
 function filterRelations(v){ renderRelations(v); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SCHÉMA HIÉRARCHIQUE DES SCOPES — panneau droit de l'onglet Relations.
+   Regroupe les relations par niveau spatial (Projet → Site → Bâtiment →
+   Niveau → Espace → Élément) plutôt que par famille : montre qu'un même
+   élément, "enfant" de la décomposition, redevient "parent" d'autres
+   relations une fois au niveau le plus bas.
+   ══════════════════════════════════════════════════════════════════════ */
+const REL_HIER_SCOPES = [
+  {id:'projet', title:'Projet', ifc:'IfcProject', open:false,
+    note:"Le seul point d'entrée hors des 5 familles principales.",
+    rows:[
+      {ifc:'IfcRelDeclares', cat:'sec', a:'Projet fédéré', verb:'déclare', b:'Type « Porte standard »'},
+    ]},
+  {id:'site', title:'Site', ifc:'IfcSite', open:false,
+    note:"Le terrain — agrège le(s) Bâtiment(s), porte les contraintes de parcelle.",
+    rows:[
+      {ifc:'IfcRelAggregates', cat:'arch', a:'Site — Terrain', verb:'agrège', b:'Bâtiment'},
+      {ifc:'IfcRelAssignsToControl', cat:'actor', a:'Permis de construire', verb:'encadre', b:'Site — Terrain'},
+      {ifc:'IfcRelAssociatesDocument', cat:'actor', a:'Site — Terrain', verb:'justifié par', b:'Étude de sol G2'},
+    ]},
+  {id:'batiment', title:'Bâtiment', ifc:'IfcBuilding', open:false,
+    note:"Agrège ses Niveaux — relations qui portent sur l'ouvrage entier.",
+    rows:[
+      {ifc:'IfcRelAggregates', cat:'arch', a:'Bâtiment', verb:'agrège', b:'Niveau — RDC'},
+      {ifc:'IfcRelServicesBuildings', cat:'mep', a:'Système CVC central', verb:'dessert', b:'Bâtiment'},
+      {ifc:'IfcRelAssignsToControl', cat:'actor', a:'Permis de construire', verb:'encadre', b:'Bâtiment'},
+      {ifc:'IfcRelAssignsToActor', cat:'actor', a:'Entreprise Gros-Œuvre', verb:'responsable de', b:'Bâtiment'},
+    ]},
+  {id:'niveau', title:'Niveau', ifc:'IfcBuildingStorey', open:false,
+    note:"Un étage donné — agrège ses Espaces, rattache les éléments physiques.",
+    rows:[
+      {ifc:'IfcRelAggregates', cat:'arch', a:'Niveau — RDC', verb:'agrège', b:'Espace « Salon »'},
+      {ifc:'IfcRelContainedInSpatialStructure', cat:'arch', a:'Cloison', verb:'situé dans', b:'Niveau — RDC'},
+      {ifc:'IfcRelReferencedInSpatialStructure', cat:'struct', a:'Dalle', verb:'référencé dans', b:'Niveau — RDC'},
+    ]},
+  {id:'espace', title:'Espace', ifc:'IfcSpace', open:false,
+    note:"La pièce elle-même — ce qui la délimite ou l'occupe.",
+    rows:[
+      {ifc:'IfcRelSpaceBoundary', cat:'sp', a:'Espace « Salon »', verb:'délimité par', b:'Cloison (face intérieure)'},
+      {ifc:'IfcRelSpaceBoundary1stLevel', cat:'sp', a:'Espace « Salon »', verb:'délimité par (niveau 1)', b:'Cloison (limite simple)'},
+      {ifc:'IfcRelSpaceBoundary2ndLevel', cat:'sp', a:'Espace « Salon »', verb:'délimité par (niveau 2)', b:'Cloison (limite détaillée)'},
+      {ifc:'IfcRelCoversSpaces', cat:'fin', a:'Faux-plafond', verb:'recouvre', b:'Espace « Salon »'},
+      {ifc:'IfcRelOccupiesSpaces', cat:'actor', a:'Espace « Bureau 201 »', verb:'occupé par', b:'Service comptabilité'},
+      {ifc:'IfcRelInteractionRequirements', cat:'sp', a:'Open space', verb:'interaction requise avec', b:'Salle de réunion'},
+    ]},
+  {id:'element', title:'Élément physique — ex. Cloison', ifc:'IfcWall & consorts', open:true,
+    note:"Fin de la décomposition spatiale : l'élément devient le point d'ancrage de toutes les autres familles (connexion, affectation, association, définition).",
+    rows:[
+      {ifc:'IfcRelConnectsPathElements', cat:'arch', a:'Cloison voisine', verb:'raccordé à', b:'Cloison'},
+      {ifc:'IfcRelVoidsElement', cat:'ouv', a:'Cloison', verb:'possède un vide', b:'Trémie fenêtre'},
+      {ifc:'IfcRelFillsElement', cat:'ouv', a:'Porte', verb:'remplit un vide dans', b:'Cloison'},
+      {ifc:'IfcRelAssignsToGroup', cat:'mep', a:'Tuyau', verb:'appartient à', b:'Système CVC'},
+      {ifc:'IfcRelAssignsToProcess', cat:'plan', a:'Tâche « Pose cloisons »', verb:'mobilise', b:'Cloison'},
+      {ifc:'IfcRelAssociatesMaterial', cat:'prop', a:'Cloison', verb:'composé de', b:'Béton + isolant + parement'},
+      {ifc:'IfcRelAssociatesClassification', cat:'prop', a:'Poutre', verb:'classé sous', b:'Uniclass Ss_25_31'},
+      {ifc:'IfcRelDefinesByProperties', cat:'prop', a:'Cloison', verb:'porte les propriétés', b:'Pset_WallCommon'},
+      {ifc:'IfcRelDefinesByType', cat:'arch', a:'42 cloisons', verb:'occurrences du type', b:'Type « Cloison BA13 »'},
+    ]},
+];
+
+function relScopeRowHtml(row){
+  const c = relCatColor(row.cat);
+  return `<div class="relsch-row" data-ifc="${row.ifc}" onclick="event.stopPropagation();showRelDetail('${row.ifc}')">
+    <i class="relsch-dot" style="background:${c}"></i>
+    <span class="relsch-b">${row.a}</span>
+    <span class="relsch-verb">${row.verb}</span>
+    <span class="relsch-b">${row.b}</span>
+    <span class="relsch-ifcname">${row.ifc}</span>
+  </div>`;
+}
+
+function renderRelSchema(){
+  const detail = document.getElementById('detail');
+  if(!detail) return;
+  let html = `<p class="relsch-intro">Les relations IFC organisées du plus général (le Projet) au plus spécifique (un élément physique). Clique une bulle pour la déplier, clique une ligne pour voir sa fiche complète.</p>`;
+  html += `<div class="relsch-chain">`;
+  REL_HIER_SCOPES.forEach((scope, i)=>{
+    if(i>0) html += `<div class="relsch-connector"></div>`;
+    html += `<div class="relsch-scope${scope.open ? ' open' : ''}" id="relsch-${scope.id}" onclick="toggleRelScope('${scope.id}')">
+      <div class="relsch-head">
+        <span class="relsch-title">${scope.title}</span><span class="relsch-ifc">${scope.ifc}</span>
+        <span class="relsch-count">${scope.rows.length} relation${scope.rows.length>1?'s':''}<i class="relsch-caret">▸</i></span>
+      </div>
+      <div class="relsch-body">
+        <p class="relsch-note">${scope.note}</p>
+        ${scope.rows.map(relScopeRowHtml).join('')}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  detail.innerHTML = html;
+}
+
+function toggleRelScope(id){
+  const el = document.getElementById('relsch-'+id);
+  if(el) el.classList.toggle('open');
+}
+
+function highlightRelInSchema(ifc){
+  // Si la fiche détaillée d'une relation est affichée, on revient d'abord au schéma.
+  if(!document.getElementById('relsch-projet')) renderRelSchema();
+  let first = null;
+  document.querySelectorAll('.relsch-row').forEach(r=>{
+    const match = r.dataset.ifc === ifc;
+    r.classList.toggle('hl', match);
+    if(match){
+      const scope = r.closest('.relsch-scope');
+      if(scope) scope.classList.add('open');
+      if(!first) first = r;
+    }
+  });
+  if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function showRelDetail(ifc){
+  const match = collectRelations().find(x => x.en.ifc === ifc);
+  const detail = document.getElementById('detail');
+  if(!detail) return;
+  // Surligne la carte correspondante dans la liste de gauche.
+  document.querySelectorAll('#rel-list .rel-card').forEach(c=>{
+    c.style.outline = c.dataset.ifc === ifc ? '1.5px solid var(--sp)' : '';
+  });
+  if(!match){
+    detail.innerHTML = `<div class="relsch-backbar" onclick="renderRelSchema()">← Retour au schéma</div><p class="rel-empty">Fiche non trouvée pour ${ifc}.</p>`;
+    return;
+  }
+  const en = match.en;
+  detail.innerHTML = `<div class="relsch-backbar" onclick="renderRelSchema()">← Retour au schéma</div>
+    <div class="rel-card" data-ifc="${en.ifc}">
+      <div class="rel-card-head"><span class="rel-fr">${en.fr}</span><span class="rel-ifc">${en.ifc}</span>${relVerBadge(en)}</div>
+      <p class="rel-desc">${en.desc || ''}</p>
+      ${relSchemaHtml(REL_SCENES[en.ifc])}
+    </div>`;
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    RECHERCHE — localise dans la carte tous les nœuds (FR ou IFC) dont le
@@ -9646,7 +9808,10 @@ function switchTab(tab){
   // La fiche (panneau droit) est toujours visible — pas de switchTab pour elle
   if(tab==='fav') renderFavs();
   if(tab==='herit') renderHeritMap();
-  if(tab==='rel' && !_relRendered){ renderRelations(''); _relRendered = true; }
+  if(tab==='rel'){
+    if(!_relRendered){ renderRelations(''); _relRendered = true; }
+    renderRelSchema();
+  }
 }
 let _relRendered = false;
 
@@ -14858,7 +15023,10 @@ function toggleTheme(){
   document.getElementById('btn-theme').textContent = isDark ? '☀' : '🌙';
   try{ localStorage.setItem('ifc-theme', next); }catch(e){}
   if(document.getElementById('pane-herit')?.classList.contains('active')) heritDraw();
-  if(document.getElementById('pane-rel')?.classList.contains('active')) renderRelations(document.getElementById('rel-search')?.value || '');
+  if(document.getElementById('pane-rel')?.classList.contains('active')){
+    renderRelations(document.getElementById('rel-search')?.value || '');
+    if(document.getElementById('relsch-projet')) renderRelSchema();
+  }
 }
 
 /* Appliquer le thème sauvegardé — défaut : dark */
@@ -14951,6 +15119,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>27/07/2026</td><td>v27/07/26-12</td><td>Onglet <strong>Relations</strong> : le panneau droit affiche par défaut un schéma hiérarchique cliquable (Projet → Site → Bâtiment → Niveau → Espace → Élément physique), chaque bulle listant les relations adaptées à ce niveau avec des exemples dédiés. Cliquer une fiche de la liste de gauche surligne ses occurrences dans le schéma ; cliquer une ligne du schéma affiche immédiatement sa fiche complète (avec retour au schéma).</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-10</td><td>Nouvel onglet <strong>Relations</strong> : les 44 relations concrètes IFC2x3 (<code>IfcRelXxx</code>), groupées par famille (Connexions, Affectations, Associations, Décomposition, Définition), chaque fiche avec définition FR + mini-schéma "boîte → boîte" sur des éléments concrets (mur, porte, tuyau, espace…). Filtre texte inclus. À ne pas confondre avec la Hiérarchie (mécanisme <code>SUBTYPE OF</code>).</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-11</td><td>Onglet <strong>Relations</strong> : filtre par version (IFC2x3/4/4.1/4.3) façon Arborescence, et badge bleu "version d'apparition" sur chaque fiche. Ajout de 8 relations apparues après l'IFC2x3 (IfcRelInterferesElements, IfcRelDeclares, IfcRelSpaceBoundary1stLevel, IfcRelAdheresToElement...) portant le total à 54. Correction d'un bug de couleur (getCatColor ne couvrait pas toutes les catégories des mini-schémas) et d'un héritage/version erronés sur IfcRelSpaceBoundary2ndLevel.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-09</td><td>Nouvel onglet <strong>Carte d'héritage</strong> : diagramme radial du mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — à ne pas confondre avec <code>IfcRelationship</code>. Un anneau = un niveau d'emboîtement (N1 à N9). Zoom molette, déplacement au glisser, descente par clic, fil d'Ariane. Couleurs de catégorie pour les classes concrètes.</td></tr>
