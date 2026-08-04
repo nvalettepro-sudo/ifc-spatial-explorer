@@ -1044,7 +1044,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-14</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-15</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -9157,18 +9157,27 @@ const REL_HIER_SCOPES = [
     ]},
   {id:'element', title:'Élément physique — ex. Cloison', ifc:'IfcWall & consorts', open:true,
     note:"Fin de la décomposition spatiale : l'élément devient le point d'ancrage de toutes les autres familles (connexion, affectation, association, définition).",
-    rows:[
-      {ifc:'IfcRelConnectsPathElements', cat:'arch', a:'Cloison voisine', verb:'raccordé à', b:'Cloison'},
-      {ifc:'IfcRelVoidsElement', cat:'ouv', a:'Cloison', verb:'possède un vide', b:'Trémie fenêtre'},
-      {ifc:'IfcRelFillsElement', cat:'ouv', a:'Porte', verb:'remplit un vide dans', b:'Cloison'},
-      {ifc:'IfcRelAssignsToGroup', cat:'mep', a:'Tuyau', verb:'appartient à', b:'Système CVC'},
-      {ifc:'IfcRelAssignsToProcess', cat:'plan', a:'Tâche « Pose cloisons »', verb:'mobilise', b:'Cloison'},
-      {ifc:'IfcRelAssociatesMaterial', cat:'prop', a:'Cloison', verb:'composé de', b:'Béton + isolant + parement'},
-      {ifc:'IfcRelAssociatesClassification', cat:'prop', a:'Poutre', verb:'classé sous', b:'Uniclass Ss_25_31'},
-      {ifc:'IfcRelDefinesByProperties', cat:'prop', a:'Cloison', verb:'porte les propriétés', b:'Pset_WallCommon'},
-      {ifc:'IfcRelDefinesByType', cat:'arch', a:'42 cloisons', verb:'occurrences du type', b:'Type « Cloison BA13 »'},
-    ]},
+    rows:[]}, // complété dynamiquement par relHierFillElementScope() avec tout ce qui n'est pas déjà casé plus haut
 ];
+
+// Toute relation de REL_SCENES qui n'a pas été explicitement rangée dans un
+// scope spatial (Projet/Site/Bâtiment/Niveau/Espace) atterrit ici, pour
+// garantir qu'une fiche cliquée à gauche trouve TOUJOURS sa contrepartie à
+// droite — sans avoir à recopier les ~40 relations à la main.
+function relHierFillElementScope(){
+  const elementScope = REL_HIER_SCOPES.find(s => s.id === 'element');
+  if(!elementScope || elementScope.rows.length) return; // déjà rempli
+  const already = new Set();
+  REL_HIER_SCOPES.forEach(s => { if(s.id !== 'element') s.rows.forEach(r => already.add(r.ifc)); });
+  collectRelations().forEach(({en}) => {
+    if(already.has(en.ifc)) return;
+    const scene = REL_SCENES[en.ifc];
+    if(!scene) return;
+    elementScope.rows.push({ifc: en.ifc, cat: scene.a.cat, a: scene.a.fr, verb: scene.verb, b: scene.b.fr});
+    already.add(en.ifc);
+  });
+  elementScope.rows.sort((a, b) => a.a.localeCompare(b.a, 'fr'));
+}
 
 function relScopeRowHtml(row){
   const c = relCatColor(row.cat);
@@ -9184,6 +9193,7 @@ function relScopeRowHtml(row){
 function renderRelSchema(){
   const detail = document.getElementById('detail');
   if(!detail) return;
+  relHierFillElementScope();
   let html = `<p class="relsch-intro">Les relations IFC organisées du plus général (le Projet) au plus spécifique (un élément physique). Clique une bulle pour la déplier, clique une ligne pour retrouver sa définition dans la liste de gauche.</p>`;
   html += `<div class="relsch-chain">`;
   REL_HIER_SCOPES.forEach((scope, i)=>{
@@ -15114,6 +15124,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>27/07/2026</td><td>v27/07/26-15</td><td>Onglet <strong>Relations</strong> : la bulle "Élément physique" du schéma ne listait que 9 exemples — les fiches de gauche pour toutes les autres relations (IfcRelConnectsStructuralMember, IfcRelConnectsStructuralElement...) ne déclenchaient donc rien à droite. La bulle se remplit maintenant dynamiquement avec tout ce qui n'est pas déjà rangé dans un scope spatial, garantissant que chaque fiche a une contrepartie cliquable.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-14</td><td>Onglet <strong>Relations</strong> : cliquer une fiche de la liste de gauche déplie désormais les bulles du schéma qui contiennent cette relation (et replie les autres) pour révéler toutes ses occurrences, même sur plusieurs niveaux (ex. <code>IfcRelAggregates</code> apparaît dans Site, Bâtiment et Niveau).</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-13</td><td>Onglet <strong>Relations</strong> : le schéma hiérarchique du panneau droit reste désormais toujours visible — cliquer une ligne du schéma fait défiler et surligne la fiche correspondante dans la liste de gauche (au lieu d'ouvrir une autre fenêtre), et cliquer une fiche à gauche surligne toutes ses occurrences dans le schéma à droite.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-12</td><td>Onglet <strong>Relations</strong> : le panneau droit affiche par défaut un schéma hiérarchique cliquable (Projet → Site → Bâtiment → Niveau → Espace → Élément physique), chaque bulle listant les relations adaptées à ce niveau avec des exemples dédiés.</td></tr>
