@@ -1044,7 +1044,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-15</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">04/08/26-01</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -15056,16 +15056,22 @@ function toggleTheme(){
     <!-- En-tête -->
     <div>
       <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>15/06/2026</strong> · buildingSMART International 2005 · 382 entités (IFC2x3 + IFC4 + IFC4.1 + IFC4.3) · v15/06/26-01</div>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>04/08/2026</strong> · buildingSMART International 2005 · 537 entités (IFC2x3 + IFC4 + IFC4.1 + IFC4.3) · v04/08/26-01</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--gr)">81%</div>
-        <div class="cov-stat-label">Entités couvertes</div>
-        <div class="cov-stat-sub">528 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:81%;background:var(--gr)"></div></div>
+        <div class="cov-stat-num" style="color:var(--gr)">61%</div>
+        <div class="cov-stat-label">Entités IFC2x3 TC1</div>
+        <div class="cov-stat-sub">399 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:61%;background:var(--gr)"></div></div>
+      </div>
+      <div class="cov-stat">
+        <div class="cov-stat-num" style="color:var(--am)">18%</div>
+        <div class="cov-stat-label">Entités IFC4 / 4.1 / 4.3</div>
+        <div class="cov-stat-sub">136 / 776</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:18%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">25%</div>
@@ -15081,22 +15087,41 @@ function toggleTheme(){
       </div>
     </div>
 
-    <!-- Entités par domaine -->
+    <!-- Entités par domaine — IFC2x3 TC1 -->
     <div>
-      <div class="cov-section-title">Entités par domaine</div>
+      <div class="cov-section-title">Entités par domaine — IFC2x3 TC1 (399 entités)</div>
       <table class="cov-table">
-        <thead><tr><th>Domaine</th><th>Dans l'app</th><th>Couverture</th><th>État</th></tr></thead>
+        <thead><tr><th>Domaine</th><th>Dans l'app</th><th>État</th></tr></thead>
         <tbody>
-          <tr><td>Éléments de bâtiment</td><td>~28 / 38</td><td>74%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Relations IFC (IfcRel*)</td><td>~34 / 42</td><td>81%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Systèmes MEP (IFC2x3 + IFC4)</td><td>~154 / 170</td><td>91%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Planification / Coût</td><td>~28 / 40</td><td>70%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Acteurs &amp; Documents</td><td>~22 / 24</td><td>92%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Propriétés / Quantités</td><td>~30 / 35</td><td>86%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Matériaux (propriétés physiques)</td><td>5 / 5</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Séries temporelles</td><td>6 / 6</td><td>100%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Structurel (FEM + charges)</td><td>~30 / ~55</td><td>55%</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Géométrie &amp; Représentation</td><td>~18 / ~280</td><td>6%</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
+          <tr><td>Éléments architecturaux (arch)</td><td>37</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Structure &amp; fondations (struct)</td><td>49</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Systèmes MEP / CVC (mep)</td><td>57</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Électricité (elec)</td><td>30</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Données &amp; propriétés (prop)</td><td>113</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Acteurs &amp; documents (actor)</td><td>23</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Géométrie &amp; représentation (geo)</td><td>46</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
+          <tr><td>Planning / ressources (plan)</td><td>27</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Décomposition spatiale (space)</td><td>8</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Mobilier &amp; équipements (furn)</td><td>4</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Éléments génériques (gen)</td><td>5</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Entités par domaine — IFC4 / 4.1 / 4.3 -->
+    <div>
+      <div class="cov-section-title">Entités par domaine — IFC4 / 4.1 / 4.3 (136 entités)</div>
+      <table class="cov-table">
+        <thead><tr><th>Domaine</th><th>Dans l'app</th><th>État</th></tr></thead>
+        <tbody>
+          <tr><td>Systèmes MEP / CVC (mep)</td><td>54</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Infrastructure — IFC4.3 (infra)</td><td>25</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Électricité (elec)</td><td>25</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Géométrie &amp; représentation (geo)</td><td>16</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
+          <tr><td>Données &amp; propriétés (prop)</td><td>10</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Éléments architecturaux (arch)</td><td>3</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
+          <tr><td>Éléments génériques (gen)</td><td>3</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
+          <tr><td>Structure &amp; fondations (struct)</td><td>2</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -15124,6 +15149,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>04/08/2026</td><td>v04/08/26-01</td><td>Modale <strong>Couverture</strong> : les taux de complétude séparent désormais IFC2x3 TC1 (399/653 entités, 61%) et IFC4/4.1/4.3 (136/776 entités, 18%), avec un tableau par domaine pour chacun. Guide de démarrage : ajout des étapes Hiérarchie IFC et Relations IFC, jusqu'ici absentes.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-15</td><td>Onglet <strong>Relations</strong> : la bulle "Élément physique" du schéma ne listait que 9 exemples — les fiches de gauche pour toutes les autres relations (IfcRelConnectsStructuralMember, IfcRelConnectsStructuralElement...) ne déclenchaient donc rien à droite. La bulle se remplit maintenant dynamiquement avec tout ce qui n'est pas déjà rangé dans un scope spatial, garantissant que chaque fiche a une contrepartie cliquable.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-14</td><td>Onglet <strong>Relations</strong> : cliquer une fiche de la liste de gauche déplie désormais les bulles du schéma qui contiennent cette relation (et replie les autres) pour révéler toutes ses occurrences, même sur plusieurs niveaux (ex. <code>IfcRelAggregates</code> apparaît dans Site, Bâtiment et Niveau).</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-13</td><td>Onglet <strong>Relations</strong> : le schéma hiérarchique du panneau droit reste désormais toujours visible — cliquer une ligne du schéma fait défiler et surligne la fiche correspondante dans la liste de gauche (au lieu d'ouvrir une autre fenêtre), et cliquer une fiche à gauche surligne toutes ses occurrences dans le schéma à droite.</td></tr>
@@ -15157,9 +15183,9 @@ function toggleTheme(){
     sont structurées et échangées entre logiciels BIM (Archicad, Revit, Solibri…).</p>
 
     <div class="info-stat">
-      <div class="info-stat-item"><div class="info-stat-n">382</div><div class="info-stat-l">Entités couvertes</div></div>
-      <div class="info-stat-item"><div class="info-stat-n">255</div><div class="info-stat-l">IFC 2x3</div></div>
-      <div class="info-stat-item"><div class="info-stat-n">127</div><div class="info-stat-l">IFC 4 / 4.1 / 4.3</div></div>
+      <div class="info-stat-item"><div class="info-stat-n">537</div><div class="info-stat-l">Entités couvertes</div></div>
+      <div class="info-stat-item"><div class="info-stat-n">399</div><div class="info-stat-l">IFC 2x3</div></div>
+      <div class="info-stat-item"><div class="info-stat-n">136</div><div class="info-stat-l">IFC 4 / 4.1 / 4.3</div></div>
       <div class="info-stat-item"><div class="info-stat-n">41</div><div class="info-stat-l">Énumérations</div></div>
     </div>
 
@@ -15184,13 +15210,32 @@ function toggleTheme(){
       <div class="info-step">
         <div class="info-step-num">3</div>
         <div class="info-step-body">
+          <strong>Hiérarchie IFC (onglets "Hiérarchie · Arbre" et "Hiérarchie · Carte")</strong>
+          <span>Visualise le mécanisme <code>SUBTYPE OF</code> du schéma EXPRESS — comment chaque entité
+          hérite des classes abstraites au-dessus d'elle. L'arbre se filtre par texte ; la carte radiale
+          se navigue au clic, au glisser et à la molette.</span>
+        </div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">4</div>
+        <div class="info-step-body">
+          <strong>Relations IFC (onglet "Relations")</strong>
+          <span>Explore comment les éléments se relient entre eux (<code>IfcRelXxx</code>), groupées par
+          famille (connexion, affectation, association, décomposition, définition). Le panneau droit affiche
+          un schéma hiérarchique Projet → Site → Bâtiment → Niveau → Espace → Élément, cliquable dans les
+          deux sens avec la liste de gauche.</span>
+        </div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">5</div>
+        <div class="info-step-body">
           <strong>Fiche détaillée (panneau droit — toujours visible)</strong>
           <span>S'ouvre automatiquement au clic. Affiche la description pédagogique,
           la chaîne d'héritage complète, les attributs et trois exemples concrets.</span>
         </div>
       </div>
       <div class="info-step">
-        <div class="info-step-num">4</div>
+        <div class="info-step-num">6</div>
         <div class="info-step-body">
           <strong>Catalogue complet (bas du panneau "Données")</strong>
           <span>Liste toutes les entités couvertes, organisées par famille.
