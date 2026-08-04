@@ -1044,7 +1044,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-13</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">27/07/26-14</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -9211,14 +9211,20 @@ function toggleRelScope(id){
 // Clic sur une fiche de la liste de gauche → surligne toutes ses occurrences à droite.
 function highlightRelInSchema(ifc){
   let first = null;
+  const scopesWithMatch = new Set();
   document.querySelectorAll('.relsch-row').forEach(r=>{
     const match = r.dataset.ifc === ifc;
     r.classList.toggle('hl', match);
     if(match){
       const scope = r.closest('.relsch-scope');
-      if(scope) scope.classList.add('open');
+      if(scope) scopesWithMatch.add(scope);
       if(!first) first = r;
     }
+  });
+  // Déplie les bulles qui contiennent une occurrence, replie les autres —
+  // pour bien voir toutes les instances quand une relation apparaît à plusieurs niveaux.
+  document.querySelectorAll('.relsch-scope').forEach(scope=>{
+    scope.classList.toggle('open', scopesWithMatch.has(scope));
   });
   if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
 }
@@ -15108,6 +15114,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>27/07/2026</td><td>v27/07/26-14</td><td>Onglet <strong>Relations</strong> : cliquer une fiche de la liste de gauche déplie désormais les bulles du schéma qui contiennent cette relation (et replie les autres) pour révéler toutes ses occurrences, même sur plusieurs niveaux (ex. <code>IfcRelAggregates</code> apparaît dans Site, Bâtiment et Niveau).</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-13</td><td>Onglet <strong>Relations</strong> : le schéma hiérarchique du panneau droit reste désormais toujours visible — cliquer une ligne du schéma fait défiler et surligne la fiche correspondante dans la liste de gauche (au lieu d'ouvrir une autre fenêtre), et cliquer une fiche à gauche surligne toutes ses occurrences dans le schéma à droite.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-12</td><td>Onglet <strong>Relations</strong> : le panneau droit affiche par défaut un schéma hiérarchique cliquable (Projet → Site → Bâtiment → Niveau → Espace → Élément physique), chaque bulle listant les relations adaptées à ce niveau avec des exemples dédiés.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-10</td><td>Nouvel onglet <strong>Relations</strong> : les 44 relations concrètes IFC2x3 (<code>IfcRelXxx</code>), groupées par famille (Connexions, Affectations, Associations, Décomposition, Définition), chaque fiche avec définition FR + mini-schéma "boîte → boîte" sur des éléments concrets (mur, porte, tuyau, espace…). Filtre texte inclus. À ne pas confondre avec la Hiérarchie (mécanisme <code>SUBTYPE OF</code>).</td></tr>
