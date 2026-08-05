@@ -1035,6 +1035,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
   .aside{width:44vw !important}
   .btn{font-size:.65rem}
 }
+
+/* Écrans tactiles (mobile + tablette) : 16px sur les champs de recherche pour
+   empêcher le zoom automatique d'iOS Safari au focus. */
+@media(max-width:1023px){
+  .hier-search, .herit-search-input{font-size:16px !important}
+}
 /* ── BADGE VERSION IFC ── */
 .ver-badge{display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:.52rem;font-weight:600;letter-spacing:.05em;padding:.18rem .45rem;border-radius:5px;border:1px solid;margin-left:.4rem;vertical-align:middle;opacity:.9}
 .ver-2x3{background:#F1EFE8;color:#4A4845;border-color:#C5C2BC}
@@ -1051,7 +1057,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">04/08/26-02</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">04/08/26-03</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -9857,6 +9863,59 @@ function heritBindEvents(){
     if(s.node._kids && s.node._kids.length) heritDrillTo(s.name, s.node);
   });
 
+  /* Tactile (iPad) : un doigt = pan (mêmes variables que la souris),
+     deux doigts = pincement pour zoomer. Le tap simple continue de
+     déclencher le 'click' natif ci-dessus tant qu'on ne preventDefault
+     pas le touchstart. */
+  let pinchDist = null;
+
+  function touchDist(t){
+    return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  }
+  function touchMid(t, r){
+    return { x: (t[0].clientX + t[1].clientX)/2 - r.left, y: (t[0].clientY + t[1].clientY)/2 - r.top };
+  }
+
+  cv.addEventListener('touchstart', e => {
+    tip.style.display = 'none';
+    if(e.touches.length === 1){
+      dragging = true; moved = false;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    } else if(e.touches.length === 2){
+      dragging = false;
+      pinchDist = touchDist(e.touches);
+    }
+  }, {passive:true});
+
+  cv.addEventListener('touchmove', e => {
+    const r = cv.getBoundingClientRect();
+    if(e.touches.length === 2 && pinchDist !== null){
+      const d = touchDist(e.touches);
+      const mid = touchMid(e.touches, r);
+      heritZoomBy(d / pinchDist, mid.x, mid.y);
+      pinchDist = d;
+      e.preventDefault();
+      return;
+    }
+    if(dragging && e.touches.length === 1){
+      const dx = e.touches[0].clientX - lastX, dy = e.touches[0].clientY - lastY;
+      if(Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+      _heritPanX += dx; _heritPanY += dy;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+      heritDraw();
+      e.preventDefault();
+    }
+  }, {passive:false});
+
+  cv.addEventListener('touchend', () => {
+    dragging = false;
+    pinchDist = null;
+  });
+  cv.addEventListener('touchcancel', () => {
+    dragging = false;
+    pinchDist = null;
+  });
+
   // Le canvas est en display:none tant que l'onglet est inactif :
   // ResizeObserver redessine dès qu'il reçoit ses dimensions réelles.
   if(window.ResizeObserver){
@@ -15067,35 +15126,60 @@ renderHierTree();
   let startX   = 0;
   let startW   = 0;
 
-  resizer.addEventListener('mousedown', function(e){
+  function dragStart(clientX){
     dragging = true;
-    startX   = e.clientX;
+    startX   = clientX;
     startW   = aside.offsetWidth;
     resizer.classList.add('dragging');
     document.body.style.cursor    = 'col-resize';
     document.body.style.userSelect = 'none';
-    e.preventDefault();
-  });
+  }
 
-  document.addEventListener('mousemove', function(e){
+  function dragMove(clientX){
     if(!dragging) return;
-    const dx  = e.clientX - startX;
+    const dx  = clientX - startX;
     const newW = Math.min(MAX_W, Math.max(MIN_W, startW + dx));
     aside.style.width = newW + 'px';
-  });
+  }
 
-  document.addEventListener('mouseup', function(){
+  function dragEnd(){
     if(!dragging) return;
     dragging = false;
     resizer.classList.remove('dragging');
     document.body.style.cursor     = '';
     document.body.style.userSelect = '';
+  }
+
+  function resetWidth(){
+    aside.style.width = Math.round(window.innerWidth / 2) + 'px';
+  }
+
+  /* Souris */
+  resizer.addEventListener('mousedown', function(e){
+    dragStart(e.clientX);
+    e.preventDefault();
   });
+  document.addEventListener('mousemove', function(e){ dragMove(e.clientX); });
+  document.addEventListener('mouseup', dragEnd);
 
   /* Double-clic : reset à la largeur par défaut */
-  resizer.addEventListener('dblclick', function(){
-    aside.style.width = Math.round(window.innerWidth / 2) + 'px';
-  });
+  resizer.addEventListener('dblclick', resetWidth);
+
+  /* Tactile (iPad) : glisser au doigt + double-tap pour réinitialiser */
+  let lastTouchEnd = 0;
+  resizer.addEventListener('touchstart', function(e){
+    dragStart(e.touches[0].clientX);
+    const now = Date.now();
+    if(now - lastTouchEnd < 350){ resetWidth(); dragging = false; resizer.classList.remove('dragging'); }
+    lastTouchEnd = now;
+  }, {passive:true});
+  resizer.addEventListener('touchmove', function(e){
+    if(!dragging) return;
+    dragMove(e.touches[0].clientX);
+    e.preventDefault();
+  }, {passive:false});
+  resizer.addEventListener('touchend', dragEnd);
+  resizer.addEventListener('touchcancel', dragEnd);
 })();
 
 /* ═══════════════════════════════════════
@@ -15230,6 +15314,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>04/08/2026</td><td>v04/08/26-03</td><td>Compatibilité tactile iPad/iPhone : la poignée de redimensionnement du panneau gauche et le pan/zoom de la <strong>Carte d'héritage</strong> (glisser un doigt, pincer pour zoomer) fonctionnent désormais au toucher (pas seulement à la souris). Correction du zoom automatique intempestif d'iOS Safari sur les champs de recherche des onglets Hiérarchie · Arbre, Hiérarchie · Carte et Relations (police 16px sous 1024px).</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-02</td><td>Onglet <strong>Relations</strong> : ajout d'un badge "Archicad ✔ / ◐ / ✘" sur chaque fiche de la liste de gauche, indiquant si Archicad exporte nativement cette relation (✔), seulement via un add-on ou un usage limité (◐), ou pas du tout car hors périmètre métier — analyse structurelle, planning/coût, FM (✘). Survoler le badge affiche le détail.</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-01</td><td>Modale <strong>Couverture</strong> : les taux de complétude séparent désormais IFC2x3 TC1 (399/653 entités, 61%) et IFC4/4.1/4.3 (136/776 entités, 18%), avec un tableau par domaine pour chacun. Guide de démarrage : ajout des étapes Hiérarchie IFC et Relations IFC, jusqu'ici absentes.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-15</td><td>Onglet <strong>Relations</strong> : la bulle "Élément physique" du schéma ne listait que 9 exemples — les fiches de gauche pour toutes les autres relations (IfcRelConnectsStructuralMember, IfcRelConnectsStructuralElement...) ne déclenchaient donc rien à droite. La bulle se remplit maintenant dynamiquement avec tout ce qui n'est pas déjà rangé dans un scope spatial, garantissant que chaque fiche a une contrepartie cliquable.</td></tr>
