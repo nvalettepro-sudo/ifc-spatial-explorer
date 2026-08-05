@@ -560,7 +560,14 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 .rel-card-head{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem}
 .rel-fr{font-size:.78rem;font-weight:700}
 .rel-ifc{font-size:.62rem;color:var(--sp);font-family:'DM Mono',monospace}
-.rel-ver-badge{margin-left:auto;font-size:.58rem;font-weight:700;color:var(--sp);font-family:'DM Mono',monospace;letter-spacing:.02em;white-space:nowrap}
+.rel-ver-badge{font-size:.58rem;font-weight:700;color:var(--sp);font-family:'DM Mono',monospace;letter-spacing:.02em;white-space:nowrap}
+.rel-ac-badge{margin-left:auto;font-size:.58rem;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.01em;white-space:nowrap;padding:.1rem .4rem;border-radius:5px;border:1px solid}
+.rel-ac-oui{color:#2e7d32;border-color:#2e7d32;background:rgba(46,125,50,.08)}
+.rel-ac-partiel{color:#b8860b;border-color:#b8860b;background:rgba(184,134,11,.08)}
+.rel-ac-non{color:#c0392b;border-color:#c0392b;background:rgba(192,57,43,.08)}
+[data-theme="dark"] .rel-ac-oui{color:#66bb6a;border-color:#66bb6a;background:rgba(102,187,106,.12)}
+[data-theme="dark"] .rel-ac-partiel{color:#e0b84a;border-color:#e0b84a;background:rgba(224,184,74,.12)}
+[data-theme="dark"] .rel-ac-non{color:#e57368;border-color:#e57368;background:rgba(229,115,104,.12)}
 .rel-desc{font-size:.68rem;color:var(--text);opacity:.85;margin:0 0 .65rem;max-width:72ch;line-height:1.55}
 .rel-schema{display:flex;align-items:center;background:rgba(0,0,0,.03);border-radius:8px;padding:.5rem .45rem;overflow-x:auto}
 [data-theme="dark"] .rel-schema{background:rgba(255,255,255,.04)}
@@ -1044,7 +1051,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">04/08/26-01</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">04/08/26-02</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -9068,6 +9075,80 @@ function relVerBadge(en){
   return `<span class="rel-ver-badge" title="Relation apparue en ${VER_LABELS[v] || v}">${VER_LABELS[v] || v}</span>`;
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   SUPPORT ARCHICAD — indicatif pédagogique de ce qu'Archicad exporte
+   nativement pour chaque relation IFC. 'oui' = cœur du moteur IFC natif,
+   'partiel' = via add-on (MEP Modeler, IFC Manager...) ou usage limité,
+   'non' = hors périmètre métier d'un outil de conception architecturale
+   (analyse structurelle, planning/coût, FM, détection de conflits...).
+   À vérifier au cas par cas via le Translator IFC de Graphisoft.
+   ══════════════════════════════════════════════════════════════════════ */
+const ARCHICAD_SUPPORT = {
+  IfcRelContainedInSpatialStructure:['oui',"Cœur de la décomposition spatiale"],
+  IfcRelReferencedInSpatialStructure:['oui',"Éléments traversants (poteaux, gaines) référencés sur plusieurs niveaux"],
+  IfcRelAggregates:['oui',"Hiérarchie spatiale et éléments composites (mur composite...)"],
+  IfcRelVoidsElement:['oui',"Ouvertures dans murs/dalles"],
+  IfcRelFillsElement:['oui',"Portes/fenêtres dans les ouvertures"],
+  IfcRelCoversBldgElements:['oui',"Revêtements/finitions liés à leur élément hôte"],
+  IfcRelConnectsElements:['oui',"Jonctions entre éléments de construction"],
+  IfcRelProjectsElement:['oui',"Éléments en saillie (IFC4+)"],
+  IfcRelSpaceBoundary:['oui',"Option « Limites d'espace » à l'export"],
+  IfcRelSpaceBoundary1stLevel:['oui',"Option « Limites d'espace » à l'export"],
+  IfcRelAssociatesMaterial:['oui',"Cœur du moteur matériaux"],
+  IfcRelAssociatesClassification:['oui',"Classification Manager intégré"],
+  IfcRelAssociatesDocument:['oui',"Documents/PDF joints aux éléments"],
+  IfcRelDefinesByProperties:['oui',"Property Sets — cœur du système"],
+  IfcRelDefinesByType:['oui',"Types d'éléments / familles Archicad"],
+  IfcRelAssignsToGroup:['oui',"Groupes et zones combinées"],
+
+  IfcRelConnectsPorts:['partiel',"Nécessite l'add-on MEP Modeler"],
+  IfcRelConnectsPortToElement:['partiel',"Nécessite l'add-on MEP Modeler"],
+  IfcRelFlowControlElements:['partiel',"Nécessite l'add-on MEP Modeler"],
+  IfcRelServicesBuildings:['partiel',"Nécessite l'add-on MEP Modeler"],
+  IfcRelCoversSpaces:['partiel',"Export possible mais rarement utilisé"],
+  IfcRelSpaceBoundary2ndLevel:['partiel',"Rarement complet sans calcul énergétique dédié"],
+  IfcRelAssociatesProfileDef:['partiel',"Profils GDL sur mesure, mapping partiel"],
+  IfcRelAssociatesProfileProperties:['partiel',"Profils GDL sur mesure, mapping partiel"],
+  IfcRelAssignsToActor:['partiel',"Via IFC Manager ou saisie manuelle, hors UI standard"],
+  IfcRelAssignsToControl:['partiel',"Saisie manuelle, peu modélisé nativement"],
+  IfcRelConnectsPathElements:['partiel',"Usage limité, réseaux linéaires MEP"],
+  IfcRelConnectsWithRealizingElements:['partiel',"Jonctions complexes, rarement générées nativement"],
+
+  IfcRelConnectsStructuralActivity:['non',"Analyse structurelle — hors périmètre (SCIA, Robot...)"],
+  IfcRelConnectsStructuralElement:['non',"Analyse structurelle — hors périmètre (SCIA, Robot...)"],
+  IfcRelConnectsStructuralMember:['non',"Analyse structurelle — hors périmètre (SCIA, Robot...)"],
+  IfcRelConnectsWithEccentricity:['non',"Analyse structurelle — hors périmètre"],
+  IfcRelSequence:['non',"Planning 4D — hors périmètre"],
+  IfcRelAssignsTasks:['non',"Planning 4D — hors périmètre"],
+  IfcRelSchedulesCostItems:['non',"Coût 5D — hors périmètre"],
+  IfcRelAssignsToProcess:['non',"Planning/process — hors périmètre"],
+  IfcRelAssignsToResource:['non',"Planning/ressources — hors périmètre"],
+  IfcRelAssignsToProjectOrder:['non',"Gestion de commandes — hors périmètre"],
+  IfcRelOccupiesSpaces:['non',"Exploitation/FM — hors périmètre (ArchiFM...)"],
+  IfcRelInterferesElements:['non',"Détection de conflits — outils dédiés (Solibri, BIMcollab...)"],
+  IfcRelAdheresToElement:['non',"Infrastructure IFC4.3 — hors périmètre bâtiment"],
+  IfcRelAssignsToGroupByFactor:['non',"Cas d'usage très spécifique, non exposé"],
+  IfcRelNests:['non',"Rarement utilisé (tâches/process, IFC4)"],
+  IfcRelDefinesByObject:['non',"IFC4, non exposé dans Archicad"],
+  IfcRelDefinesByTemplate:['non',"IFC4, non exposé dans Archicad"],
+  IfcRelOverridesProperties:['non',"Cas d'usage rare, non exposé"],
+  IfcRelDeclares:['non',"Déclaration de projet fédéré IFC4, non exportée par défaut"],
+  IfcRelAssociatesLibrary:['non',"Rarement utilisé"],
+  IfcRelAssociatesConstraint:['non',"Non exposé dans Archicad"],
+  IfcRelAssociatesApproval:['non',"Non exposé dans Archicad"],
+  IfcRelAssociatesAppliedValue:['non',"Non exposé dans Archicad"],
+  IfcRelInteractionRequirements:['non',"Programmation fonctionnelle — hors périmètre"],
+  IfcRelAssignsToProduct:['non',"Non exposé dans Archicad"],
+};
+
+function relArchicadBadge(ifc){
+  const info = ARCHICAD_SUPPORT[ifc];
+  if(!info) return '';
+  const [level, note] = info;
+  const label = level === 'oui' ? 'Archicad ✔' : level === 'partiel' ? 'Archicad ◐' : 'Archicad ✘';
+  return `<span class="rel-ac-badge rel-ac-${level}" title="${note}">${label}</span>`;
+}
+
 let relVerFilter = 'all';
 function setRelVer(ver){
   relVerFilter = ver;
@@ -9099,7 +9180,7 @@ function renderRelations(filterText){
     html += `<p class="rel-fam-sub">${info.desc}</p>`;
     items.forEach(({en}) => {
       html += `<div class="rel-card" data-ifc="${en.ifc}" onclick="highlightRelInSchema('${en.ifc}')">
-        <div class="rel-card-head"><span class="rel-fr">${en.fr}</span><span class="rel-ifc">${en.ifc}</span>${relVerBadge(en)}</div>
+        <div class="rel-card-head"><span class="rel-fr">${en.fr}</span><span class="rel-ifc">${en.ifc}</span>${relArchicadBadge(en.ifc)}${relVerBadge(en)}</div>
         <p class="rel-desc">${en.desc || ''}</p>
         ${relSchemaHtml(REL_SCENES[en.ifc])}
       </div>`;
@@ -15149,6 +15230,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>04/08/2026</td><td>v04/08/26-02</td><td>Onglet <strong>Relations</strong> : ajout d'un badge "Archicad ✔ / ◐ / ✘" sur chaque fiche de la liste de gauche, indiquant si Archicad exporte nativement cette relation (✔), seulement via un add-on ou un usage limité (◐), ou pas du tout car hors périmètre métier — analyse structurelle, planning/coût, FM (✘). Survoler le badge affiche le détail.</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-01</td><td>Modale <strong>Couverture</strong> : les taux de complétude séparent désormais IFC2x3 TC1 (399/653 entités, 61%) et IFC4/4.1/4.3 (136/776 entités, 18%), avec un tableau par domaine pour chacun. Guide de démarrage : ajout des étapes Hiérarchie IFC et Relations IFC, jusqu'ici absentes.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-15</td><td>Onglet <strong>Relations</strong> : la bulle "Élément physique" du schéma ne listait que 9 exemples — les fiches de gauche pour toutes les autres relations (IfcRelConnectsStructuralMember, IfcRelConnectsStructuralElement...) ne déclenchaient donc rien à droite. La bulle se remplit maintenant dynamiquement avec tout ce qui n'est pas déjà rangé dans un scope spatial, garantissant que chaque fiche a une contrepartie cliquable.</td></tr>
           <tr><td>27/07/2026</td><td>v27/07/26-14</td><td>Onglet <strong>Relations</strong> : cliquer une fiche de la liste de gauche déplie désormais les bulles du schéma qui contiennent cette relation (et replie les autres) pour révéler toutes ses occurrences, même sur plusieurs niveaux (ex. <code>IfcRelAggregates</code> apparaît dans Site, Bâtiment et Niveau).</td></tr>
