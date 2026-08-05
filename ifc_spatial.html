@@ -549,6 +549,21 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 /* ── ONGLET RELATIONS ── */
 .rel-intro{font-size:.66rem;color:var(--muted);line-height:1.55;margin:.6rem 0 1rem}
+
+/* ── ANATOMIE IFC (extrait STEP cliquable) ── */
+.step-frame{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg);font-family:'DM Mono',monospace;font-size:.68rem;line-height:1.75}
+.step-section-label{font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:.4rem .8rem;background:var(--card);border-bottom:1px solid var(--border)}
+.step-line{display:flex;gap:.7rem;padding:.05rem .8rem;border-left:3px solid transparent}
+.step-line.clickable{cursor:pointer}
+.step-line.clickable:hover{background:var(--sp-bg)}
+.step-line.hl{background:var(--sp-bg);border-left-color:var(--sp)}
+.step-no{color:var(--muted);opacity:.5;min-width:1.4rem;text-align:right;user-select:none;flex-shrink:0}
+.step-code{white-space:pre-wrap;word-break:break-all;color:var(--text);opacity:.75}
+.step-line.clickable .step-code{opacity:1}
+.step-code .kw{color:var(--am);font-weight:600}
+.step-code .id{color:var(--sp)}
+.step-code .str{color:var(--gr)}
+.step-hint{font-family:'DM Sans',sans-serif;font-size:.62rem;color:var(--muted);text-align:center;padding:.6rem .4rem 0}
 .rel-intro b{color:var(--text)}
 .rel-fam-head{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin:1.5rem 0 .3rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
 .rel-fam-head:first-child{margin-top:0}
@@ -1057,7 +1072,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">04/08/26-03</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">04/08/26-04</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1116,6 +1131,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <div class="aside-tab" id="tab-hier" onclick="switchTab('hier')" title="Hiérarchie d'héritage IFC — vue arbre dépliable">Hiérarchie · Arbre</div>
       <div class="aside-tab" id="tab-herit" onclick="switchTab('herit')" title="Hiérarchie d'héritage IFC — vue carte radiale">Hiérarchie · Carte</div>
       <div class="aside-tab" id="tab-rel" onclick="switchTab('rel')" title="Comment les éléments IFC se relient entre eux">Relations</div>
+      <div class="aside-tab" id="tab-anat" onclick="switchTab('anat')" title="À quoi ressemble un vrai fichier .ifc">Anatomie IFC</div>
       <div class="aside-tab" id="tab-fav" onclick="switchTab('fav')">★ Favoris</div>
       <div class="aside-tab" id="tab-search" onclick="switchTab('search')" style="display:none">
         Résultats <span class="aside-badge" id="search-badge">0</span>
@@ -1236,6 +1252,35 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
       <input class="hier-search" id="rel-search" type="text" placeholder="Filtrer les relations (FR ou IFC)…" oninput="filterRelations(this.value)" autocomplete="off" spellcheck="false">
       <p class="rel-intro">Comment un mur, une porte, un tuyau ou un espace se relient entre eux dans une maquette IFC — à ne pas confondre avec la <b>Hiérarchie</b> (le mécanisme <code>SUBTYPE OF</code> du schéma). Le badge bleu de chaque fiche indique la version d'apparition de la relation.</p>
       <div id="rel-list"></div>
+    </div>
+
+    <!-- Onglet Anatomie IFC -->
+    <div class="aside-pane" id="pane-anat" style="padding:.75rem;overflow:auto">
+      <p class="rel-intro">Un fichier <b>.ifc</b> est un simple fichier texte (format <b>STEP</b>, norme ISO-10303-21). Chaque ligne numérotée <code>#12=...</code> est une entité — exactement celles que tu explores dans les autres onglets. Clique une ligne surlignée pour voir sa fiche à droite.</p>
+      <div class="step-frame">
+        <div class="step-section-label">En-tête</div>
+        <div class="step-line"><span class="step-no">1</span><span class="step-code">ISO-10303-21;</span></div>
+        <div class="step-line"><span class="step-no">2</span><span class="step-code">HEADER;</span></div>
+        <div class="step-line"><span class="step-no">3</span><span class="step-code">FILE_SCHEMA(('<span class="str">IFC2X3</span>'));</span></div>
+        <div class="step-line"><span class="step-no">4</span><span class="step-code">ENDSEC;</span></div>
+        <div class="step-line"><span class="step-no">5</span><span class="step-code">&nbsp;</span></div>
+
+        <div class="step-section-label">Données — entités numérotées</div>
+        <div class="step-line"><span class="step-no">6</span><span class="step-code">DATA;</span></div>
+        <div class="step-line"><span class="step-no">7</span><span class="step-code">#10=IFCBUILDINGSTOREY('1xS...gp',#2,'<span class="str">RDC</span>',$,$,#30,$,$,.ELEMENT.,0.);</span></div>
+        <div class="step-line clickable" data-key="wall" onclick="anatSelectLine(this)">
+          <span class="step-no">42</span>
+          <span class="step-code"><span class="id">#42</span>=<span class="kw">IFCWALL</span>('2O2Fr$t...FLOH',#2,'<span class="str">Cloison BA13</span>',$,$,#101,#102,'Cloison');</span>
+        </div>
+        <div class="step-line clickable hl" data-key="relcontained" onclick="anatSelectLine(this)">
+          <span class="step-no">43</span>
+          <span class="step-code"><span class="id">#43</span>=<span class="kw">IFCRELCONTAINEDINSPATIALSTRUCTURE</span>('3O2Fr...L99',#2,$,$,(#42),#10);</span>
+        </div>
+        <div class="step-line"><span class="step-no">44</span><span class="step-code">#101=IFCLOCALPLACEMENT($,#200);</span></div>
+        <div class="step-line"><span class="step-no">45</span><span class="step-code">ENDSEC;</span></div>
+        <div class="step-line"><span class="step-no">46</span><span class="step-code">END-ISO-10303-21;</span></div>
+      </div>
+      <p class="step-hint">💡 Lignes surlignées = cliquables. Le reste (placeholder gris) est simplifié pour l'exemple.</p>
     </div>
 
     <!-- Onglet Favoris -->
@@ -9957,8 +10002,22 @@ function switchTab(tab){
     if(!_relRendered){ renderRelations(''); _relRendered = true; }
     renderRelSchema();
   }
+  if(tab==='anat' && !_anatInit){
+    _anatInit = true;
+    const first = document.querySelector('#pane-anat .step-line.clickable.hl');
+    if(first) anatSelectLine(first);
+  }
 }
 let _relRendered = false;
+let _anatInit = false;
+
+/* Onglet Anatomie IFC : une ligne STEP cliquée affiche la fiche existante
+   de l'entité (même showDetail() que partout ailleurs dans l'app). */
+function anatSelectLine(el){
+  document.querySelectorAll('#pane-anat .step-line').forEach(l => l.classList.remove('hl'));
+  el.classList.add('hl');
+  showDetail(el.dataset.key);
+}
 
 const PSET_DATA = {
   Pset_ActuatorTypeCommon:{classes:['IfcActuatorType'],props:[
@@ -15314,6 +15373,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>04/08/2026</td><td>v04/08/26-04</td><td>Nouvel onglet <strong>Anatomie IFC</strong> : un extrait de vrai fichier <code>.ifc</code> (format STEP, ISO-10303-21) avec des lignes cliquables — clique <code>#42=IFCWALL(...)</code> ou <code>#43=IFCRELCONTAINEDINSPATIALSTRUCTURE(...)</code> pour ouvrir la fiche détaillée habituelle de cette même entité. Fait le lien entre le schéma abstrait exploré ailleurs dans l'app et la forme brute d'un fichier réel. Version MVP avec un seul exemple (mur + relation de contenance) — à enrichir.</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-03</td><td>Compatibilité tactile iPad/iPhone : la poignée de redimensionnement du panneau gauche et le pan/zoom de la <strong>Carte d'héritage</strong> (glisser un doigt, pincer pour zoomer) fonctionnent désormais au toucher (pas seulement à la souris). Correction du zoom automatique intempestif d'iOS Safari sur les champs de recherche des onglets Hiérarchie · Arbre, Hiérarchie · Carte et Relations (police 16px sous 1024px).</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-02</td><td>Onglet <strong>Relations</strong> : ajout d'un badge "Archicad ✔ / ◐ / ✘" sur chaque fiche de la liste de gauche, indiquant si Archicad exporte nativement cette relation (✔), seulement via un add-on ou un usage limité (◐), ou pas du tout car hors périmètre métier — analyse structurelle, planning/coût, FM (✘). Survoler le badge affiche le détail.</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-01</td><td>Modale <strong>Couverture</strong> : les taux de complétude séparent désormais IFC2x3 TC1 (399/653 entités, 61%) et IFC4/4.1/4.3 (136/776 entités, 18%), avec un tableau par domaine pour chacun. Guide de démarrage : ajout des étapes Hiérarchie IFC et Relations IFC, jusqu'ici absentes.</td></tr>
