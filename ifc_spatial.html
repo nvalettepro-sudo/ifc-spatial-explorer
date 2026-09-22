@@ -1072,7 +1072,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">04/08/26-04</span></div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">22/09/26-01</span></div>
     <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
   </div>
   <!-- Barre de recherche (desktop) -->
@@ -1365,6 +1365,12 @@ const E = {
     heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcBuildingElement'],
     attrs:['Tag','ObjectType','Name','GlobalId','OwnerHistory'],
     ex:["Un mur est un IfcBuildingElement","Une dalle est un IfcBuildingElement","Une porte est un IfcBuildingElement"]},
+
+  virtelem:{fr:"Élément virtuel",ifc:'IfcVirtualElement',cat:'arch',ver:'IFC2x3',
+    desc:"Frontière imaginaire entre deux espaces adjacents non séparés par un élément physique — pas de matière, pas de quantités. Sert surtout à porter la limite entre deux IfcSpace quand aucun mur ne les sépare réellement (ex. open space, mezzanine ouverte).",
+    heritage:['IfcRoot','IfcObjectDefinition','IfcObject','IfcProduct','IfcElement','IfcVirtualElement'],
+    attrs:['Tag','ObjectType','Name','GlobalId','OwnerHistory'],
+    ex:["Limite entre un open space et la zone circulation attenante, sans cloison","Séparation entre deux volumes d'un même plateau libre pour le calcul de surface","Frontière entre mezzanine ouverte et double-hauteur"]},
 
   wall:{fr:'Mur',ifc:'IfcWall',cat:'arch',ver:'IFC2x3',
     desc:"Paroi verticale qui sépare ou délimite des espaces. Peut être porteur (supporte des charges verticales) ou non-porteur (simple séparation). Couvre toutes les géométries de mur, y compris les formes complexes.",
@@ -5638,7 +5644,7 @@ function renderCatalogue(){
      keys:['furniture']},
 
     {label:'Éléments génériques — IFC 2x3', color:'gen',
-     keys:['bldproxy']},
+     keys:['bldproxy','virtelem']},
 
     /* ── Sections spécifiques au catalogue ── */
     {label:'Structure & Fondations — IFC 2x3', color:'struct',
@@ -15373,6 +15379,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>22/09/2026</td><td>v22/09/26-01</td><td>Catalogue : ajout de l'entité <code>IfcVirtualElement</code> ("Élément virtuel"), absente jusqu'ici — frontière imaginaire entre deux espaces adjacents non séparés par un élément physique (ex. limite d'un open space). Rangée dans "Éléments génériques — IFC 2x3", aux côtés d'<code>IfcBuildingElementProxy</code>.</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-04</td><td>Nouvel onglet <strong>Anatomie IFC</strong> : un extrait de vrai fichier <code>.ifc</code> (format STEP, ISO-10303-21) avec des lignes cliquables — clique <code>#42=IFCWALL(...)</code> ou <code>#43=IFCRELCONTAINEDINSPATIALSTRUCTURE(...)</code> pour ouvrir la fiche détaillée habituelle de cette même entité. Fait le lien entre le schéma abstrait exploré ailleurs dans l'app et la forme brute d'un fichier réel. Version MVP avec un seul exemple (mur + relation de contenance) — à enrichir.</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-03</td><td>Compatibilité tactile iPad/iPhone : la poignée de redimensionnement du panneau gauche et le pan/zoom de la <strong>Carte d'héritage</strong> (glisser un doigt, pincer pour zoomer) fonctionnent désormais au toucher (pas seulement à la souris). Correction du zoom automatique intempestif d'iOS Safari sur les champs de recherche des onglets Hiérarchie · Arbre, Hiérarchie · Carte et Relations (police 16px sous 1024px).</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-02</td><td>Onglet <strong>Relations</strong> : ajout d'un badge "Archicad ✔ / ◐ / ✘" sur chaque fiche de la liste de gauche, indiquant si Archicad exporte nativement cette relation (✔), seulement via un add-on ou un usage limité (◐), ou pas du tout car hors périmètre métier — analyse structurelle, planning/coût, FM (✘). Survoler le badge affiche le détail.</td></tr>
