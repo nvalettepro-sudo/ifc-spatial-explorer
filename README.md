@@ -22,7 +22,7 @@ Aucune installation requise.
 - **Hiérarchie IFC** : mécanisme `SUBTYPE OF` en arbre dépliable filtrable et en carte radiale (pan/zoom, tactile).
 - **Relations** : les `IfcRelXxx` par famille, avec schéma hiérarchique cliquable et badge de prise en charge par Archicad.
 - **Anatomie IFC** : un extrait de vrai fichier `.ifc` (format STEP) dont chaque ligne mène à la fiche correspondante.
-- **Énumérations** (PredefinedTypes traduits), **Psets**, **Favoris**, **recherche** dynamique (entités, énumérations, attributs).
+- **Énumérations** (PredefinedTypes et autres, valeurs traduites avec badge de version) ouvertes depuis chaque fiche, **Psets et quantités** officiels repliables, **Favoris**, **recherche** dynamique (entités, énumérations, attributs).
 - **Couverture** : une modale affiche l'état de complétude par rapport aux schémas officiels et le journal des modifications.
 - **Thème sombre / clair** (sombre par défaut, mémorisé), panneaux redimensionnables à la souris ou au doigt.
 
@@ -32,19 +32,19 @@ Aucune installation requise.
 
 | | Dans l'app | Schéma officiel |
 |---|---|---|
-| Fiches d'entités | 546 (402 IFC2x3 · 99 IFC4 · 8 IFC4.1 · 35 IFC4.3) | 653 entités IFC2x3 · 776 IFC4 · 876 IFC4.3 |
-| Classes abstraites | 40 | — |
-| Énumérations | 44 | 272 distinctes |
-| Property Sets | 73 | 859 Pset/Qto distincts |
+| Fiches d'entités | 808 (515 IFC2x3 · 199 IFC4 · 8 IFC4.1 · 86 IFC4.3) | 80 % d'IFC2x3, 83 % d'IFC4, 82 % d'IFC4.3 |
+| Énumérations | 261, avec toutes les valeurs de chaque version | 261 / 272 |
+| Property Sets et Qto | 859, traduits en français | 859 / 859 |
+| Conformité héritage et attributs | vérifiée par `tools/audit_ifc.py` | — |
 
-Le détail des manques (et les chantiers prioritaires) est dans `CLAUDE.md`, section "Manques connus".
+Seules manquent, volontairement, la géométrie pure (courbes, surfaces, B-rep…), les styles de présentation et la cotation 2D. Détail dans `CLAUDE.md`, section « Manques connus ».
 
 ---
 
 ## Architecture du fichier
 
 ```
-ifc_spatial.html (~1,1 Mo, ~15 700 lignes)
+ifc_spatial.html (~2,9 Mo, ~32 400 lignes, dont ~2 Mo de données générées)
 │
 ├── <style>          CSS complet (variables, dark mode, composants)
 ├── <body>
@@ -65,7 +65,8 @@ ifc_spatial.html (~1,1 Mo, ~15 700 lignes)
 | `ATTRS_BY_ENTITY` / `ATTR_DICT` | Attributs ordonnés par entité / traductions et définitions |
 | `ABSTRACT_CLASSES` | Classes abstraites sans fiche propre |
 | `ENUMS` | Énumérations avec valeurs traduites |
-| `PSET_DATA` / `ENTITY_PSETS` / `FR_PSET_DICT` | Psets, mapping entité → Psets, traductions des propriétés |
+| `ENUM_BY_ENTITY` | Énumérations utilisées par chaque entité |
+| `PSET_DATA` / `ENTITY_PSETS` / `FR_PSET_DICT` | Psets et Qto officiels (toutes versions), mapping entité → Psets, traductions des propriétés |
 | `SPATIAL_TREES` | Arborescence spatiale par version |
 | `REL_SCENES`, `ARCHICAD_SUPPORT` | Données de l'onglet Relations |
 
@@ -77,6 +78,7 @@ ifc_spatial.html (~1,1 Mo, ~15 700 lignes)
 |---------|------|
 | `ifc_spatial.html` | L'application |
 | `CLAUDE.md` | Contexte et procédures pour Claude Code (checklist d'ajout d'entité, anomalies connues, manques) |
+| `tools/audit_ifc.py` | Audit de conformité de l'app contre les schémas officiels (`python3 tools/audit_ifc.py`) |
 | `.claude/skills/ifc-standard/` | Index interrogeable des schémas IFC2x3, IFC4 ADD2 TC1 et IFC4.3 + Psets officiels (outil de vérification) |
 | `explorer/` | Application annexe « IFC Data Explorer » (viewer de fichiers `.ifc`) |
 | `IFC2x3.exp` | Schéma EXPRESS IFC2x3 |
@@ -106,7 +108,7 @@ Couleurs dynamiques via `getGrpColors()` et `getCatColor()` selon `data-theme`.
 ## Source des données
 
 - Schémas : [buildingSMART IFC2x3 TC1](https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/), [IFC4 ADD2 TC1](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/), [IFC4.3](https://ifc43-docs.standards.buildingsmart.org/) (l'index local d'IFC4.3 est une révision de développement)
-- Psets IFC2x3 : [xBimTeam XbimPropertySets GitHub](https://github.com/xBimTeam/XbimPropertySets)
+- Psets et Qto : templates officiels IFC2x3, IFC4 et IFC4.3 (via IfcOpenShell, dérivés des définitions PSD buildingSMART)
 
 ---
 

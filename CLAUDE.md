@@ -2,7 +2,7 @@
 
 Ce fichier est lu automatiquement par Claude Code à chaque session.  
 Il contient tout le contexte nécessaire pour travailler correctement sur ce projet.  
-**Dernière mise à jour : 09/10/2026 (v09/10/26-01)** — voir "Chiffres de référence" pour les compteurs.
+**Dernière mise à jour : 09/10/2026 (v09/10/26-02)** — voir "Chiffres de référence" pour les compteurs.
 
 ---
 
@@ -13,7 +13,7 @@ Il couvre **IFC2x3 TC1, IFC4, IFC4.1 et IFC4.3** (la version d'apparition de cha
 L'utilisateur est **Nico Valette** — architecte DPLG, BIM Manager, non-développeur.  
 Il décrit ce qu'il veut en français. Tu codes à sa place et tu livres du fonctionnel immédiatement.
 
-**Fichier principal** : `ifc_spatial.html` (~1,1 Mo, ~15 700 lignes, vanilla HTML/CSS/JS, zéro framework)
+**Fichier principal** : `ifc_spatial.html` (~2,9 Mo, ~32 400 lignes — dont ~2 Mo de données générées —, vanilla HTML/CSS/JS, zéro framework)
 
 ---
 
@@ -36,6 +36,7 @@ Il décrit ce qu'il veut en français. Tu codes à sa place et tu livres du fonc
 | `CLAUDE.md` / `README.md` | Contexte pour Claude Code / présentation du projet |
 | `.claude/skills/ifc-standard/` | Skill de référence normative : index JSON des schémas IFC2x3, IFC4 ADD2 TC1 et IFC4.3 (dev) + Psets/Qto officiels. Commande : `python3 .claude/skills/ifc-standard/scripts/ifc.py <entity\|attrs\|tree\|type\|pset\|psets\|diff\|search\|list> …` |
 | `explorer/` | Application annexe "IFC Data Explorer" (viewer web-ifc compilé, déployé sous `/explorer/`) — **ne pas modifier à la main** |
+| `tools/audit_ifc.py` | **Audit de conformité** de l'app contre les schémas officiels (`python3 tools/audit_ifc.py` → doit afficher `AUDIT OK`) |
 | `IFC2x3.exp` | Schéma EXPRESS IFC2x3 brut |
 | `rapport-audit.html` | Rapport d'audit daté (juin 2026) — instantané historique, non maintenu |
 | `prototype-fiche.html` | Maquette de fiche — historique |
@@ -91,22 +92,24 @@ const E = {                       // une fiche = une clé camelCase/minuscule
 | `ATTRS_BY_ENTITY` | Attributs complets ordonnés par entité : `{n, o (optionnel), f (entité qui le définit)}` |
 | `ATTR_DICT` | Traduction FR + définition de chaque nom d'attribut (`LongName`, `PredefinedType`…) |
 | `ABSTRACT_CLASSES` | Classes abstraites sans fiche `E` : `{fr, desc, subtypes[]}` → `showAbstractDetail()` |
-| `ENUMS` | Énumérations : `{fr, ifc, desc, usedBy, vals:[[CODE, fr, note]]}` → `showEnum(id)` (accessibles via la **recherche**) |
-| `PSET_DATA` | Psets : `{classes[], props:[{n,t,d}]}` |
-| `ENTITY_PSETS` | Mapping clé `E` → liste de noms de Psets (un nom absent de `PSET_DATA` est ignoré sans erreur) |
+| `ENUMS` | Énumérations : `{fr, ifc, vers[], desc, usedBy, vals:[[CODE, fr, note, tagVersion?]]}` → `showEnum(id)`. Le 4e élément (ex. `IFC4+`, `IFC4.3`, `IFC2x3 seul`) signale une valeur absente de certaines versions |
+| `ENUM_BY_ENTITY` | Généré : nom IFC → `[[attribut, cléENUMS]]` — alimente la section « Énumérations utilisées » de chaque fiche |
+| `PSET_DATA` | **Généré depuis les index officiels** : 859 Psets/Qto `{v:[versions], app:"entités concernées", classes[], props:[{n, t, d?, e?:[valeurs], v?:tag}]}`. `d` (définition anglaise) n'est gardé que si `FR_PSET_DICT` n'a pas la propriété |
+| `ENTITY_PSETS` | **Généré** : clé `E` → Psets/Qto applicables (directs puis hérités des supertypes, toutes versions). Affichés repliables dans la fiche |
 | `FR_PSET_DICT` | Traduction FR + définition des propriétés de Psets (clé = nom de propriété) |
 | `SPATIAL_TREES` | Arbres de l'onglet Arborescence, un par version : `{key, note, children}` (les `key` sont des clés `E`) |
 | `REL_SCENES`, `ARCHICAD_SUPPORT`, `REL_HIER_SCOPES` | Données de l'onglet Relations |
-| `HIER_SECTIONS` | Sections de l'onglet Hiérarchie pour les entités hors héritage produit |
+| `HIER_SECTIONS` | Sections de l'onglet Hiérarchie pour les racines hors `IfcRoot` (ressources) ; `_hierSectionsAll()` ajoute « Autres ressources » pour toute racine oubliée |
+| `IFC2X3_SCHEMA` / `BS_IFC4_FALLBACK` | Dossier buildingSMART des pages IFC2x3 ; à défaut, lien vers la page IFC4 de la même entité (`_bsUrl`, `_bsLabel`) |
 | `HERIT_FAMS` / `HERIT_HUES` | Familles et teintes de la carte radiale (un index de teinte par famille) |
 | `STOREY_TEMPLATES` | 5 niveaux de l'arborescence interactive (Sous-sol, RDC, 1er, 2ème, Combles) |
 | `INHERITED_ORDER` | Ordre d'affichage des attributs hérités |
 
-### Chiffres de référence (09/10/2026)
+### Chiffres de référence (09/10/2026, v09/10/26-02)
 
-- `E` : **546 fiches** = 402 IFC2x3 + 99 IFC4 + 8 IFC4.1 + 35 IFC4.3 + 2 sans `ver`
-- `ABSTRACT_CLASSES` : 40 · `ENUMS` : 44 · Psets réels : 73 · `ATTRS_BY_ENTITY` : 195 · `ATTR_DICT` : 303
-- Couverture vs schémas officiels (index local) : voir "Manques connus"
+- `E` : **808 fiches** = 515 IFC2x3 + 199 IFC4 + 8 IFC4.1 + 86 IFC4.3 — toutes dans un groupe du catalogue
+- `ABSTRACT_CLASSES` : 36 · `ENUMS` : 261 · `PSET_DATA` : 859 (dont 116 Qto) · `ATTRS_BY_ENTITY` : 799 · `ATTR_DICT` : ~1 030 · `FR_PSET_DICT` : ~2 880
+- Couverture : IFC2x3 521/653 (80 %), IFC4 643/776 (83 %), IFC4.3 720/876 (82 %), énumérations 261/272, Psets/Qto 859/859
 
 ---
 
@@ -114,13 +117,13 @@ const E = {                       // une fiche = une clé camelCase/minuscule
 
 1. **Vérifier** avec le skill : `ifc.py entity IfcXxx -s 4`, `attrs`, `tree`, `diff IfcXxx` (existence par version)
 2. **`E`** : clé unique (`grep -n "^  maCle:{"`), `ver` = version d'apparition, `heritage` = chaîne **de cette version** (IfcSpaceType en 2x3 passe par `IfcElementType → IfcSpatialStructureElementType`, en IFC4 par `IfcSpatialElementType`)
-3. **`ATTRS_BY_ENTITY`** : liste ordonnée (ordre STEP) ; vérifier que chaque nom existe dans `ATTR_DICT`
+3. **`ATTRS_BY_ENTITY`** : liste ordonnée (ordre STEP, `o` et `f` exacts — générer avec `full_attrs()` du script d'audit) ; chaque nom doit exister dans `ATTR_DICT`
 4. **`renderCatalogue()`** : ajouter la clé dans un groupe `{label, color, keys:[…]}` — **sans cela la fiche est invisible dans l'onglet Entités IFC** (elle reste joignable par recherche/hiérarchie)
-5. **Psets** : `PSET_DATA` (+ traductions dans `FR_PSET_DICT`) puis `ENTITY_PSETS`
+5. **Psets** : tous les Psets/Qto officiels existent déjà dans `PSET_DATA` ; ajouter la ligne `ENTITY_PSETS` de la nouvelle clé (Psets directs + hérités)
 6. **Énumération** du PredefinedType : bloc dans `ENUMS` (valeurs de **toutes** les versions, avec "(IFC4.3)" dans le libellé des valeurs tardives)
 7. **Arborescence / Relations** si pertinent : `SPATIAL_TREES`, `REL_SCENES`
 8. **Version et journal** : numéro dans l'en-tête (`<span class="ver">`), commentaire "Valeurs courantes" de la modale, compteurs (`#cov-overlay` + `#info-overlay`), nouvelle ligne du **Journal des modifications**
-9. **Valider** (voir "Validation")
+9. **Valider** : `python3 tools/audit_ifc.py` doit afficher `AUDIT OK`, puis test navigateur (voir "Validation")
 
 ---
 
@@ -203,12 +206,10 @@ Règles pour toute entité :
 ### Validation
 
 ```bash
-S=$(grep -n "^<script>" ifc_spatial.html | head -1 | cut -d: -f1)
-T=$(grep -n "^</script>" ifc_spatial.html | tail -1 | cut -d: -f1)
-sed -n "$((S+1)),$((T-1))p" ifc_spatial.html > /tmp/check.js && node --check /tmp/check.js
+python3 tools/audit_ifc.py     # syntaxe JS + conformité complète (héritage, attributs, versions, énums, Psets, références internes)
 ```
 
-Test plus poussé possible sans navigateur : charger ce JS dans Node avec un faux `document`/`window` (objets `Proxy` tolérants), puis appeler `buildHierTree()`, `renderCatalogue()`, `showDetail(clé)`, `showEnum(id)`, `renderArboTree()` et vérifier qu'aucune exception n'est levée.
+**Un navigateur Chromium headless est disponible** dans l'environnement distant (Playwright installé globalement : `require(execSync('npm root -g').toString().trim() + '/playwright')`). Charger `file:///…/ifc_spatial.html`, écouter `pageerror`, appeler `showDetail(clé)` pour toutes les clés, `showEnum`, `showAbstractDetail`, changer d'onglet, et faire des captures d'écran. Seules erreurs console attendues : le chargement de Google Fonts (certificat du proxy).
 
 ---
 
@@ -235,15 +236,15 @@ Test plus poussé possible sans navigateur : charger ce JS dans Node avec un fau
 | `note` d'un nœud de `SPATIAL_TREES` | Injectée dans `title="…"` : pas de guillemets doubles dedans |
 | `node --check` sur .html échoue | Extraire le JS (voir "Validation") |
 | Entité ajoutée mais introuvable | Elle n'est dans aucun groupe de `renderCatalogue()` |
+| Doublons volontaires | 17 fiches du RDC IFC2x3 (« Tuyau », « Luminaire »…) pointent vers un `IfcXxxType` qui a aussi sa fiche « Type de… » : en IFC2x3 l'objet posé est un `IfcFlowSegment`… typé par ce type (expliqué dans la description) |
 | Hiérarchie : nœud dupliqué | L'arbre fusionne par **nom de classe** ; une même classe avec des parents différents selon la version (ex. `IfcSpatialStructureElement` sous `IfcProduct` en 2x3, sous `IfcSpatialElement` en IFC4.3) apparaît à deux endroits |
 
-### Anomalies connues (à traiter, non corrigées)
+### Anomalies connues
 
-- **~336 blocs d'attributs sont rangés par erreur dans `PSET_DATA`** (juste après `Pset_SiteCommon`, clés `actionRequest:[…]` … `windowstyle:[…]`) au lieu de `ATTRS_BY_ENTITY`. Ils sont donc inertes : les fiches IFC4/4.1/4.3 concernées retombent sur le mode "fallback" (attributs tirés de `attrs[]`, tous marqués "Obligatoire"). Aucun recoupement de clés avec `ATTRS_BY_ENTITY` ; les déplacer suffit (vérifier le rendu après).
-- **~150 fiches `E` ne sont dans aucun groupe du catalogue** (géométrie, matériaux, charges structurelles, `IfcElementAssembly`, `IfcDiscreteAccessory`, `IfcFastener`, `IfcMechanicalFastener`, `IfcShadingDevice`, plusieurs types MEP comme `IfcCondenserType`…) — visibles seulement par recherche ou onglets Hiérarchie. La clé `opening` du groupe "Ouvertures" ne correspond à aucune fiche `E`.
-- **`IfcGasTerminal`** (fiche `gasTerminal`, `ver:'IFC4'`) **n'existe dans aucun schéma** (seul `IfcGasTerminalType` existe, en IFC2x3). À supprimer ou à renommer.
-- `E.cat` `gen` et `infra` n'ont pas d'entrée dans `CAT_LABELS` / `CAT_CLASS` (libellé et classe de repli).
-- La modale Couverture donne des pourcentages ; ils se recalculent à la main (voir "Manques connus").
+- Aucune anomalie de conformité connue au 09/10/2026 (`AUDIT OK`). Corrigé ce jour : héritage faux (43 fiches), attributs incomplets (262), 336 blocs d'attributs rangés dans `PSET_DATA`, versions d'apparition fausses, valeurs d'énumérations inventées (GATE, PROPELLER, STIRRUP, LONGITUDINAL, NOTDEFINED de IfcRoleEnum), entités inexistantes (`IfcGasTerminal`, `IfcTunnel`/`IfcTunnelPart` — absents d'IFC4.3, prévus pour une version ultérieure), 32 doublons, 152 fiches hors catalogue, ~70 racines invisibles dans l'onglet Hiérarchie.
+- Les 8 fiches `IFC4x1` (alignement) ne sont pas vérifiables : IFC4.1 n'est pas dans l'index.
+- Les textes français des nouvelles fiches, valeurs d'énumérations et propriétés ont été rédigés le 09/10/2026 (en partie par des sous-agents) : les structures sont garanties par le schéma, mais certaines notes d'énumérations très spécialisées (ferroviaire, maritime, devises historiques d'`IfcCurrencyEnum`) méritent une relecture métier.
+- Les pages IFC2x3 de buildingSMART ne sont cartographiées que pour ~165 entités ; les autres renvoient vers la page IFC4 de la même entité (« Docs (page IFC4) »).
 
 ---
 
@@ -258,43 +259,31 @@ Test plus poussé possible sans navigateur : charger ce JS dans Node avec un fau
 7. **Commiter et pousser** : sur la branche désignée par la session (les sessions Claude Code distantes travaillent sur `claude/…`) ; historiquement le projet poussait directement sur `main`, sans PR. GitHub Pages ne montre le résultat qu'une fois la branche fusionnée dans `main`.
 8. Nico rafraîchit : `https://nvalettepro-sudo.github.io/ifc-spatial-explorer/ifc_spatial.html`
 
-**Pas de navigateur disponible** dans l'environnement remote — les vérifications visuelles se font via le lien GitHub Pages.
+Un Chromium headless (Playwright) est disponible pour tester l'app ; la vérification finale visuelle se fait par Nico via le lien GitHub Pages.
 
 ---
 
 ## Manques connus (09/10/2026)
 
-Comparaison avec les index officiels (2x3 : 653 entités, IFC4 ADD2 : 776, IFC4.3 dev : 876 ; 1 006 entités distinctes au total) :
+Index officiels : 1 006 entités distinctes (2x3 : 653, IFC4 ADD2 : 776, IFC4.3 dev : 876), 272 énumérations, 859 Psets/Qto.
 
 | Élément | Couvert | Manque |
 |---------|---------|--------|
-| Entités (toutes versions) | 519 | **487** |
-| Entités IFC2x3 | 382 / 653 | 271 |
-| Énumérations | 44 | **228** sur 272 distinctes |
-| Psets + Qto | 73 | **786** sur 859 distincts (2x3 : 245 manquants ; aucun Qto) |
+| Entités | 813 | 193 — **toutes hors périmètre volontaire** |
+| Énumérations | 261 | 11 — géométriques (`IfcBSplineCurveForm`, `IfcKnotType`, `IfcTransitionCode`…) |
+| Psets + Qto | 859 | 0 |
 
-Entités manquantes par famille (487) : géométrie/topologie (139), ressources diverses — unités, dates, textures, styles de dessin (134), **types de la bibliothèque de types (63)**, **éléments physiques (50)**, présentation (32), définitions de propriétés (15), produits divers (14), profils (14), contrôles (5), groupes/systèmes (4), quantités (4), styles (4), représentations (3), processus (2), rooted divers (2), acteurs (1), structure spatiale (1).
-
-À traiter en priorité (pédagogiquement les plus utiles) :
-- `IfcOpeningElement` (trémies de portes/fenêtres) — jamais définie comme fiche
-- Éléments : `IfcFurniture`, `IfcChimney`, `IfcGeographicElement`, `IfcVoidingFeature`, `IfcSurfaceFeature`, `IfcFeatureElement*`, `IfcTransportElement`, `IfcElementComponent`, variantes `…StandardCase` / `…ElementedCase` (IFC4), `IfcDistributionBoard` et dispositifs 4.3
-- Types : `IfcDoorType` / `IfcWindowType` / `IfcStairType` / `IfcRampType` / `IfcRoofType` / `IfcFootingType` / `IfcPileType` (IFC4), types MEP (`IfcBoilerType`, `IfcChillerType`, `IfcCoilType`, `IfcDamperType`, `IfcFanType`, `IfcFilterType`, `IfcHumidifierType`, `IfcPumpType`, `IfcTankType`, `IfcValveType`…), types de processus/ressources
-- Divers : `IfcZone` ✔ (ajouté), `IfcOccupant`, `IfcProxy`, `IfcAnnotation`, `IfcEvent`, `IfcWorkCalendar`, `IfcContext` / `IfcProjectLibrary`, `IfcBuildingSystem` / `IfcDistributionSystem` / `IfcDistributionCircuit`, gabarits de propriétés IFC4 (`IfcPropertySetTemplate`…), `IfcSpaceProgram`
-- Hors périmètre assumé : géométrie NURBS/topologie, styles de présentation, textures, unités dérivées, cotation 2D (~230 entités de ressource — "Bloc 9")
-
-Pour recalculer : `ifc.py list entities|enums|psets -s 2X3|4|4X3` puis comparer aux `ifc:` des fiches `E` et aux clés de `ENUMS` / `PSET_DATA` (exécuter le `<script>` avec un faux DOM et lire `Object.values(E).map(e=>e.ifc)`).
+Hors périmètre volontaire (non pédagogique) : géométrie pure sous `IfcRepresentationItem` (139 : courbes, surfaces, B-rep, CSG, topologie), présentation sous `IfcPresentationItem`/`IfcPresentationStyle` (36 : couleurs, textures, polices, styles), cotation et symboles 2D / photométrie IFC2x3 (18). Les entités géométriques les plus utiles (extrusion, B-rep facetté, polyligne, placement…) ont déjà une fiche.
 
 ---
 
 ## Prochains chantiers possibles
 
-- Corriger les anomalies ci-dessus (blocs d'attributs mal placés, fiches hors catalogue, `IfcGasTerminal`)
-- Ajouter `IfcOpeningElement` et les types MEP / IFC4 manquants
-- Étendre les Psets à IFC4 / IFC4.3 (aujourd'hui seulement les 70 Psets IFC2x3 du dépôt xBimTeam + quelques ajouts) et aux Qto
-- Accès aux énumérations depuis les fiches (aujourd'hui seulement via la recherche)
-- Export PDF d'une fiche
-- Mode comparaison IFC2x3 vs IFC4 (`ifc.py diff`)
-- Bloc 9 : entités de ressource IFC (matériaux, profils, textures)
+- Relecture métier des textes générés le 09/10/2026 (notes d'énumérations spécialisées, définitions de propriétés de Psets traduites depuis des descriptions officielles parfois tronquées)
+- Afficher dans chaque fiche les attributs **par version** (aujourd'hui : attributs de la version d'apparition `ver`)
+- Cartographier les pages IFC2x3 de buildingSMART manquantes (`IFC2X3_SCHEMA`)
+- Export PDF d'une fiche · mode comparaison IFC2x3 / IFC4 (`ifc.py diff`)
+- Géométrie pure (« Bloc 9 ») si un besoin pédagogique apparaît
 - Passer `/simplify` sur le CSS dark mode (doublons `.e-sp` / `.e-space`)
 
 ---
@@ -302,5 +291,5 @@ Pour recalculer : `ifc.py list entities|enums|psets -s 2X3|4|4X3` puis comparer 
 ## Sources de données
 
 - Schémas : buildingSMART International — IFC2x3 TC1 (2005), IFC4 ADD2 TC1, IFC4.3 (révision de développement) ; index local dans `.claude/skills/ifc-standard/`
-- Psets : [xBimTeam/XbimPropertySets](https://github.com/xBimTeam/XbimPropertySets/tree/master/Xbim.Properties/Definitions/IFC2x3_TC1) (IFC2x3) ; Psets IFC4 ajoutés depuis l'index du skill
+- Psets/Qto : templates officiels IFC2x3, IFC4 ADD2, IFC4.3 de l'index du skill (source IfcOpenShell, dérivés des PSD buildingSMART) ; traductions françaises rédigées pour l'app
 - Liens de fiches : documentation HTML buildingSMART (IFC2x3 TC1, IFC4 ADD2 TC1, IFC4.3) via `_bsUrl()`
