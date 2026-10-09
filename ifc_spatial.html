@@ -1072,8 +1072,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
 <header>
   <div>
-    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">22/09/26-01</span></div>
-    <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International 2005</div>
+    <div class="logo">IFC · Explorateur <em>multi-version</em><span class="ver">09/10/26-01</span></div>
+    <div class="sub">Comment un fichier IFC organise un bâtiment · buildingSMART International</div>
   </div>
   <!-- Barre de recherche (desktop) -->
   <div class="search-wrap" id="search-wrap-desktop">
@@ -1088,7 +1088,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.65
 
   <div class="hctrls" id="hctrls-desktop">
     <button class="btn" id="btn-theme" onclick="toggleTheme()" title="Basculer thème sombre / clair" style="font-size:.85rem;padding:.28rem .55rem">☀</button>
-    <button class="btn" onclick="showCov()" title="Couverture du schéma IFC2x3">≡&nbsp;Couverture</button>
+    <button class="btn" onclick="showCov()" title="Couverture des schémas IFC">≡&nbsp;Couverture</button>
     <button class="btn" onclick="showInfo()" title="À propos et guide">?&nbsp;Guide</button>
   </div>
 
@@ -2517,9 +2517,58 @@ const E = {
   /* ── Types d'éléments manquants ── */
   spaceType:{fr:"Type d'espace",ifc:"IfcSpaceType",cat:"space",ver:'IFC2x3',
     desc:"Gabarit paramétrique d'espace définissant programme, surface cible, hauteur libre et performances (acoustique, thermique, éclairage). Exemple : bureau open-space, salle de réunion, cellule PMR.",
-    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcSpatialElementType","IfcSpaceType"],
-    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","PredefinedType"],
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcSpatialStructureElementType","IfcSpaceType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","ElementType","PredefinedType"],
     ex:["Type 'Bureau individuel' — S=12 m², h=2,70 m, Rw≥42 dB","Type 'Salle de réunion 10 pers.' — S=30 m², lumière naturelle requise","Type 'Cellule PMR' — S=16 m², douche italienne, barre d'appui"]},
+
+  /* ── Zones & espaces : IfcZone (2x3) et la famille IfcSpatialElement (IFC4+) ── */
+  zone:{fr:"Zone",ifc:"IfcZone",cat:"space",ver:'IFC2x3',
+    desc:"Regroupement logique de locaux (IfcSpace) ou d'autres zones, sans géométrie ni position propres : c'est un simple groupe qui porte des exigences ou des données communes — zone incendie, zone thermique, lot de surfaces à programmer. Un même local peut appartenir à plusieurs zones à la fois (relation IfcRelAssignsToGroup). En IFC4, IfcZone dérive de IfcSystem (au lieu de IfcGroup), gagne l'attribut LongName et peut aussi regrouper des IfcSpatialZone.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcGroup","IfcZone"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType"],
+    ex:["Zone incendie « Compartiment CF-2 » regroupant les 14 locaux du R+1 aile nord","Zone thermique « Bureaux sud » pour le calcul des charges de chauffage et de refroidissement","Zone « Parties communes » regroupant halls, paliers et circulations de l'immeuble"]},
+
+  spatialStructureElementType:{fr:"Type d'élément de structure spatiale",ifc:"IfcSpatialStructureElementType",cat:"space",ver:'IFC2x3',
+    desc:"Classe abstraite des types (gabarits) d'éléments de structure spatiale. Son seul enfant concret est IfcSpaceType : on type des locaux, jamais un terrain, un bâtiment ou un niveau. Jamais instanciée directement. En IFC4, elle est rangée sous IfcSpatialElementType, qui accueille aussi IfcSpatialZoneType.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcElementType","IfcSpatialStructureElementType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","ElementType"],
+    ex:["Classe mère abstraite de IfcSpaceType","Jamais présente telle quelle dans un fichier IFC","Point d'ancrage commun pour typer des locaux (bureau type, chambre type)"]},
+
+  spatialElement:{fr:"Élément spatial",ifc:"IfcSpatialElement",cat:"space",ver:'IFC4',
+    desc:"Classe abstraite apparue en IFC4 : tout objet qui occupe ou délimite un volume d'espace. Elle porte le nom long (LongName), remonté d'IfcSpatialStructureElement, et se subdivise en trois branches : IfcSpatialStructureElement (la hiérarchie Terrain → Bâtiment → Niveau → Local), IfcSpatialZone (zones fonctionnelles transversales) et IfcExternalSpatialStructureElement (espaces extérieurs). En IFC2x3, cette couche n'existe pas : IfcSpatialStructureElement dérive directement de IfcProduct.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName"],
+    ex:["Classe mère abstraite de IfcSpatialStructureElement (IfcSite, IfcBuilding, IfcBuildingStorey, IfcSpace)","Classe mère abstraite de IfcSpatialZone — zones transversales","Cible de IfcRelContainedInSpatialStructure.RelatingStructure : tout élément spatial peut contenir des éléments"]},
+
+  spatialZone:{fr:"Zone spatiale",ifc:"IfcSpatialZone",cat:"space",ver:'IFC4',
+    desc:"Volume fonctionnel qui ne suit pas la hiérarchie du bâtiment : une zone incendie, un volume de désenfumage ou une zone d'éclairage peut traverser plusieurs locaux, voire plusieurs niveaux. Contrairement à IfcZone (simple groupe sans géométrie), IfcSpatialZone est un IfcProduct : elle possède sa propre position et sa propre géométrie 3D. Elle dérive de IfcSpatialElement et non de IfcSpatialStructureElement — ce n'est donc ni un niveau ni un local. Le PredefinedType (IfcSpatialZoneTypeEnum) précise l'usage : CONSTRUCTION, FIRESAFETY, LIGHTING, OCCUPANCY, SECURITY, THERMAL, TRANSPORT, VENTILATION ; IFC4.3 ajoute INTERFERENCE et RESERVATION ainsi que le jeu de quantités Qto_SpatialZoneBaseQuantities.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcSpatialZone"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","PredefinedType"],
+    ex:["Zone incendie « Compartiment CF-2 » (FIRESAFETY) — volume 3D traversant le R+1 et le R+2","Zone de désenfumage « Atrium » (VENTILATION) — volume couvrant l'atrium sur toute sa hauteur","Zone d'éclairage « Open space nord » (LIGHTING) — surface où s'appliquent les exigences d'éclairement"]},
+
+  spatialElementType:{fr:"Type d'élément spatial",ifc:"IfcSpatialElementType",cat:"space",ver:'IFC4',
+    desc:"Classe abstraite des types (gabarits) d'éléments spatiaux, apparue en IFC4. Ajoute l'attribut ElementType, précision libre à renseigner quand le PredefinedType vaut USERDEFINED. Deux enfants : IfcSpatialStructureElementType (qui mène à IfcSpaceType) et IfcSpatialZoneType.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcSpatialElementType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","ElementType"],
+    ex:["Classe mère abstraite de IfcSpatialZoneType et IfcSpatialStructureElementType","ElementType précise le type quand PredefinedType = USERDEFINED","Jamais instanciée directement dans un fichier IFC"]},
+
+  spatialZoneType:{fr:"Type de zone spatiale",ifc:"IfcSpatialZoneType",cat:"space",ver:'IFC4',
+    desc:"Gabarit réutilisable pour des zones spatiales de même nature (par exemple tous les compartiments coupe-feu 2 h d'un projet). Il porte les Psets et la géométrie type partagés par les IfcSpatialZone qui lui sont reliées via IfcRelDefinesByType. Son PredefinedType (obligatoire, IfcSpatialZoneTypeEnum) doit rester cohérent avec celui des occurrences.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcTypeObject","IfcTypeProduct","IfcSpatialElementType","IfcSpatialZoneType"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ApplicableOccurrence","HasPropertySets","RepresentationMaps","Tag","ElementType","PredefinedType","LongName"],
+    ex:["Type « Compartiment CF-2h » — FIRESAFETY, Pset d'exigences incendie commun","Type « Zone thermique tertiaire » — THERMAL, consignes de température communes","Type « Volume de désenfumage » — VENTILATION, géométrie type réutilisée"]},
+
+  externalSpatialStructureElement:{fr:"Élément spatial extérieur (abstrait)",ifc:"IfcExternalSpatialStructureElement",cat:"space",ver:'IFC4',
+    desc:"Classe abstraite des espaces extérieurs au bâtiment, par opposition aux espaces de la hiérarchie interne (IfcSpatialStructureElement). Un seul enfant concret en IFC4 : IfcExternalSpatialElement.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcExternalSpatialStructureElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName"],
+    ex:["Classe mère abstraite de IfcExternalSpatialElement","Jamais instanciée directement dans un fichier IFC","Frère de IfcSpatialStructureElement et de IfcSpatialZone sous IfcSpatialElement"]},
+
+  externalSpatialElement:{fr:"Espace extérieur",ifc:"IfcExternalSpatialElement",cat:"space",ver:'IFC4',
+    desc:"Espace situé à l'extérieur de l'enveloppe du bâtiment — air ambiant, terrain en contact avec une paroi, nappe d'eau, foyer d'incendie extérieur. Il sert surtout de côté extérieur aux limites d'espace : l'attribut RelatingSpace de IfcRelSpaceBoundary accepte un IfcSpace ou un IfcExternalSpatialElement (type SELECT IfcSpaceBoundarySelect), ce qui permet aux outils d'analyse énergétique de savoir ce qui se trouve de l'autre côté d'un mur de façade. PredefinedType (IfcExternalSpatialElementTypeEnum) : EXTERNAL, EXTERNAL_EARTH, EXTERNAL_WATER, EXTERNAL_FIRE.",
+    heritage:["IfcRoot","IfcObjectDefinition","IfcObject","IfcProduct","IfcSpatialElement","IfcExternalSpatialStructureElement","IfcExternalSpatialElement"],
+    attrs:["GlobalId","OwnerHistory","Name","Description","ObjectType","ObjectPlacement","Representation","LongName","PredefinedType"],
+    ex:["Air extérieur côté façade nord — côté extérieur des limites d'espace pour l'analyse énergétique","Terrain en contact avec le mur du sous-sol (EXTERNAL_EARTH)","Plan d'eau bordant la paroi d'un bassin (EXTERNAL_WATER)"]},
 
   buildingElementProxyType:{fr:"Type d'élément générique",ifc:"IfcBuildingElementProxyType",cat:"arch",ver:'IFC2x3',
     desc:"Type paramétrique d'un élément de bâtiment générique non classifié. Sert de gabarit pour les éléments propriétaires récurrents dans un projet sans correspondance dans le schéma IFC standard.",
@@ -5408,6 +5457,50 @@ const ENUMS = {
       ["NOTDEFINED","Non défini",""]
     ]},
 
+  spatialzonetypeenum:{fr:"Types de zone spatiale",ifc:"IfcSpatialZoneTypeEnum",
+    desc:"PredefinedType de IfcSpatialZone et de IfcSpatialZoneType (IFC4 et suivantes) — précise la fonction de la zone : sécurité incendie, éclairage, thermique, ventilation… IFC4.3 ajoute INTERFERENCE et RESERVATION.",
+    usedBy:"IfcSpatialZone.PredefinedType · IfcSpatialZoneType.PredefinedType",
+    vals:[
+      ["CONSTRUCTION","Construction","Zone liée à la construction (ex : emprise de chantier, phase de mise en œuvre)"],
+      ["FIRESAFETY","Sécurité incendie","Zone de protection incendie (ex : compartiment coupe-feu, zone de mise en sécurité)"],
+      ["INTERFERENCE","Interférence (IFC4.3)","Volume à surveiller pour détecter les conflits entre disciplines"],
+      ["LIGHTING","Éclairage","Zone d'exigences d'éclairement (ex : plan de travail d'un open space)"],
+      ["OCCUPANCY","Occupation","Zone définie par son usage ou son taux d'occupation"],
+      ["RESERVATION","Réservation (IFC4.3)","Volume réservé (ex : dégagement de maintenance, emprise à libérer)"],
+      ["SECURITY","Sûreté","Zone de contrôle d'accès ou de sûreté"],
+      ["THERMAL","Thermique","Zone de calcul thermique (ex : charges de chauffage et de refroidissement)"],
+      ["TRANSPORT","Transport","Zone liée aux déplacements (ex : volume d'ascenseur, zone de circulation)"],
+      ["VENTILATION","Ventilation","Zone de ventilation ou de désenfumage"],
+      ["USERDEFINED","Type personnalisé","Valeur définie par l'utilisateur — à préciser dans ObjectType (occurrence) ou ElementType (type)"],
+      ["NOTDEFINED","Non défini","Type non précisé dans le modèle"]
+    ]},
+
+  externalspatialelementtypeenum:{fr:"Types d'espace extérieur",ifc:"IfcExternalSpatialElementTypeEnum",
+    desc:"PredefinedType de IfcExternalSpatialElement (IFC4 et suivantes) — précise la nature de l'espace extérieur qui se trouve de l'autre côté d'une paroi.",
+    usedBy:"IfcExternalSpatialElement.PredefinedType",
+    vals:[
+      ["EXTERNAL","Extérieur","Espace extérieur générique (ex : air ambiant côté façade)"],
+      ["EXTERNAL_EARTH","Extérieur — terre","Espace en contact avec le sol (ex : paroi enterrée)"],
+      ["EXTERNAL_WATER","Extérieur — eau","Espace en contact avec l'eau (ex : bassin, nappe)"],
+      ["EXTERNAL_FIRE","Extérieur — feu","Espace extérieur exposé à un foyer d'incendie"],
+      ["USERDEFINED","Type personnalisé","Valeur définie par l'utilisateur hors liste"],
+      ["NOTDEFINED","Non défini","Type non précisé dans le modèle"]
+    ]},
+
+  spacetypeenum:{fr:"Types de local",ifc:"IfcSpaceTypeEnum",
+    desc:"PredefinedType de IfcSpace et de IfcSpaceType. En IFC2x3, l'énumération ne contient que USERDEFINED et NOTDEFINED ; IFC4 la complète (SPACE, PARKING, GFA, INTERNAL, EXTERNAL) et remplace l'ancien attribut InteriorOrExteriorSpace d'IfcSpace. IFC4.3 ajoute BERTH.",
+    usedBy:"IfcSpace.PredefinedType · IfcSpaceType.PredefinedType",
+    vals:[
+      ["SPACE","Local","Espace courant délimité par des parois"],
+      ["PARKING","Stationnement","Espace dédié au stationnement de véhicules"],
+      ["GFA","Surface de plancher brute (GFA)","Espace représentant la surface de plancher brute (Gross Floor Area)"],
+      ["INTERNAL","Intérieur","Espace à l'intérieur de l'enveloppe du bâtiment"],
+      ["EXTERNAL","Extérieur","Espace à l'extérieur de l'enveloppe du bâtiment"],
+      ["BERTH","Poste d'amarrage (IFC4.3)","Emplacement d'amarrage d'un navire dans un port"],
+      ["USERDEFINED","Type personnalisé","Valeur définie par l'utilisateur hors liste"],
+      ["NOTDEFINED","Non défini","Type non précisé dans le modèle"]
+    ]},
+
   inventorytypeenum:{fr:"Types d'inventaire",ifc:"IfcInventoryTypeEnum",
     desc:"PredefinedType de IfcInventory — précise le type de ressources inventoriées.",
     usedBy:"IfcInventory.InventoryType",
@@ -5625,6 +5718,9 @@ function renderCatalogue(){
     {label:'Espaces — IFC 2x3', color:'sp',
      keys:['project','site','building','storey','space','grid','gridaxis']},
 
+    {label:"Zones & types d'espaces — IFC 2x3", color:'sp',
+     keys:['zone','spaceType','spatialStructureElementType']},
+
     {label:'Plomberie & Sanitaires — IFC 2x3', color:'plo',
      keys:['pipe','pipefitting','wasteterm','sanitary','stackterm','gasterminal']},
 
@@ -5766,6 +5862,10 @@ function renderCatalogue(){
            'tubeBundleType','medicalDeviceType','unitaryControlElementType',
            'protectiveDeviceTrippingUnitType','vibrationIsolatorType',
            'audioVisualApplianceType','communicationsApplianceType','cableFittingType']},
+
+    {label:'Espaces & zones — IFC4', color:'sp',
+     keys:['spatialElement','spatialZone','spatialElementType','spatialZoneType',
+           'externalSpatialStructureElement','externalSpatialElement']},
 
     {label:'Géométrie — IFC4', color:'geo',
      keys:['polygonalFaceSet','indexedPolyCurve']},
@@ -6267,6 +6367,90 @@ const ATTRS_BY_ENTITY = {
     {n:'CompositionType',o:false,f:'IfcSpatialStructureElement'},
     {n:'InteriorOrExteriorSpace',o:false,f:'IfcSpace'},
     {n:'ElevationWithFlooring',o:true,f:'IfcSpace'}
+  ],
+  zone:[
+    {n:'GlobalId',o:false,f:'IfcRoot'},
+    {n:'OwnerHistory',o:false,f:'IfcRoot'},
+    {n:'Name',o:true,f:'IfcRoot'},
+    {n:'Description',o:true,f:'IfcRoot'},
+    {n:'ObjectType',o:true,f:'IfcObject'}
+  ],
+  spatialStructureElementType:[
+    {n:'GlobalId',o:false,f:'IfcRoot'},
+    {n:'OwnerHistory',o:false,f:'IfcRoot'},
+    {n:'Name',o:true,f:'IfcRoot'},
+    {n:'Description',o:true,f:'IfcRoot'},
+    {n:'ApplicableOccurrence',o:true,f:'IfcTypeObject'},
+    {n:'HasPropertySets',o:true,f:'IfcTypeObject'},
+    {n:'RepresentationMaps',o:true,f:'IfcTypeProduct'},
+    {n:'Tag',o:true,f:'IfcTypeProduct'},
+    {n:'ElementType',o:true,f:'IfcElementType'}
+  ],
+  spatialElement:[
+    {n:'GlobalId',o:false,f:'IfcRoot'},
+    {n:'OwnerHistory',o:true,f:'IfcRoot'},
+    {n:'Name',o:true,f:'IfcRoot'},
+    {n:'Description',o:true,f:'IfcRoot'},
+    {n:'ObjectType',o:true,f:'IfcObject'},
+    {n:'ObjectPlacement',o:true,f:'IfcProduct'},
+    {n:'Representation',o:true,f:'IfcProduct'},
+    {n:'LongName',o:true,f:'IfcSpatialElement'}
+  ],
+  spatialZone:[
+    {n:'GlobalId',o:false,f:'IfcRoot'},
+    {n:'OwnerHistory',o:true,f:'IfcRoot'},
+    {n:'Name',o:true,f:'IfcRoot'},
+    {n:'Description',o:true,f:'IfcRoot'},
+    {n:'ObjectType',o:true,f:'IfcObject'},
+    {n:'ObjectPlacement',o:true,f:'IfcProduct'},
+    {n:'Representation',o:true,f:'IfcProduct'},
+    {n:'LongName',o:true,f:'IfcSpatialElement'},
+    {n:'PredefinedType',o:true,f:'IfcSpatialZone'}
+  ],
+  spatialElementType:[
+    {n:'GlobalId',o:false,f:'IfcRoot'},
+    {n:'OwnerHistory',o:true,f:'IfcRoot'},
+    {n:'Name',o:true,f:'IfcRoot'},
+    {n:'Description',o:true,f:'IfcRoot'},
+    {n:'ApplicableOccurrence',o:true,f:'IfcTypeObject'},
+    {n:'HasPropertySets',o:true,f:'IfcTypeObject'},
+    {n:'RepresentationMaps',o:true,f:'IfcTypeProduct'},
+    {n:'Tag',o:true,f:'IfcTypeProduct'},
+    {n:'ElementType',o:true,f:'IfcSpatialElementType'}
+  ],
+  spatialZoneType:[
+    {n:'GlobalId',o:false,f:'IfcRoot'},
+    {n:'OwnerHistory',o:true,f:'IfcRoot'},
+    {n:'Name',o:true,f:'IfcRoot'},
+    {n:'Description',o:true,f:'IfcRoot'},
+    {n:'ApplicableOccurrence',o:true,f:'IfcTypeObject'},
+    {n:'HasPropertySets',o:true,f:'IfcTypeObject'},
+    {n:'RepresentationMaps',o:true,f:'IfcTypeProduct'},
+    {n:'Tag',o:true,f:'IfcTypeProduct'},
+    {n:'ElementType',o:true,f:'IfcSpatialElementType'},
+    {n:'PredefinedType',o:false,f:'IfcSpatialZoneType'},
+    {n:'LongName',o:true,f:'IfcSpatialZoneType'}
+  ],
+  externalSpatialStructureElement:[
+    {n:'GlobalId',o:false,f:'IfcRoot'},
+    {n:'OwnerHistory',o:true,f:'IfcRoot'},
+    {n:'Name',o:true,f:'IfcRoot'},
+    {n:'Description',o:true,f:'IfcRoot'},
+    {n:'ObjectType',o:true,f:'IfcObject'},
+    {n:'ObjectPlacement',o:true,f:'IfcProduct'},
+    {n:'Representation',o:true,f:'IfcProduct'},
+    {n:'LongName',o:true,f:'IfcSpatialElement'}
+  ],
+  externalSpatialElement:[
+    {n:'GlobalId',o:false,f:'IfcRoot'},
+    {n:'OwnerHistory',o:true,f:'IfcRoot'},
+    {n:'Name',o:true,f:'IfcRoot'},
+    {n:'Description',o:true,f:'IfcRoot'},
+    {n:'ObjectType',o:true,f:'IfcObject'},
+    {n:'ObjectPlacement',o:true,f:'IfcProduct'},
+    {n:'Representation',o:true,f:'IfcProduct'},
+    {n:'LongName',o:true,f:'IfcSpatialElement'},
+    {n:'PredefinedType',o:true,f:'IfcExternalSpatialElement'}
   ],
   blde:[
     {n:'GlobalId',o:false,f:'IfcRoot'},
@@ -8884,8 +9068,9 @@ function heritColorA(node, path, dark, hovered){
    transmise à tous les descendants sans changer. */
 const HERIT_FAMS = ['IfcElement','IfcElementType','IfcSpatialStructureElement','IfcControl',
   'IfcGroup','IfcProcess','IfcResource','IfcActor','IfcRelAssigns','IfcRelAssociates',
-  'IfcRelConnects','IfcRelDecomposes','IfcRelDefines','IfcPropertyDefinition','IfcAnnotation','IfcGrid'];
-const HERIT_HUES = [205,172,32,300,145,350,55,265,15,190,100,320,225,60,280,140];
+  'IfcRelConnects','IfcRelDecomposes','IfcRelDefines','IfcPropertyDefinition','IfcAnnotation','IfcGrid',
+  'IfcSpatialElement'];
+const HERIT_HUES = [205,172,32,300,145,350,55,265,15,190,100,320,225,60,280,140,42];
 function heritFamilyOf(path){
   for(let i = path.length - 1; i >= 1; i--){ if(HERIT_FAMS.includes(path[i])) return path[i]; }
   return path[1] || path[0];
@@ -10499,7 +10684,7 @@ const PSET_DATA = {
     {n:'OutputCapacity',t:'IfcPowerMeasure',d:'Total nominal heat output as listed by the manufacturer.'},
     {n:'ThermalEfficiency',t:'IfcPositiveRatioMeasure',d:'Overall Thermal Efficiency is defined as gross energy output of the heat transfer device divided by the energy input.'}
   ]},
-  Pset_SpaceOccupancyRequirements:{classes:['IfcSpace','IfcZone'],props:[
+  Pset_SpaceOccupancyRequirements:{classes:['IfcSpace','IfcSpatialZone','IfcZone'],props:[
     {n:'OccupancyType',t:'IfcLabel',d:'Occupancy type for this object. It is defined according to the presiding national building code.'},
     {n:'OccupancyNumber',t:'IfcCountMeasure',d:'Number of people required for the activity assigned to this space.'},
     {n:'OccupancyNumberPeak',t:'IfcCountMeasure',d:'Maximal number of people required for the activity assigned to this space in peak time.'},
@@ -10508,7 +10693,7 @@ const PSET_DATA = {
     {n:'MinimumHeadroom',t:'IfcLengthMeasure',d:'Headroom required for the activity assigned to this space.'},
     {n:'IsOutlookDesirable',t:'IfcBoolean',d:'An indication of whether the outlook is desirable (set TRUE) or not (set FALSE)'}
   ]},
-  Pset_SpaceThermalRequirements:{classes:['IfcSpace','IfcZone'],props:[
+  Pset_SpaceThermalRequirements:{classes:['IfcSpace','IfcSpatialZone','IfcZone'],props:[
     {n:'SpaceTemperatureMax',t:'IfcThermodynamicTemperatureMeasure',d:'Temperature of the space or zone, that is required from user/designer view point.  If no summer or winter space temperature requirements are given, it applies all year, otherwise for the intermediate period.'},
     {n:'SpaceTemperatureMin',t:'IfcThermodynamicTemperatureMeasure',d:'Minimal temperature of the space or zone, that is required from user/designer view point. If no summer or winter space temperature requirements are given, it applies all year, otherwise for the intermediate period.'},
     {n:'SpaceTemperatureSummerMax',t:'IfcThermodynamicTemperatureMeasure',d:'Maximal temperature of the space or zone for the hot (summer) period, that is required from user/designer view point.'},
@@ -10804,6 +10989,26 @@ const PSET_DATA = {
     {n:'BuildableArea',t:'IfcAreaMeasure',d:'The area of utilization expressed as a minimum value and a maximum value  - according to local building codes.'},
     {n:'TotalArea',t:'IfcAreaMeasure',d:'Total area of the site - masured according to local building codes.'},
     {n:'BuildingHeightLimit',t:'IfcPositiveLengthMeasure',d:'Calculated maximum height of buildings on this site - according to local building codes.'}
+  ]},
+  Pset_ZoneCommon:{classes:['IfcZone'],props:[
+    {n:'Reference',t:'IfcIdentifier',d:"Reference ID for this specified type in this project (e.g. type 'A-1'). Used to store the non-classification driven internal project type."},
+    {n:'IsExternal',t:'IfcBoolean',d:'Indication whether the element is designed for use in the exterior (TRUE) or not (FALSE). If (TRUE) it is an external zone at the outside of the building.'},
+    {n:'GrossPlannedArea',t:'IfcAreaMeasure',d:'Total planned gross area for the zone. Used for programming the zone.'},
+    {n:'NetPlannedArea',t:'IfcAreaMeasure',d:'Total planned net area for the zone. Used for programming the zone.'},
+    {n:'PubliclyAccessible',t:'IfcBoolean',d:'Indication whether this space (in case of e.g., a toilet) is designed to serve as a publicly accessible space, e.g., for a public toilet (TRUE) or not (FALSE).'},
+    {n:'HandicapAccessible',t:'IfcBoolean',d:'Indication whether this space (in case of e.g., a toilet) is designed to serve as an accessible space for handicapped people, e.g., for a public toilet (TRUE) or not (FALSE). This information is often used to declare the need for access for the disabled and for special design requirements of this space.'}
+  ]},
+  Pset_SpatialZoneCommon:{classes:['IfcSpatialZone','IfcSpatialZoneType'],props:[
+    {n:'Reference',t:'',d:''},
+    {n:'IsExternal',t:'IfcBoolean',d:'Indication whether the element is designed for use in the exterior (TRUE) or not (FALSE). If (TRUE) it is an external zone at the outside of the building.'}
+  ]},
+  Pset_SpaceFireSafetyRequirements:{classes:['IfcSpace','IfcSpatialZone','IfcZone'],props:[
+    {n:'FireRiskFactor',t:'IfcLabel',d:'Fire Risk factor assigned to the space according to local building regulations. It defines the fire risk of the space at several levels of fire hazard.'},
+    {n:'FlammableStorage',t:'IfcBoolean',d:'Indication whether the space is intended to serve as a storage of flammable material (which is regarded as such by the presiding building code. (TRUE) indicates yes, (FALSE) otherwise.'},
+    {n:'FireExit',t:'IfcBoolean',d:'Indication whether this object is designed to serve as an exit in the case of fire (TRUE) or not (FALSE). Here whether the space (in case of e.g., a corridor) is designed to serve as an exit space, e.g., for fire escape purposes.'},
+    {n:'SprinklerProtection',t:'IfcBoolean',d:'Indication whether the space is sprinkler protected (TRUE) or not (FALSE).'},
+    {n:'SprinklerProtectionAutomatic',t:'IfcBoolean',d:'Indication whether the space has an automatic sprinkler protection (TRUE) or not (FALSE). It should only be given, if the property "SprinklerProtection" is set to TRUE.'},
+    {n:'AirPressurization',t:'IfcBoolean',d:'Indication whether the space is required to have pressurized air (TRUE) or not (FALSE).'}
   ]},
   actionRequest:[
     {n:'GlobalId',o:false,f:'IfcRoot'},
@@ -14019,7 +14224,10 @@ const ENTITY_PSETS = {
   site:['Pset_SiteCommon'],
   building:['Pset_BuildingCommon'],
   storey:['Pset_BuildingStoreyCommon'],
-  space:['Pset_SpaceCommon','Pset_SpaceThermalRequirements','Pset_SpaceOccupancyRequirements'],
+  space:['Pset_SpaceCommon','Pset_SpaceThermalRequirements','Pset_SpaceOccupancyRequirements','Pset_SpaceFireSafetyRequirements'],
+  zone:['Pset_ZoneCommon','Pset_SpaceThermalRequirements','Pset_SpaceOccupancyRequirements','Pset_SpaceFireSafetyRequirements'],
+  spatialZone:['Pset_SpatialZoneCommon','Pset_SpaceThermalRequirements','Pset_SpaceOccupancyRequirements','Pset_SpaceFireSafetyRequirements'],
+  spatialZoneType:['Pset_SpatialZoneCommon','Pset_SpaceFireSafetyRequirements'],
   wall:['Pset_WallCommon'],
   wallstd:['Pset_WallCommon'],
   slab:['Pset_SlabCommon'],
@@ -14192,6 +14400,9 @@ const ENTITY_PSETS = {
 
 const FR_PSET_DICT = {
   Reference:             {fr:"Référence", def:"Code de référence de ce type dans le projet (ex : type 'A-1')."},
+  FireRiskFactor:        {fr:"Facteur de risque incendie", def:"Niveau de risque incendie attribué au local ou à la zone selon la réglementation locale (plusieurs niveaux de danger possibles)."},
+  FlammableStorage:      {fr:"Stockage de matières inflammables", def:"Indique si le local ou la zone est destiné au stockage de matières considérées comme inflammables par le code du bâtiment en vigueur."},
+  AirPressurization:     {fr:"Mise en surpression d'air", def:"Indique si le local ou la zone doit être maintenu en surpression d'air (TRUE) ou non (FALSE), par exemple pour un escalier ou un sas de désenfumage."},
   IsExternal:            {fr:"Extérieur", def:"Indique si l'élément est conçu pour l'extérieur (TRUE) ou l'intérieur (FALSE)."},
   LoadBearing:           {fr:"Porteur", def:"Indique si l'élément est conçu pour reprendre des charges structurales (TRUE) ou non (FALSE)."},
   FireRating:            {fr:"Résistance au feu", def:"Classement de résistance au feu selon la réglementation nationale incendie (ex : REI60, EI90)."},
@@ -15092,13 +15303,21 @@ const SPATIAL_TREES = {
   },
   IFC4:{
     desc:"IFC 4 conserve la même hiérarchie bâtiment qu'IFC 2x3 mais lève certaines contraintes : un élément peut désormais être rattaché directement au bâtiment ou au terrain sans passer par un niveau.",
-    roots:[{key:'project', children:[{key:'site', children:[{key:'building', children:[{key:'storey', note:'répétable', children:[{key:'space', children:[]}]}]}]}]}]
+    roots:[{key:'project', children:[{key:'site', children:[{key:'building', children:[
+      {key:'storey', note:'répétable', children:[{key:'space', children:[]}]},
+      {key:'spatialZone', note:"zone fonctionnelle — n'est ni un niveau ni un local", children:[]},
+      {key:'externalSpatialElement', note:"espace extérieur — côté extérieur des limites d'espace", children:[]}
+    ]}]}]}]
   },
   IFC4x1:{
     desc:"IFC 4.1 ajoute la notion d'alignement linéaire pour l'infrastructure : IfcAlignment permet de positionner des éléments le long d'un axe géométrique (route, rail, pipeline). Coexiste avec la hiérarchie bâtiment classique.",
     roots:[{key:'project', children:[
       {key:'site', children:[
-        {key:'building', children:[{key:'storey', children:[{key:'space',children:[]}]}]},
+        {key:'building', children:[
+          {key:'storey', children:[{key:'space',children:[]}]},
+          {key:'spatialZone', note:"zone fonctionnelle — n'est ni un niveau ni un local", children:[]},
+          {key:'externalSpatialElement', note:"espace extérieur — côté extérieur des limites d'espace", children:[]}
+        ]},
         {key:'alignment', note:'axe géométrique de l\'infrastructure', children:[
           {key:'linearPositioningElement', children:[
             {key:'referent', note:'point de référence sur l\'alignement', children:[]}
@@ -15111,7 +15330,11 @@ const SPATIAL_TREES = {
     desc:"IFC 4.3 introduit IfcFacility comme conteneur spatial générique pour l'infrastructure civile. Sous IfcSite, on peut désormais avoir un bâtiment classique ET des ouvrages spécialisés (route, pont, voie ferrée, tunnel, port).",
     roots:[{key:'project', children:[
       {key:'site', children:[
-        {key:'building', children:[{key:'storey', children:[{key:'space',children:[]}]}]},
+        {key:'building', children:[
+          {key:'storey', children:[{key:'space',children:[]}]},
+          {key:'spatialZone', note:"zone fonctionnelle — n'est ni un niveau ni un local", children:[]},
+          {key:'externalSpatialElement', note:"espace extérieur — côté extérieur des limites d'espace", children:[]}
+        ]},
         {key:'facility', note:'ouvrage générique', children:[
           {key:'facilityPart', children:[
             {key:'facilityPartCommon', children:[]}
@@ -15277,7 +15500,7 @@ function toggleTheme(){
 <!-- ── OVERLAY INFO ── -->
 <!-- ══ MODALE COUVERTURE IFC2x3 ══
      À mettre à jour à chaque injection de données.
-     Valeurs courantes : 11/06/2026 · v11/06/26-01
+     Valeurs courantes : 09/10/2026 · v09/10/26-01
 ══════════════════════════════════════════════ -->
 <div class="info-overlay hidden" id="cov-overlay" onclick="if(event.target===this)dismissCov()">
   <div class="cov-card">
@@ -15285,29 +15508,29 @@ function toggleTheme(){
 
     <!-- En-tête -->
     <div>
-      <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture du schéma IFC2x3 TC1</h2>
-      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>04/08/2026</strong> · buildingSMART International 2005 · 537 entités (IFC2x3 + IFC4 + IFC4.1 + IFC4.3) · v04/08/26-01</div>
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:.2rem">Couverture des schémas IFC (2x3 TC1, 4, 4.1, 4.3)</h2>
+      <div style="font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace">Mis à jour le <strong>09/10/2026</strong> · buildingSMART International · 546 entités (IFC2x3 + IFC4 + IFC4.1 + IFC4.3) · v09/10/26-01</div>
     </div>
 
     <!-- Stats globales -->
     <div class="cov-stats">
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--gr)">61%</div>
+        <div class="cov-stat-num" style="color:var(--gr)">62%</div>
         <div class="cov-stat-label">Entités IFC2x3 TC1</div>
-        <div class="cov-stat-sub">399 / 653</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:61%;background:var(--gr)"></div></div>
+        <div class="cov-stat-sub">402 / 653</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:62%;background:var(--gr)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--am)">18%</div>
         <div class="cov-stat-label">Entités IFC4 / 4.1 / 4.3</div>
-        <div class="cov-stat-sub">136 / 776</div>
+        <div class="cov-stat-sub">142 / 776</div>
         <div class="cov-bar"><div class="cov-bar-fill" style="width:18%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
-        <div class="cov-stat-num" style="color:var(--am)">25%</div>
-        <div class="cov-stat-label">Énumérations</div>
-        <div class="cov-stat-sub">41 / 164</div>
-        <div class="cov-bar"><div class="cov-bar-fill" style="width:25%;background:var(--am)"></div></div>
+        <div class="cov-stat-num" style="color:var(--am)">26%</div>
+        <div class="cov-stat-label">Énumérations IFC2x3</div>
+        <div class="cov-stat-sub">42 / 164 (+2 propres à IFC4+)</div>
+        <div class="cov-bar"><div class="cov-bar-fill" style="width:26%;background:var(--am)"></div></div>
       </div>
       <div class="cov-stat">
         <div class="cov-stat-num" style="color:var(--gr)">100%</div>
@@ -15319,11 +15542,11 @@ function toggleTheme(){
 
     <!-- Entités par domaine — IFC2x3 TC1 -->
     <div>
-      <div class="cov-section-title">Entités par domaine — IFC2x3 TC1 (399 entités)</div>
+      <div class="cov-section-title">Entités par domaine — IFC2x3 TC1 (402 entités)</div>
       <table class="cov-table">
         <thead><tr><th>Domaine</th><th>Dans l'app</th><th>État</th></tr></thead>
         <tbody>
-          <tr><td>Éléments architecturaux (arch)</td><td>37</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Éléments architecturaux (arch)</td><td>38</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Structure &amp; fondations (struct)</td><td>49</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Systèmes MEP / CVC (mep)</td><td>57</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Électricité (elec)</td><td>30</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
@@ -15331,7 +15554,7 @@ function toggleTheme(){
           <tr><td>Acteurs &amp; documents (actor)</td><td>23</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Géométrie &amp; représentation (geo)</td><td>46</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
           <tr><td>Planning / ressources (plan)</td><td>27</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
-          <tr><td>Décomposition spatiale (space)</td><td>8</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Décomposition spatiale (space)</td><td>10</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Mobilier &amp; équipements (furn)</td><td>4</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Éléments génériques (gen)</td><td>5</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
         </tbody>
@@ -15340,12 +15563,13 @@ function toggleTheme(){
 
     <!-- Entités par domaine — IFC4 / 4.1 / 4.3 -->
     <div>
-      <div class="cov-section-title">Entités par domaine — IFC4 / 4.1 / 4.3 (136 entités)</div>
+      <div class="cov-section-title">Entités par domaine — IFC4 / 4.1 / 4.3 (142 entités)</div>
       <table class="cov-table">
         <thead><tr><th>Domaine</th><th>Dans l'app</th><th>État</th></tr></thead>
         <tbody>
           <tr><td>Systèmes MEP / CVC (mep)</td><td>54</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Infrastructure — IFC4.3 (infra)</td><td>25</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
+          <tr><td>Espaces &amp; zones (space)</td><td>6</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Électricité (elec)</td><td>25</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
           <tr><td>Géométrie &amp; représentation (geo)</td><td>16</td><td><span class="cov-tag cov-tag-p3">P3</span></td></tr>
           <tr><td>Données &amp; propriétés (prop)</td><td>10</td><td><span class="cov-tag cov-tag-ok">Couvert</span></td></tr>
@@ -15364,6 +15588,7 @@ function toggleTheme(){
         <tbody>
           <tr><td class="cov-done">Éléments de bâtiment — IfcBeamTypeEnum, IfcColumnTypeEnum, IfcMemberTypeEnum, IfcPlateTypeEnum, IfcFootingTypeEnum, IfcPileTypeEnum, IfcCoveringTypeEnum</td><td><span class="cov-tag cov-tag-ok">✔ 11/06/26</span></td></tr>
           <tr><td class="cov-done">Portes / Fenêtres — IfcDoorStyleOperationEnum, IfcDoorStyleConstructionEnum, IfcWindowStyleOperationEnum, IfcWindowStyleConstructionEnum</td><td><span class="cov-tag cov-tag-ok">✔ 11/06/26</span></td></tr>
+          <tr><td class="cov-done">Espaces &amp; zones — IfcSpatialZoneTypeEnum, IfcExternalSpatialElementTypeEnum, IfcSpaceTypeEnum</td><td><span class="cov-tag cov-tag-ok">✔ 09/10/26</span></td></tr>
           <tr><td>MEP — CVC (IfcAirTerminalTypeEnum, IfcBoilerTypeEnum, IfcCoilTypeEnum, IfcCondenserTypeEnum…)</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
           <tr><td>MEP — Électricité (IfcElectricApplianceTypeEnum, IfcElectricMotorTypeEnum…)</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
           <tr><td>MEP — Plomberie (IfcSanitaryTerminalTypeEnum, IfcValveTypeEnum, IfcTankTypeEnum…)</td><td><span class="cov-tag cov-tag-p2">P2</span></td></tr>
@@ -15379,6 +15604,7 @@ function toggleTheme(){
       <table class="cov-table">
         <thead><tr><th>Date</th><th>Version</th><th>Modifications</th></tr></thead>
         <tbody>
+          <tr><td>09/10/2026</td><td>v09/10/26-01</td><td>Catalogue : ajout de la famille des <strong>zones et espaces</strong> — <code>IfcSpatialZone</code> (zone spatiale, IFC4), <code>IfcSpatialZoneType</code>, <code>IfcSpatialElement</code> et <code>IfcSpatialElementType</code> (classes abstraites IFC4), <code>IfcExternalSpatialElement</code> et <code>IfcExternalSpatialStructureElement</code> (espaces extérieurs, IFC4), ainsi que <code>IfcZone</code> et <code>IfcSpatialStructureElementType</code> (IFC2x3) qui manquaient aussi. Nouvelles énumérations <code>IfcSpatialZoneTypeEnum</code>, <code>IfcExternalSpatialElementTypeEnum</code> et <code>IfcSpaceTypeEnum</code>, nouveaux Psets <code>Pset_SpatialZoneCommon</code>, <code>Pset_ZoneCommon</code> et <code>Pset_SpaceFireSafetyRequirements</code>. L'Arborescence IFC4 / 4.1 / 4.3 montre désormais zones et espaces extérieurs. Correction : l'héritage d'<code>IfcSpaceType</code> suit maintenant la chaîne IFC2x3 officielle (via <code>IfcElementType</code> et <code>IfcSpatialStructureElementType</code>).</td></tr>
           <tr><td>22/09/2026</td><td>v22/09/26-01</td><td>Catalogue : ajout de l'entité <code>IfcVirtualElement</code> ("Élément virtuel"), absente jusqu'ici — frontière imaginaire entre deux espaces adjacents non séparés par un élément physique (ex. limite d'un open space). Rangée dans "Éléments génériques — IFC 2x3", aux côtés d'<code>IfcBuildingElementProxy</code>.</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-04</td><td>Nouvel onglet <strong>Anatomie IFC</strong> : un extrait de vrai fichier <code>.ifc</code> (format STEP, ISO-10303-21) avec des lignes cliquables — clique <code>#42=IFCWALL(...)</code> ou <code>#43=IFCRELCONTAINEDINSPATIALSTRUCTURE(...)</code> pour ouvrir la fiche détaillée habituelle de cette même entité. Fait le lien entre le schéma abstrait exploré ailleurs dans l'app et la forme brute d'un fichier réel. Version MVP avec un seul exemple (mur + relation de contenance) — à enrichir.</td></tr>
           <tr><td>04/08/2026</td><td>v04/08/26-03</td><td>Compatibilité tactile iPad/iPhone : la poignée de redimensionnement du panneau gauche et le pan/zoom de la <strong>Carte d'héritage</strong> (glisser un doigt, pincer pour zoomer) fonctionnent désormais au toucher (pas seulement à la souris). Correction du zoom automatique intempestif d'iOS Safari sur les champs de recherche des onglets Hiérarchie · Arbre, Hiérarchie · Carte et Relations (police 16px sous 1024px).</td></tr>
@@ -15409,18 +15635,18 @@ function toggleTheme(){
 <div class="info-overlay hidden" id="info-overlay">
   <div class="info-card">
     <button class="info-close" onclick="dismissInfo()">✕</button>
-    <h2>Explorateur pédagogique IFC2x3</h2>
-    <div class="info-sub">buildingSMART International · Schéma EXPRESS officiel 2005</div>
+    <h2>Explorateur pédagogique IFC</h2>
+    <div class="info-sub">buildingSMART International · Schémas EXPRESS officiels</div>
 
-    <p>Cet outil permet d'explorer de manière visuelle et interactive le schéma officiel
-    <strong>IFC2x3</strong> — la norme internationale qui définit comment les données d'un bâtiment
+    <p>Cet outil permet d'explorer de manière visuelle et interactive les schémas officiels
+    <strong>IFC2x3</strong>, <strong>IFC4</strong>, <strong>IFC4.1</strong> et <strong>IFC4.3</strong> — la norme internationale qui définit comment les données d'un bâtiment
     sont structurées et échangées entre logiciels BIM (Archicad, Revit, Solibri…).</p>
 
     <div class="info-stat">
-      <div class="info-stat-item"><div class="info-stat-n">537</div><div class="info-stat-l">Entités couvertes</div></div>
-      <div class="info-stat-item"><div class="info-stat-n">399</div><div class="info-stat-l">IFC 2x3</div></div>
-      <div class="info-stat-item"><div class="info-stat-n">136</div><div class="info-stat-l">IFC 4 / 4.1 / 4.3</div></div>
-      <div class="info-stat-item"><div class="info-stat-n">41</div><div class="info-stat-l">Énumérations</div></div>
+      <div class="info-stat-item"><div class="info-stat-n">546</div><div class="info-stat-l">Entités couvertes</div></div>
+      <div class="info-stat-item"><div class="info-stat-n">402</div><div class="info-stat-l">IFC 2x3</div></div>
+      <div class="info-stat-item"><div class="info-stat-n">142</div><div class="info-stat-l">IFC 4 / 4.1 / 4.3</div></div>
+      <div class="info-stat-item"><div class="info-stat-n">44</div><div class="info-stat-l">Énumérations</div></div>
     </div>
 
     <div class="info-steps">
