@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Anatomie IFC — maquette</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F3EF;--card:#fff;--card2:#FAF9F6;--text:#1A1A1A;--muted:#8A8880;--border:#E2DED8;
+  --sp:#1D5FA5;--sp-bg:#EBF3FB;--sp-bd:#C2D9F2;
+  --gr:#0F6E56;--gr-bg:#E1F5EE;--gr-bd:#9FE1CB;
+  --pu:#534AB7;--pu-bg:#EEEDFE;--pu-bd:#C0BAF5;
+  --am:#BA7517;--am-bg:#FEF3E2;--am-bd:#F5C87A;
+  --re:#993556;--re-bg:#FBEAF0;--re-bd:#F4C0D1;
+  --ac:#5F5E5A;--ac-bg:#F1EFE8;--ac-bd:#D3D1C7;
+  --edge:rgba(0,0,0,.16);
+}
+[data-theme="dark"]{
+  --bg:#121212;--card:#1E1E1E;--card2:#252525;--text:rgba(255,255,255,.87);--muted:rgba(255,255,255,.50);--border:rgba(255,255,255,.12);
+  --sp:#90CAF9;--sp-bg:rgba(144,202,249,.12);--sp-bd:rgba(144,202,249,.30);
+  --gr:#80CBC4;--gr-bg:rgba(128,203,196,.12);--gr-bd:rgba(128,203,196,.30);
+  --pu:#CE93D8;--pu-bg:rgba(206,147,216,.12);--pu-bd:rgba(206,147,216,.30);
+  --am:#FFCC80;--am-bg:rgba(255,204,128,.12);--am-bd:rgba(255,204,128,.30);
+  --re:#F48FB1;--re-bg:rgba(244,143,177,.12);--re-bd:rgba(244,143,177,.30);
+  --ac:#B0BEC5;--ac-bg:rgba(176,190,197,.12);--ac-bd:rgba(176,190,197,.30);
+  --edge:rgba(255,255,255,.16);
+}
+html,body{background:var(--bg);color:var(--text)}
+body{font-family:'DM Sans',sans-serif;line-height:1.5;min-height:100vh}
+code,.mono{font-family:'DM Mono',monospace}
+a{color:var(--sp)}
+
+/* En-tête */
+.top{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:.8rem 1.2rem;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:20}
+.top h1{font-size:1rem;font-weight:700}
+.top h1 em{font-style:normal;color:var(--muted);font-weight:500}
+.top .sub{font-size:.68rem;color:var(--muted)}
+.top .spacer{flex:1}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--muted);font:600 .72rem 'DM Sans',sans-serif;padding:.38rem .8rem;cursor:pointer}
+.seg button.on{background:var(--sp);color:var(--bg)}
+.btn{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;font:500 .72rem 'DM Sans',sans-serif;padding:.38rem .7rem;cursor:pointer;text-decoration:none}
+
+/* Parcours */
+.steps{padding:.9rem 1.2rem 0}
+.step-pills{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.6rem}
+.step-pill{display:flex;align-items:center;gap:.4rem;background:var(--card);border:1px solid var(--border);border-radius:99px;padding:.28rem .7rem .28rem .3rem;font-size:.7rem;color:var(--muted);cursor:pointer}
+.step-pill b{display:inline-flex;width:1.3rem;height:1.3rem;border-radius:50%;align-items:center;justify-content:center;background:var(--card2);color:var(--muted);font-size:.66rem}
+.step-pill.on{border-color:var(--sp);color:var(--text)}
+.step-pill.on b{background:var(--sp);color:var(--bg)}
+.step-pill.done b{background:var(--sp-bg);color:var(--sp)}
+.step-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--sp);border-radius:10px;padding:.8rem 1rem;display:flex;gap:1rem;align-items:flex-start}
+.step-card h2{font-size:.86rem;margin-bottom:.3rem}
+.step-card p{font-size:.76rem;line-height:1.65;max-width:95ch}
+.step-card code{font-size:.7rem;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:0 .25rem}
+.step-nav{display:flex;gap:.35rem;flex-shrink:0;margin-left:auto}
+
+/* Grille principale */
+.main{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:1rem;padding:1rem 1.2rem 2rem;align-items:start}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.panel-hd{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.55rem .8rem;border-bottom:1px solid var(--border)}
+.panel-hd h3{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.panel-hd .meta{margin-left:auto;font-size:.62rem;color:var(--muted)}
+.left{position:sticky;top:4.2rem}
+
+/* Calques */
+.layers{display:flex;flex-wrap:wrap;gap:.3rem;padding:.5rem .8rem;border-bottom:1px solid var(--border)}
+.layer-tg{display:inline-flex;align-items:center;gap:.35rem;font-size:.66rem;border:1px solid var(--border);border-radius:6px;padding:.18rem .5rem;cursor:pointer;user-select:none;color:var(--muted)}
+.layer-tg i{width:.6rem;height:.6rem;border-radius:2px;display:inline-block;opacity:.35}
+.layer-tg.on{color:var(--text)}
+.layer-tg.on i{opacity:1}
+
+/* Code STEP */
+.code{font-family:'DM Mono',monospace;font-size:.66rem;line-height:1.65;max-height:calc(100vh - 15rem);overflow:auto;padding:.4rem 0}
+.ln{display:flex;gap:.55rem;padding:.06rem .7rem .06rem .45rem;border-left:3px solid transparent;cursor:pointer;white-space:pre-wrap;word-break:break-all}
+.ln:hover{background:var(--card2)}
+.ln.sel{background:var(--sp-bg);border-left-color:var(--sp)}
+.ln.rel-out{background:rgba(144,202,249,.07)}
+.ln.rel-in{background:rgba(255,204,128,.08)}
+.ln .bar{flex:0 0 3px;border-radius:2px;align-self:stretch}
+.ln .tx{flex:1}
+.ln .df{flex:0 0 auto;font-size:.56rem;color:var(--am);border:1px solid var(--am-bd);border-radius:4px;padding:0 .25rem;align-self:flex-start;margin-top:.15rem}
+.ln.fixed .tx{color:var(--muted)}
+.sec-lab{font-family:'DM Sans',sans-serif;font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:.5rem .8rem .15rem}
+.t-id{color:var(--sp)} .t-kw{color:var(--am);font-weight:600} .t-str{color:var(--gr)} .t-ref{color:var(--sp)} .t-enum{color:var(--pu)} .t-null{color:var(--muted)} .t-num{color:var(--re)} .t-typed{color:var(--gr)}
+.hidden-note{font-family:'DM Sans',sans-serif;font-size:.6rem;color:var(--muted);padding:.1rem .8rem .1rem 1.2rem;font-style:italic}
+
+/* Schéma */
+.diag-wrap{overflow:auto;padding:.4rem}
+svg.diag{display:block;width:100%;min-width:760px;height:auto}
+.node rect{rx:7;stroke-width:1.2}
+.node text{font-family:'DM Sans',sans-serif}
+.node .n1{font-size:10.5px;font-weight:600;fill:var(--text)}
+.node .n2{font-size:8.6px;font-family:'DM Mono',monospace;fill:var(--muted)}
+.node{cursor:pointer}
+.node.dim{opacity:.28}
+.node.sel rect{stroke-width:2.6}
+.edge{fill:none;stroke:var(--edge);stroke-width:1.1}
+.edge.out{stroke:var(--sp);stroke-width:2}
+.edge.in{stroke:var(--am);stroke-width:2}
+.edge.dim{opacity:.15}
+.elab{font-size:8.5px;font-family:'DM Sans',sans-serif;font-weight:600;paint-order:stroke;stroke:var(--card);stroke-width:3px}
+.elab.out{fill:var(--sp)} .elab.in{fill:var(--am)}
+.colt{font-size:9px;font-weight:700;letter-spacing:.08em;fill:var(--muted);text-transform:uppercase;font-family:'DM Sans',sans-serif}
+.legend{display:flex;flex-wrap:wrap;gap:.8rem;padding:.5rem .8rem;border-top:1px solid var(--border);font-size:.62rem;color:var(--muted);align-items:center}
+.legend i{display:inline-block;width:.75rem;height:.55rem;border-radius:2px;margin-right:.3rem;vertical-align:middle}
+.chk{display:inline-flex;align-items:center;gap:.3rem;cursor:pointer}
+
+/* Décodeur */
+.dec{padding:.8rem}
+.dec-empty{color:var(--muted);font-size:.74rem;padding:1rem .2rem}
+.dec-title{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin-bottom:.15rem}
+.dec-title .fr{font-size:1rem;font-weight:700}
+.dec-title .ifc{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)}
+.dec-sub{font-size:.7rem;color:var(--muted);margin-bottom:.6rem}
+.strip{font-family:'DM Mono',monospace;font-size:.72rem;line-height:2.1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.45rem .6rem;word-break:break-all}
+.strip .arg{border-radius:4px;padding:.1rem .12rem;cursor:default;position:relative}
+.strip .arg sup{font-family:'DM Sans',sans-serif;font-size:.5rem;color:var(--muted);margin-left:1px}
+.strip .arg.hl{background:var(--sp-bg);outline:1px solid var(--sp-bd)}
+.parts{display:flex;flex-wrap:wrap;gap:.35rem .9rem;font-size:.64rem;color:var(--muted);margin:.45rem 0 .7rem}
+.parts span b{color:var(--text);font-weight:600}
+table.at{width:100%;border-collapse:collapse;font-size:.7rem}
+table.at th{text-align:left;font-size:.56rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;padding:.35rem .4rem;border-bottom:1px solid var(--border)}
+table.at td{padding:.4rem .4rem;border-bottom:1px solid var(--border);vertical-align:top}
+table.at tr.hl td{background:var(--sp-bg)}
+table.at .num{font-family:'DM Mono',monospace;color:var(--muted);font-size:.62rem;width:1.6rem}
+table.at .val{font-family:'DM Mono',monospace;font-size:.66rem;max-width:12rem;word-break:break-all}
+table.at .afr{font-weight:600}
+table.at .aifc{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted)}
+table.at .from{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted)}
+.badge{display:inline-block;font-size:.54rem;font-weight:700;border-radius:4px;padding:.02rem .3rem;border:1px solid;text-transform:uppercase;letter-spacing:.04em;margin-top:.15rem}
+.b-req{color:var(--sp);border-color:var(--sp-bd)} .b-opt{color:var(--muted);border-color:var(--border)}
+.go{color:var(--sp);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.box{border:1px solid var(--border);border-radius:8px;padding:.55rem .7rem;margin-top:.7rem;font-size:.7rem;line-height:1.6}
+.box.diff{border-color:var(--am-bd);background:var(--am-bg)}
+.box h4{font-size:.58rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.25rem}
+details.sym{margin-top:.8rem;border:1px solid var(--border);border-radius:8px}
+details.sym summary{cursor:pointer;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:.5rem .7rem}
+details.sym table{width:100%;border-collapse:collapse;font-size:.68rem}
+details.sym td{padding:.32rem .7rem;border-top:1px solid var(--border);vertical-align:top}
+details.sym td:first-child{font-family:'DM Mono',monospace;white-space:nowrap;width:9rem}
+.note{font-size:.62rem;color:var(--muted);padding:0 1.2rem 1.5rem;max-width:110ch}
+
+@media(max-width:980px){
+  .main{grid-template-columns:minmax(0,1fr);padding:1rem}
+  .left{position:static}
+  .code{max-height:55vh}
+  .steps{padding:.9rem 1rem 0}
+  .step-card{flex-direction:column}
+  .step-nav{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div>
+    <h1>Anatomie d'un fichier IFC <em>— maquette</em></h1>
+    <div class="sub">Fichier commenté à calques + décodeur de ligne · cliquez une ligne du fichier ou une boîte du schéma</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="seg" id="verSeg">
+    <button data-v="2x3" class="on">IFC2x3</button>
+    <button data-v="4">IFC4</button>
+  </div>
+  <button class="btn" id="themeBtn" title="Thème clair / sombre">☀</button>
+  <a class="btn" href="ifc_spatial.html">← Explorateur</a>
+</div>
+
+<div class="steps">
+  <div class="step-pills" id="pills"></div>
+  <div class="step-card">
+    <div>
+      <h2 id="stepTitle"></h2>
+      <p id="stepText"></p>
+    </div>
+    <div class="step-nav">
+      <button class="btn" id="prevBtn">◀ Précédent</button>
+      <button class="btn" id="nextBtn">Suivant ▶</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="left panel">
+    <div class="panel-hd"><h3>Le fichier <span class="mono" id="fname">maison.ifc</span></h3><span class="meta" id="lineCount"></span></div>
+    <div class="layers" id="layers"></div>
+    <div class="code" id="code"></div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <div class="panel-hd"><h3>Le schéma des renvois</h3><span class="meta">chaque flèche = un « #n » écrit dans une ligne</span></div>
+      <div class="diag-wrap"><svg class="diag" id="diag"></svg></div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="panel" style="margin-top:1rem">
+      <div class="panel-hd"><h3>Décodeur de ligne</h3><span class="meta">chaque argument ↔ son attribut</span></div>
+      <div class="dec" id="dec"></div>
+    </div>
+  </div>
+</div>
+
+<p class="note">Maquette pédagogique : les GUID sont fictifs, la baie et la porte n'ont pas de géométrie, le mur n'a qu'un matériau simple. Le nombre, l'ordre et le caractère obligatoire des arguments sont conformes aux schémas officiels IFC2x3 TC1 et IFC4 ADD2 TC1.</p>
+
+<script>
+const DATA = {"lines": {"2x3": [{"id": 1, "ent": "IfcPerson", "layer": "ctx", "fr": "Personne (auteur)", "args": ["$", "'Valette'", "'Nico'", "$", "$", "$", "$", "$"]}, {"id": 2, "ent": "IfcOrganization", "layer": "ctx", "fr": "Organisation", "args": ["$", "'Agence'", "$", "$", "$"]}, {"id": 3, "ent": "IfcPersonAndOrganization", "layer": "ctx", "fr": "Personne dans son organisation", "args": ["#1", "#2", "$"]}, {"id": 4, "ent": "IfcApplication", "layer": "ctx", "fr": "Logiciel émetteur", "args": ["#2", "'28.0'", "'Archicad'", "'ARCHICAD'"]}, {"id": 5, "ent": "IfcOwnerHistory", "layer": "ctx", "fr": "Historique (qui, quand, avec quoi)", "args": ["#3", "#4", "$", ".ADDED.", "$", "$", "$", "1791622800"]}, {"id": 6, "ent": "IfcSIUnit", "layer": "ctx", "fr": "Unité : mètre", "args": ["*", ".LENGTHUNIT.", "$", ".METRE."]}, {"id": 7, "ent": "IfcSIUnit", "layer": "ctx", "fr": "Unité : mètre carré", "args": ["*", ".AREAUNIT.", "$", ".SQUARE_METRE."]}, {"id": 8, "ent": "IfcUnitAssignment", "layer": "ctx", "fr": "Unités du projet", "args": ["(#6,#7)"]}, {"id": 9, "ent": "IfcCartesianPoint", "layer": "geo", "fr": "Point origine (0,0,0)", "args": ["(0.,0.,0.)"]}, {"id": 10, "ent": "IfcAxis2Placement3D", "layer": "geo", "fr": "Repère 3D à l’origine", "args": ["#9", "$", "$"]}, {"id": 11, "ent": "IfcGeometricRepresentationContext", "layer": "ctx", "fr": "Contexte de représentation 3D", "args": ["$", "'Model'", "3", "1.E-05", "#10", "$"]}, {"id": 12, "ent": "IfcProject", "layer": "spatial", "fr": "Projet « Maison »", "args": ["'2Jo69Ck7R4Btr8UBs7FS7o'", "#5", "'Maison'", "$", "$", "$", "$", "(#11)", "#8"]}, {"id": 20, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement du terrain", "args": ["$", "#10"]}, {"id": 21, "ent": "IfcSite", "layer": "spatial", "fr": "Terrain", "args": ["'0S5HbrIFdNDOlC87Q$sexw'", "#5", "'Terrain'", "$", "$", "#20", "$", "$", ".ELEMENT.", "$", "$", "$", "$", "$"]}, {"id": 22, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement du bâtiment", "args": ["#20", "#10"]}, {"id": 23, "ent": "IfcBuilding", "layer": "spatial", "fr": "Bâtiment", "args": ["'2cVNVAc$hva9FrLhJ_r59e'", "#5", "'Maison'", "$", "$", "#22", "$", "$", ".ELEMENT.", "$", "$", "$"]}, {"id": 24, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement du niveau", "args": ["#22", "#10"]}, {"id": 25, "ent": "IfcBuildingStorey", "layer": "spatial", "fr": "Niveau « RDC »", "args": ["'2i$w8BYy87dvani2xjLE$7'", "#5", "'RDC'", "$", "$", "#24", "$", "$", ".ELEMENT.", "0."]}, {"id": 26, "ent": "IfcRelAggregates", "layer": "spatial", "fr": "Projet ⟶ Terrain", "args": ["'1aGVoo$ALvpZHtZrjmTJAM'", "#5", "$", "$", "#12", "(#21)"]}, {"id": 27, "ent": "IfcRelAggregates", "layer": "spatial", "fr": "Terrain ⟶ Bâtiment", "args": ["'1TT1_NXa0IrleG6woopoDz'", "#5", "$", "$", "#21", "(#23)"]}, {"id": 28, "ent": "IfcRelAggregates", "layer": "spatial", "fr": "Bâtiment ⟶ Niveau", "args": ["'37O8QuKEh6D0JCk39QmJWi'", "#5", "$", "$", "#23", "(#25)"]}, {"id": 30, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement du mur", "args": ["#24", "#10"]}, {"id": 31, "ent": "IfcWall", "layer": "elem", "fr": "Mur 01", "args": ["'2yFE_xzzdAIDhXzK2QkI3c'", "#5", "'Mur 01'", "$", "$", "#30", "#40", "'M01'"]}, {"id": 32, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement de la baie", "args": ["#30", "#10"]}, {"id": 33, "ent": "IfcOpeningElement", "layer": "elem", "fr": "Baie (trémie)", "args": ["'0XkLjSgSOUpTP$j33ZyXOi'", "#5", "'Baie porte'", "$", "$", "#32", "$", "$"]}, {"id": 34, "ent": "IfcRelVoidsElement", "layer": "elem", "fr": "Mur percé par la baie", "args": ["'3ikASDTyPhQz0ziAFnPzMt'", "#5", "$", "$", "#31", "#33"]}, {"id": 35, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement de la porte", "args": ["#32", "#10"]}, {"id": 36, "ent": "IfcDoor", "layer": "elem", "fr": "Porte 01", "args": ["'2BoxpAKLG3JxIyiJG21DHt'", "#5", "'Porte 01'", "$", "$", "#35", "$", "'P01'", "2.04", "0.93"]}, {"id": 37, "ent": "IfcRelFillsElement", "layer": "elem", "fr": "La porte remplit la baie", "args": ["'1R3WRbUfXrG7jwrGJ2uN0J'", "#5", "$", "$", "#33", "#36"]}, {"id": 38, "ent": "IfcRelContainedInSpatialStructure", "layer": "elem", "fr": "Mur et porte contenus dans le RDC", "args": ["'1IyF7fzD7VOZ5Cv38ufPZv'", "#5", "$", "$", "(#31,#36)", "#25"]}, {"id": 40, "ent": "IfcProductDefinitionShape", "layer": "geo", "fr": "Forme du mur", "args": ["$", "$", "(#41)"]}, {"id": 41, "ent": "IfcShapeRepresentation", "layer": "geo", "fr": "Représentation « Body »", "args": ["#11", "'Body'", "'SweptSolid'", "(#42)"]}, {"id": 42, "ent": "IfcExtrudedAreaSolid", "layer": "geo", "fr": "Volume extrudé (h = 2,70 m)", "args": ["#43", "#10", "#45", "2.7"]}, {"id": 43, "ent": "IfcRectangleProfileDef", "layer": "geo", "fr": "Profil rectangle 5,00 × 0,20 m", "args": [".AREA.", "$", "#44", "5.", "0.2"]}, {"id": 44, "ent": "IfcAxis2Placement2D", "layer": "geo", "fr": "Repère 2D du profil", "args": ["#46", "$"]}, {"id": 45, "ent": "IfcDirection", "layer": "geo", "fr": "Direction verticale (Z)", "args": ["(0.,0.,1.)"]}, {"id": 46, "ent": "IfcCartesianPoint", "layer": "geo", "fr": "Centre du profil (2,5 ; 0,1)", "args": ["(2.5,0.1)"]}, {"id": 50, "ent": "IfcPropertySingleValue", "layer": "data", "fr": "Propriété « Extérieur » = vrai", "args": ["'IsExternal'", "$", "IFCBOOLEAN(.T.)", "$"]}, {"id": 51, "ent": "IfcPropertySingleValue", "layer": "data", "fr": "Propriété « Résistance au feu » = EI60", "args": ["'FireRating'", "$", "IFCLABEL('EI60')", "$"]}, {"id": 52, "ent": "IfcPropertySet", "layer": "data", "fr": "Jeu de propriétés Pset_WallCommon", "args": ["'3VXPvHrFoue9Us9RcFJkIW'", "#5", "'Pset_WallCommon'", "$", "(#50,#51)"]}, {"id": 53, "ent": "IfcRelDefinesByProperties", "layer": "data", "fr": "Le Pset décrit le mur", "args": ["'1xSCo_KSKtphrPjeBk2hwu'", "#5", "$", "$", "(#31)", "#52"]}, {"id": 60, "ent": "IfcMaterial", "layer": "data", "fr": "Matériau « Béton »", "args": ["'B\\X2\\00E9\\X0\\ton'"]}, {"id": 61, "ent": "IfcRelAssociatesMaterial", "layer": "data", "fr": "Le mur est en béton", "args": ["'0ngb8ETDAXY5NYGsXpJ$fB'", "#5", "$", "$", "(#31)", "#60"]}, {"id": 70, "ent": "IfcWallType", "layer": "data", "fr": "Type « Voile béton 20 »", "args": ["'27Ns9Y2BXAS8XFw1hrYG5U'", "#5", "'Voile b\\X2\\00E9\\X0\\ton 20'", "$", "$", "$", "$", "$", "$", ".STANDARD."]}, {"id": 71, "ent": "IfcRelDefinesByType", "layer": "data", "fr": "Le mur est du type « Voile béton 20 »", "args": ["'0KX6NPddQbvMYi2W412OyV'", "#5", "$", "$", "(#31)", "#70"]}], "4": [{"id": 1, "ent": "IfcPerson", "layer": "ctx", "fr": "Personne (auteur)", "args": ["$", "'Valette'", "'Nico'", "$", "$", "$", "$", "$"]}, {"id": 2, "ent": "IfcOrganization", "layer": "ctx", "fr": "Organisation", "args": ["$", "'Agence'", "$", "$", "$"]}, {"id": 3, "ent": "IfcPersonAndOrganization", "layer": "ctx", "fr": "Personne dans son organisation", "args": ["#1", "#2", "$"]}, {"id": 4, "ent": "IfcApplication", "layer": "ctx", "fr": "Logiciel émetteur", "args": ["#2", "'28.0'", "'Archicad'", "'ARCHICAD'"]}, {"id": 5, "ent": "IfcOwnerHistory", "layer": "ctx", "fr": "Historique (qui, quand, avec quoi)", "args": ["#3", "#4", "$", ".ADDED.", "$", "$", "$", "1791622800"]}, {"id": 6, "ent": "IfcSIUnit", "layer": "ctx", "fr": "Unité : mètre", "args": ["*", ".LENGTHUNIT.", "$", ".METRE."]}, {"id": 7, "ent": "IfcSIUnit", "layer": "ctx", "fr": "Unité : mètre carré", "args": ["*", ".AREAUNIT.", "$", ".SQUARE_METRE."]}, {"id": 8, "ent": "IfcUnitAssignment", "layer": "ctx", "fr": "Unités du projet", "args": ["(#6,#7)"]}, {"id": 9, "ent": "IfcCartesianPoint", "layer": "geo", "fr": "Point origine (0,0,0)", "args": ["(0.,0.,0.)"]}, {"id": 10, "ent": "IfcAxis2Placement3D", "layer": "geo", "fr": "Repère 3D à l’origine", "args": ["#9", "$", "$"]}, {"id": 11, "ent": "IfcGeometricRepresentationContext", "layer": "ctx", "fr": "Contexte de représentation 3D", "args": ["$", "'Model'", "3", "1.E-05", "#10", "$"]}, {"id": 12, "ent": "IfcProject", "layer": "spatial", "fr": "Projet « Maison »", "args": ["'2Jo69Ck7R4Btr8UBs7FS7o'", "#5", "'Maison'", "$", "$", "$", "$", "(#11)", "#8"]}, {"id": 20, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement du terrain", "args": ["$", "#10"]}, {"id": 21, "ent": "IfcSite", "layer": "spatial", "fr": "Terrain", "args": ["'0S5HbrIFdNDOlC87Q$sexw'", "#5", "'Terrain'", "$", "$", "#20", "$", "$", ".ELEMENT.", "$", "$", "$", "$", "$"]}, {"id": 22, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement du bâtiment", "args": ["#20", "#10"]}, {"id": 23, "ent": "IfcBuilding", "layer": "spatial", "fr": "Bâtiment", "args": ["'2cVNVAc$hva9FrLhJ_r59e'", "#5", "'Maison'", "$", "$", "#22", "$", "$", ".ELEMENT.", "$", "$", "$"]}, {"id": 24, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement du niveau", "args": ["#22", "#10"]}, {"id": 25, "ent": "IfcBuildingStorey", "layer": "spatial", "fr": "Niveau « RDC »", "args": ["'2i$w8BYy87dvani2xjLE$7'", "#5", "'RDC'", "$", "$", "#24", "$", "$", ".ELEMENT.", "0."]}, {"id": 26, "ent": "IfcRelAggregates", "layer": "spatial", "fr": "Projet ⟶ Terrain", "args": ["'1aGVoo$ALvpZHtZrjmTJAM'", "#5", "$", "$", "#12", "(#21)"]}, {"id": 27, "ent": "IfcRelAggregates", "layer": "spatial", "fr": "Terrain ⟶ Bâtiment", "args": ["'1TT1_NXa0IrleG6woopoDz'", "#5", "$", "$", "#21", "(#23)"]}, {"id": 28, "ent": "IfcRelAggregates", "layer": "spatial", "fr": "Bâtiment ⟶ Niveau", "args": ["'37O8QuKEh6D0JCk39QmJWi'", "#5", "$", "$", "#23", "(#25)"]}, {"id": 30, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement du mur", "args": ["#24", "#10"]}, {"id": 31, "ent": "IfcWall", "layer": "elem", "fr": "Mur 01", "args": ["'2yFE_xzzdAIDhXzK2QkI3c'", "#5", "'Mur 01'", "$", "$", "#30", "#40", "'M01'", ".STANDARD."]}, {"id": 32, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement de la baie", "args": ["#30", "#10"]}, {"id": 33, "ent": "IfcOpeningElement", "layer": "elem", "fr": "Baie (trémie)", "args": ["'0XkLjSgSOUpTP$j33ZyXOi'", "#5", "'Baie porte'", "$", "$", "#32", "$", "$", ".OPENING."]}, {"id": 34, "ent": "IfcRelVoidsElement", "layer": "elem", "fr": "Mur percé par la baie", "args": ["'3ikASDTyPhQz0ziAFnPzMt'", "#5", "$", "$", "#31", "#33"]}, {"id": 35, "ent": "IfcLocalPlacement", "layer": "geo", "fr": "Placement de la porte", "args": ["#32", "#10"]}, {"id": 36, "ent": "IfcDoor", "layer": "elem", "fr": "Porte 01", "args": ["'2BoxpAKLG3JxIyiJG21DHt'", "#5", "'Porte 01'", "$", "$", "#35", "$", "'P01'", "2.04", "0.93", ".DOOR.", ".SINGLE_SWING_LEFT.", "$"]}, {"id": 37, "ent": "IfcRelFillsElement", "layer": "elem", "fr": "La porte remplit la baie", "args": ["'1R3WRbUfXrG7jwrGJ2uN0J'", "#5", "$", "$", "#33", "#36"]}, {"id": 38, "ent": "IfcRelContainedInSpatialStructure", "layer": "elem", "fr": "Mur et porte contenus dans le RDC", "args": ["'1IyF7fzD7VOZ5Cv38ufPZv'", "#5", "$", "$", "(#31,#36)", "#25"]}, {"id": 40, "ent": "IfcProductDefinitionShape", "layer": "geo", "fr": "Forme du mur", "args": ["$", "$", "(#41)"]}, {"id": 41, "ent": "IfcShapeRepresentation", "layer": "geo", "fr": "Représentation « Body »", "args": ["#11", "'Body'", "'SweptSolid'", "(#42)"]}, {"id": 42, "ent": "IfcExtrudedAreaSolid", "layer": "geo", "fr": "Volume extrudé (h = 2,70 m)", "args": ["#43", "#10", "#45", "2.7"]}, {"id": 43, "ent": "IfcRectangleProfileDef", "layer": "geo", "fr": "Profil rectangle 5,00 × 0,20 m", "args": [".AREA.", "$", "#44", "5.", "0.2"]}, {"id": 44, "ent": "IfcAxis2Placement2D", "layer": "geo", "fr": "Repère 2D du profil", "args": ["#46", "$"]}, {"id": 45, "ent": "IfcDirection", "layer": "geo", "fr": "Direction verticale (Z)", "args": ["(0.,0.,1.)"]}, {"id": 46, "ent": "IfcCartesianPoint", "layer": "geo", "fr": "Centre du profil (2,5 ; 0,1)", "args": ["(2.5,0.1)"]}, {"id": 50, "ent": "IfcPropertySingleValue", "layer": "data", "fr": "Propriété « Extérieur » = vrai", "args": ["'IsExternal'", "$", "IFCBOOLEAN(.T.)", "$"]}, {"id": 51, "ent": "IfcPropertySingleValue", "layer": "data", "fr": "Propriété « Résistance au feu » = EI60", "args": ["'FireRating'", "$", "IFCLABEL('EI60')", "$"]}, {"id": 52, "ent": "IfcPropertySet", "layer": "data", "fr": "Jeu de propriétés Pset_WallCommon", "args": ["'3VXPvHrFoue9Us9RcFJkIW'", "#5", "'Pset_WallCommon'", "$", "(#50,#51)"]}, {"id": 53, "ent": "IfcRelDefinesByProperties", "layer": "data", "fr": "Le Pset décrit le mur", "args": ["'1xSCo_KSKtphrPjeBk2hwu'", "#5", "$", "$", "(#31)", "#52"]}, {"id": 60, "ent": "IfcMaterial", "layer": "data", "fr": "Matériau « Béton »", "args": ["'B\\X2\\00E9\\X0\\ton'", "$", "'Concrete'"]}, {"id": 61, "ent": "IfcRelAssociatesMaterial", "layer": "data", "fr": "Le mur est en béton", "args": ["'0ngb8ETDAXY5NYGsXpJ$fB'", "#5", "$", "$", "(#31)", "#60"]}, {"id": 70, "ent": "IfcWallType", "layer": "data", "fr": "Type « Voile béton 20 »", "args": ["'27Ns9Y2BXAS8XFw1hrYG5U'", "#5", "'Voile b\\X2\\00E9\\X0\\ton 20'", "$", "$", "$", "$", "$", "$", ".STANDARD."]}, {"id": 71, "ent": "IfcRelDefinesByType", "layer": "data", "fr": "Le mur est du type « Voile béton 20 »", "args": ["'0KX6NPddQbvMYi2W412OyV'", "#5", "$", "$", "(#31)", "#70"]}]}, "meta": {"IfcApplication": {"2x3": [["ApplicationDeveloper", 0, "IfcApplication", "IfcOrganization"], ["Version", 0, "IfcApplication", "IfcLabel"], ["ApplicationFullName", 0, "IfcApplication", "IfcLabel"], ["ApplicationIdentifier", 0, "IfcApplication", "IfcIdentifier"]], "4": [["ApplicationDeveloper", 0, "IfcApplication", "IfcOrganization"], ["Version", 0, "IfcApplication", "IfcLabel"], ["ApplicationFullName", 0, "IfcApplication", "IfcLabel"], ["ApplicationIdentifier", 0, "IfcApplication", "IfcIdentifier"]]}, "IfcAxis2Placement2D": {"2x3": [["Location", 0, "IfcPlacement", "IfcCartesianPoint"], ["RefDirection", 1, "IfcAxis2Placement2D", "IfcDirection"]], "4": [["Location", 0, "IfcPlacement", "IfcCartesianPoint"], ["RefDirection", 1, "IfcAxis2Placement2D", "IfcDirection"]]}, "IfcAxis2Placement3D": {"2x3": [["Location", 0, "IfcPlacement", "IfcCartesianPoint"], ["Axis", 1, "IfcAxis2Placement3D", "IfcDirection"], ["RefDirection", 1, "IfcAxis2Placement3D", "IfcDirection"]], "4": [["Location", 0, "IfcPlacement", "IfcCartesianPoint"], ["Axis", 1, "IfcAxis2Placement3D", "IfcDirection"], ["RefDirection", 1, "IfcAxis2Placement3D", "IfcDirection"]]}, "IfcBuilding": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["LongName", 1, "IfcSpatialStructureElement", "IfcLabel"], ["CompositionType", 0, "IfcSpatialStructureElement", "IfcElementCompositionEnum"], ["ElevationOfRefHeight", 1, "IfcBuilding", "IfcLengthMeasure"], ["ElevationOfTerrain", 1, "IfcBuilding", "IfcLengthMeasure"], ["BuildingAddress", 1, "IfcBuilding", "IfcPostalAddress"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["LongName", 1, "IfcSpatialElement", "IfcLabel"], ["CompositionType", 1, "IfcSpatialStructureElement", "IfcElementCompositionEnum"], ["ElevationOfRefHeight", 1, "IfcBuilding", "IfcLengthMeasure"], ["ElevationOfTerrain", 1, "IfcBuilding", "IfcLengthMeasure"], ["BuildingAddress", 1, "IfcBuilding", "IfcPostalAddress"]]}, "IfcBuildingStorey": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["LongName", 1, "IfcSpatialStructureElement", "IfcLabel"], ["CompositionType", 0, "IfcSpatialStructureElement", "IfcElementCompositionEnum"], ["Elevation", 1, "IfcBuildingStorey", "IfcLengthMeasure"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["LongName", 1, "IfcSpatialElement", "IfcLabel"], ["CompositionType", 1, "IfcSpatialStructureElement", "IfcElementCompositionEnum"], ["Elevation", 1, "IfcBuildingStorey", "IfcLengthMeasure"]]}, "IfcCartesianPoint": {"2x3": [["Coordinates", 0, "IfcCartesianPoint", "LIST [1:3] OF IfcLengthMeasure"]], "4": [["Coordinates", 0, "IfcCartesianPoint", "LIST [1:3] OF IfcLengthMeasure"]]}, "IfcDirection": {"2x3": [["DirectionRatios", 0, "IfcDirection", "LIST [2:3] OF REAL"]], "4": [["DirectionRatios", 0, "IfcDirection", "LIST [2:3] OF IfcReal"]]}, "IfcDoor": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["Tag", 1, "IfcElement", "IfcIdentifier"], ["OverallHeight", 1, "IfcDoor", "IfcPositiveLengthMeasure"], ["OverallWidth", 1, "IfcDoor", "IfcPositiveLengthMeasure"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["Tag", 1, "IfcElement", "IfcIdentifier"], ["OverallHeight", 1, "IfcDoor", "IfcPositiveLengthMeasure"], ["OverallWidth", 1, "IfcDoor", "IfcPositiveLengthMeasure"], ["PredefinedType", 1, "IfcDoor", "IfcDoorTypeEnum"], ["OperationType", 1, "IfcDoor", "IfcDoorTypeOperationEnum"], ["UserDefinedOperationType", 1, "IfcDoor", "IfcLabel"]]}, "IfcExtrudedAreaSolid": {"2x3": [["SweptArea", 0, "IfcSweptAreaSolid", "IfcProfileDef"], ["Position", 0, "IfcSweptAreaSolid", "IfcAxis2Placement3D"], ["ExtrudedDirection", 0, "IfcExtrudedAreaSolid", "IfcDirection"], ["Depth", 0, "IfcExtrudedAreaSolid", "IfcPositiveLengthMeasure"]], "4": [["SweptArea", 0, "IfcSweptAreaSolid", "IfcProfileDef"], ["Position", 1, "IfcSweptAreaSolid", "IfcAxis2Placement3D"], ["ExtrudedDirection", 0, "IfcExtrudedAreaSolid", "IfcDirection"], ["Depth", 0, "IfcExtrudedAreaSolid", "IfcPositiveLengthMeasure"]]}, "IfcGeometricRepresentationContext": {"2x3": [["ContextIdentifier", 1, "IfcRepresentationContext", "IfcLabel"], ["ContextType", 1, "IfcRepresentationContext", "IfcLabel"], ["CoordinateSpaceDimension", 0, "IfcGeometricRepresentationContext", "IfcDimensionCount"], ["Precision", 1, "IfcGeometricRepresentationContext", "REAL"], ["WorldCoordinateSystem", 0, "IfcGeometricRepresentationContext", "IfcAxis2Placement"], ["TrueNorth", 1, "IfcGeometricRepresentationContext", "IfcDirection"]], "4": [["ContextIdentifier", 1, "IfcRepresentationContext", "IfcLabel"], ["ContextType", 1, "IfcRepresentationContext", "IfcLabel"], ["CoordinateSpaceDimension", 0, "IfcGeometricRepresentationContext", "IfcDimensionCount"], ["Precision", 1, "IfcGeometricRepresentationContext", "IfcReal"], ["WorldCoordinateSystem", 0, "IfcGeometricRepresentationContext", "IfcAxis2Placement"], ["TrueNorth", 1, "IfcGeometricRepresentationContext", "IfcDirection"]]}, "IfcLocalPlacement": {"2x3": [["PlacementRelTo", 1, "IfcLocalPlacement", "IfcObjectPlacement"], ["RelativePlacement", 0, "IfcLocalPlacement", "IfcAxis2Placement"]], "4": [["PlacementRelTo", 1, "IfcLocalPlacement", "IfcObjectPlacement"], ["RelativePlacement", 0, "IfcLocalPlacement", "IfcAxis2Placement"]]}, "IfcMaterial": {"2x3": [["Name", 0, "IfcMaterial", "IfcLabel"]], "4": [["Name", 0, "IfcMaterial", "IfcLabel"], ["Description", 1, "IfcMaterial", "IfcText"], ["Category", 1, "IfcMaterial", "IfcLabel"]]}, "IfcOpeningElement": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["Tag", 1, "IfcElement", "IfcIdentifier"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["Tag", 1, "IfcElement", "IfcIdentifier"], ["PredefinedType", 1, "IfcOpeningElement", "IfcOpeningElementTypeEnum"]]}, "IfcOrganization": {"2x3": [["Id", 1, "IfcOrganization", "IfcIdentifier"], ["Name", 0, "IfcOrganization", "IfcLabel"], ["Description", 1, "IfcOrganization", "IfcText"], ["Roles", 1, "IfcOrganization", "LIST [1:?] OF IfcActorRole"], ["Addresses", 1, "IfcOrganization", "LIST [1:?] OF IfcAddress"]], "4": [["Identification", 1, "IfcOrganization", "IfcIdentifier"], ["Name", 0, "IfcOrganization", "IfcLabel"], ["Description", 1, "IfcOrganization", "IfcText"], ["Roles", 1, "IfcOrganization", "LIST [1:?] OF IfcActorRole"], ["Addresses", 1, "IfcOrganization", "LIST [1:?] OF IfcAddress"]]}, "IfcOwnerHistory": {"2x3": [["OwningUser", 0, "IfcOwnerHistory", "IfcPersonAndOrganization"], ["OwningApplication", 0, "IfcOwnerHistory", "IfcApplication"], ["State", 1, "IfcOwnerHistory", "IfcStateEnum"], ["ChangeAction", 0, "IfcOwnerHistory", "IfcChangeActionEnum"], ["LastModifiedDate", 1, "IfcOwnerHistory", "IfcTimeStamp"], ["LastModifyingUser", 1, "IfcOwnerHistory", "IfcPersonAndOrganization"], ["LastModifyingApplication", 1, "IfcOwnerHistory", "IfcApplication"], ["CreationDate", 0, "IfcOwnerHistory", "IfcTimeStamp"]], "4": [["OwningUser", 0, "IfcOwnerHistory", "IfcPersonAndOrganization"], ["OwningApplication", 0, "IfcOwnerHistory", "IfcApplication"], ["State", 1, "IfcOwnerHistory", "IfcStateEnum"], ["ChangeAction", 1, "IfcOwnerHistory", "IfcChangeActionEnum"], ["LastModifiedDate", 1, "IfcOwnerHistory", "IfcTimeStamp"], ["LastModifyingUser", 1, "IfcOwnerHistory", "IfcPersonAndOrganization"], ["LastModifyingApplication", 1, "IfcOwnerHistory", "IfcApplication"], ["CreationDate", 0, "IfcOwnerHistory", "IfcTimeStamp"]]}, "IfcPerson": {"2x3": [["Id", 1, "IfcPerson", "IfcIdentifier"], ["FamilyName", 1, "IfcPerson", "IfcLabel"], ["GivenName", 1, "IfcPerson", "IfcLabel"], ["MiddleNames", 1, "IfcPerson", "LIST [1:?] OF IfcLabel"], ["PrefixTitles", 1, "IfcPerson", "LIST [1:?] OF IfcLabel"], ["SuffixTitles", 1, "IfcPerson", "LIST [1:?] OF IfcLabel"], ["Roles", 1, "IfcPerson", "LIST [1:?] OF IfcActorRole"], ["Addresses", 1, "IfcPerson", "LIST [1:?] OF IfcAddress"]], "4": [["Identification", 1, "IfcPerson", "IfcIdentifier"], ["FamilyName", 1, "IfcPerson", "IfcLabel"], ["GivenName", 1, "IfcPerson", "IfcLabel"], ["MiddleNames", 1, "IfcPerson", "LIST [1:?] OF IfcLabel"], ["PrefixTitles", 1, "IfcPerson", "LIST [1:?] OF IfcLabel"], ["SuffixTitles", 1, "IfcPerson", "LIST [1:?] OF IfcLabel"], ["Roles", 1, "IfcPerson", "LIST [1:?] OF IfcActorRole"], ["Addresses", 1, "IfcPerson", "LIST [1:?] OF IfcAddress"]]}, "IfcPersonAndOrganization": {"2x3": [["ThePerson", 0, "IfcPersonAndOrganization", "IfcPerson"], ["TheOrganization", 0, "IfcPersonAndOrganization", "IfcOrganization"], ["Roles", 1, "IfcPersonAndOrganization", "LIST [1:?] OF IfcActorRole"]], "4": [["ThePerson", 0, "IfcPersonAndOrganization", "IfcPerson"], ["TheOrganization", 0, "IfcPersonAndOrganization", "IfcOrganization"], ["Roles", 1, "IfcPersonAndOrganization", "LIST [1:?] OF IfcActorRole"]]}, "IfcProductDefinitionShape": {"2x3": [["Name", 1, "IfcProductRepresentation", "IfcLabel"], ["Description", 1, "IfcProductRepresentation", "IfcText"], ["Representations", 0, "IfcProductRepresentation", "LIST [1:?] OF IfcRepresentation"]], "4": [["Name", 1, "IfcProductRepresentation", "IfcLabel"], ["Description", 1, "IfcProductRepresentation", "IfcText"], ["Representations", 0, "IfcProductRepresentation", "LIST [1:?] OF IfcRepresentation"]]}, "IfcProject": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["LongName", 1, "IfcProject", "IfcLabel"], ["Phase", 1, "IfcProject", "IfcLabel"], ["RepresentationContexts", 0, "IfcProject", "SET [1:?] OF IfcRepresentationContext"], ["UnitsInContext", 0, "IfcProject", "IfcUnitAssignment"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcContext", "IfcLabel"], ["LongName", 1, "IfcContext", "IfcLabel"], ["Phase", 1, "IfcContext", "IfcLabel"], ["RepresentationContexts", 1, "IfcContext", "SET [1:?] OF IfcRepresentationContext"], ["UnitsInContext", 1, "IfcContext", "IfcUnitAssignment"]]}, "IfcPropertySet": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["HasProperties", 0, "IfcPropertySet", "SET [1:?] OF IfcProperty"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["HasProperties", 0, "IfcPropertySet", "SET [1:?] OF IfcProperty"]]}, "IfcPropertySingleValue": {"2x3": [["Name", 0, "IfcProperty", "IfcIdentifier"], ["Description", 1, "IfcProperty", "IfcText"], ["NominalValue", 1, "IfcPropertySingleValue", "IfcValue"], ["Unit", 1, "IfcPropertySingleValue", "IfcUnit"]], "4": [["Name", 0, "IfcProperty", "IfcIdentifier"], ["Description", 1, "IfcProperty", "IfcText"], ["NominalValue", 1, "IfcPropertySingleValue", "IfcValue"], ["Unit", 1, "IfcPropertySingleValue", "IfcUnit"]]}, "IfcRectangleProfileDef": {"2x3": [["ProfileType", 0, "IfcProfileDef", "IfcProfileTypeEnum"], ["ProfileName", 1, "IfcProfileDef", "IfcLabel"], ["Position", 0, "IfcParameterizedProfileDef", "IfcAxis2Placement2D"], ["XDim", 0, "IfcRectangleProfileDef", "IfcPositiveLengthMeasure"], ["YDim", 0, "IfcRectangleProfileDef", "IfcPositiveLengthMeasure"]], "4": [["ProfileType", 0, "IfcProfileDef", "IfcProfileTypeEnum"], ["ProfileName", 1, "IfcProfileDef", "IfcLabel"], ["Position", 1, "IfcParameterizedProfileDef", "IfcAxis2Placement2D"], ["XDim", 0, "IfcRectangleProfileDef", "IfcPositiveLengthMeasure"], ["YDim", 0, "IfcRectangleProfileDef", "IfcPositiveLengthMeasure"]]}, "IfcRelAggregates": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatingObject", 0, "IfcRelDecomposes", "IfcObjectDefinition"], ["RelatedObjects", 0, "IfcRelDecomposes", "SET [1:?] OF IfcObjectDefinition"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatingObject", 0, "IfcRelAggregates", "IfcObjectDefinition"], ["RelatedObjects", 0, "IfcRelAggregates", "SET [1:?] OF IfcObjectDefinition"]]}, "IfcRelAssociatesMaterial": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatedObjects", 0, "IfcRelAssociates", "SET [1:?] OF IfcRoot"], ["RelatingMaterial", 0, "IfcRelAssociatesMaterial", "IfcMaterialSelect"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatedObjects", 0, "IfcRelAssociates", "SET [1:?] OF IfcDefinitionSelect"], ["RelatingMaterial", 0, "IfcRelAssociatesMaterial", "IfcMaterialSelect"]]}, "IfcRelContainedInSpatialStructure": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatedElements", 0, "IfcRelContainedInSpatialStructure", "SET [1:?] OF IfcProduct"], ["RelatingStructure", 0, "IfcRelContainedInSpatialStructure", "IfcSpatialStructureElement"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatedElements", 0, "IfcRelContainedInSpatialStructure", "SET [1:?] OF IfcProduct"], ["RelatingStructure", 0, "IfcRelContainedInSpatialStructure", "IfcSpatialElement"]]}, "IfcRelDefinesByProperties": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatedObjects", 0, "IfcRelDefines", "SET [1:?] OF IfcObject"], ["RelatingPropertyDefinition", 0, "IfcRelDefinesByProperties", "IfcPropertySetDefinition"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatedObjects", 0, "IfcRelDefinesByProperties", "SET [1:?] OF IfcObjectDefinition"], ["RelatingPropertyDefinition", 0, "IfcRelDefinesByProperties", "IfcPropertySetDefinitionSelect"]]}, "IfcRelDefinesByType": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatedObjects", 0, "IfcRelDefines", "SET [1:?] OF IfcObject"], ["RelatingType", 0, "IfcRelDefinesByType", "IfcTypeObject"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatedObjects", 0, "IfcRelDefinesByType", "SET [1:?] OF IfcObject"], ["RelatingType", 0, "IfcRelDefinesByType", "IfcTypeObject"]]}, "IfcRelFillsElement": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatingOpeningElement", 0, "IfcRelFillsElement", "IfcOpeningElement"], ["RelatedBuildingElement", 0, "IfcRelFillsElement", "IfcElement"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatingOpeningElement", 0, "IfcRelFillsElement", "IfcOpeningElement"], ["RelatedBuildingElement", 0, "IfcRelFillsElement", "IfcElement"]]}, "IfcRelVoidsElement": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatingBuildingElement", 0, "IfcRelVoidsElement", "IfcElement"], ["RelatedOpeningElement", 0, "IfcRelVoidsElement", "IfcFeatureElementSubtraction"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["RelatingBuildingElement", 0, "IfcRelVoidsElement", "IfcElement"], ["RelatedOpeningElement", 0, "IfcRelVoidsElement", "IfcFeatureElementSubtraction"]]}, "IfcSIUnit": {"2x3": [["Dimensions", 0, "IfcNamedUnit", "IfcDimensionalExponents"], ["UnitType", 0, "IfcNamedUnit", "IfcUnitEnum"], ["Prefix", 1, "IfcSIUnit", "IfcSIPrefix"], ["Name", 0, "IfcSIUnit", "IfcSIUnitName"]], "4": [["Dimensions", 0, "IfcNamedUnit", "IfcDimensionalExponents"], ["UnitType", 0, "IfcNamedUnit", "IfcUnitEnum"], ["Prefix", 1, "IfcSIUnit", "IfcSIPrefix"], ["Name", 0, "IfcSIUnit", "IfcSIUnitName"]]}, "IfcShapeRepresentation": {"2x3": [["ContextOfItems", 0, "IfcRepresentation", "IfcRepresentationContext"], ["RepresentationIdentifier", 1, "IfcRepresentation", "IfcLabel"], ["RepresentationType", 1, "IfcRepresentation", "IfcLabel"], ["Items", 0, "IfcRepresentation", "SET [1:?] OF IfcRepresentationItem"]], "4": [["ContextOfItems", 0, "IfcRepresentation", "IfcRepresentationContext"], ["RepresentationIdentifier", 1, "IfcRepresentation", "IfcLabel"], ["RepresentationType", 1, "IfcRepresentation", "IfcLabel"], ["Items", 0, "IfcRepresentation", "SET [1:?] OF IfcRepresentationItem"]]}, "IfcSite": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["LongName", 1, "IfcSpatialStructureElement", "IfcLabel"], ["CompositionType", 0, "IfcSpatialStructureElement", "IfcElementCompositionEnum"], ["RefLatitude", 1, "IfcSite", "IfcCompoundPlaneAngleMeasure"], ["RefLongitude", 1, "IfcSite", "IfcCompoundPlaneAngleMeasure"], ["RefElevation", 1, "IfcSite", "IfcLengthMeasure"], ["LandTitleNumber", 1, "IfcSite", "IfcLabel"], ["SiteAddress", 1, "IfcSite", "IfcPostalAddress"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["LongName", 1, "IfcSpatialElement", "IfcLabel"], ["CompositionType", 1, "IfcSpatialStructureElement", "IfcElementCompositionEnum"], ["RefLatitude", 1, "IfcSite", "IfcCompoundPlaneAngleMeasure"], ["RefLongitude", 1, "IfcSite", "IfcCompoundPlaneAngleMeasure"], ["RefElevation", 1, "IfcSite", "IfcLengthMeasure"], ["LandTitleNumber", 1, "IfcSite", "IfcLabel"], ["SiteAddress", 1, "IfcSite", "IfcPostalAddress"]]}, "IfcUnitAssignment": {"2x3": [["Units", 0, "IfcUnitAssignment", "SET [1:?] OF IfcUnit"]], "4": [["Units", 0, "IfcUnitAssignment", "SET [1:?] OF IfcUnit"]]}, "IfcWall": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["Tag", 1, "IfcElement", "IfcIdentifier"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ObjectType", 1, "IfcObject", "IfcLabel"], ["ObjectPlacement", 1, "IfcProduct", "IfcObjectPlacement"], ["Representation", 1, "IfcProduct", "IfcProductRepresentation"], ["Tag", 1, "IfcElement", "IfcIdentifier"], ["PredefinedType", 1, "IfcWall", "IfcWallTypeEnum"]]}, "IfcWallType": {"2x3": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 0, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ApplicableOccurrence", 1, "IfcTypeObject", "IfcLabel"], ["HasPropertySets", 1, "IfcTypeObject", "SET [1:?] OF IfcPropertySetDefinition"], ["RepresentationMaps", 1, "IfcTypeProduct", "LIST [1:?] OF UNIQUE IfcRepresentationMap"], ["Tag", 1, "IfcTypeProduct", "IfcLabel"], ["ElementType", 1, "IfcElementType", "IfcLabel"], ["PredefinedType", 0, "IfcWallType", "IfcWallTypeEnum"]], "4": [["GlobalId", 0, "IfcRoot", "IfcGloballyUniqueId"], ["OwnerHistory", 1, "IfcRoot", "IfcOwnerHistory"], ["Name", 1, "IfcRoot", "IfcLabel"], ["Description", 1, "IfcRoot", "IfcText"], ["ApplicableOccurrence", 1, "IfcTypeObject", "IfcIdentifier"], ["HasPropertySets", 1, "IfcTypeObject", "SET [1:?] OF IfcPropertySetDefinition"], ["RepresentationMaps", 1, "IfcTypeProduct", "LIST [1:?] OF UNIQUE IfcRepresentationMap"], ["Tag", 1, "IfcTypeProduct", "IfcLabel"], ["ElementType", 1, "IfcElementType", "IfcLabel"], ["PredefinedType", 0, "IfcWallType", "IfcWallTypeEnum"]]}}, "attrfr": {"State": {"fr": "État", "def": "État de l'objet dans le cycle de vie du fichier IFC (READWRITE, READONLY, LOCKED...)."}, "Precision": {"fr": "Précision numérique", "def": "Tolérance numérique du modèle géométrique, en mètres (ex : 0.001 = 1mm)."}, "ApplicationDeveloper": {"fr": "Éditeur du logiciel", "def": "Organisation qui a développé le logiciel."}, "Representation": {"fr": "Représentation", "def": "Géométries 3D et autres représentations visuelles associées à l'objet."}, "Name": {"fr": "Nom", "def": "Nom court identifiant l'élément dans l'interface du logiciel (ex : \"Mur porteur RDC-01\")."}, "DirectionRatios": {"fr": "Ratios de direction", "def": "Composantes du vecteur de direction, normalisées : (X, Y) ou (X, Y, Z)."}, "Position": {"fr": "Position du profil", "def": "Repère de placement du profil dans son plan de référence."}, "ApplicationFullName": {"fr": "Nom complet du logiciel", "def": "Nom commercial complet du logiciel (ex : \"Archicad 27\", \"Revit 2024\")."}, "Tag": {"fr": "Étiquette / Repère", "def": "Référence de repérage sur les plans — numéro ou code unique visible dans les nomenclatures."}, "PredefinedType": {"fr": "Type prédéfini", "def": "Sous-type normalisé de l'élément, choisi dans l'énumération IFC."}, "GivenName": {"fr": "Prénom", "def": "Prénom de la personne."}, "RelatingBuildingElement": {"fr": "Élément de construction liant", "def": "Élément de construction dans lequel l'ouverture est pratiquée."}, "GlobalId": {"fr": "Identifiant unique (GUID)", "def": "Identifiant universel unique de 22 caractères, généré une seule fois. Stable et immuable pour toute la durée de vie de l'objet dans tous les logiciels."}, "Items": {"fr": "Éléments géométriques", "def": "Ensemble des éléments géométriques constituant cette représentation."}, "RefDirection": {"fr": "Direction de référence X", "def": "Direction de l'axe X du repère (référence horizontale)."}, "Elevation": {"fr": "Altitude du niveau", "def": "Altitude du plan de référence de ce niveau par rapport au zéro projet (en mètres)."}, "Identification": {"fr": "Identification", "def": "Identifiant du document attribué par son émetteur."}, "Depth": {"fr": "Profondeur / Hauteur", "def": "Dimension verticale ou de profondeur de l'élément ou du profil, en mètres."}, "Unit": {"fr": "Unité", "def": "Unité de mesure de la valeur (mètres, Pascal, Kelvin...). Si absent, l'unité globale du projet s'applique."}, "ContextOfItems": {"fr": "Contexte des éléments", "def": "Contexte de représentation dans lequel les éléments de la représentation sont définis."}, "BuildingAddress": {"fr": "Adresse du bâtiment", "def": "Adresse postale du bâtiment (peut différer de l'adresse du site si plusieurs bâtiments)."}, "ChangeAction": {"fr": "Action de modification", "def": "Type de modification effectuée : ADDED, MODIFIED, DELETED, NOCHANGE."}, "RelatingObject": {"fr": "Objet liant", "def": "Objet dont les définitions de propriétés sont reprises par les objets liés."}, "OverallWidth": {"fr": "Largeur hors-tout", "def": "Largeur totale hors-tout du profil (semelles comprises), en mètres."}, "OwnerHistory": {"fr": "Historique propriétaire", "def": "Enregistrement de la création et des dernières modifications — auteur, date, logiciel utilisé."}, "RelatingType": {"fr": "Type relié", "def": "Type d'objet auquel sont rattachées les occurrences concernées par la relation."}, "Version": {"fr": "Version", "def": "Numéro de version de la bibliothèque ou de la référence."}, "XDim": {"fr": "Dimension X", "def": "Largeur du profil rectangulaire dans l'axe X, en mètres."}, "ElevationOfTerrain": {"fr": "Altitude du terrain naturel", "def": "Altitude moyenne du terrain naturel au pied du bâtiment."}, "ExtrudedDirection": {"fr": "Direction d'extrusion", "def": "Vecteur indiquant la direction et le sens de l'extrusion."}, "ApplicableOccurrence": {"fr": "Occurrence applicable", "def": "Filtre optionnel indiquant à quels types d'occurrences ce type peut être appliqué."}, "ThePerson": {"fr": "La personne", "def": "Référence à la personne physique (IfcPerson) dans cette association."}, "RefElevation": {"fr": "Altitude de référence", "def": "Altitude NGF (Nivellement Général de la France) de l'origine du projet, en mètres."}, "FamilyName": {"fr": "Nom de famille", "def": "Nom de famille (prénom exclu) de la personne."}, "UnitType": {"fr": "Type d'unité", "def": "Grandeur physique mesurée : LENGTHUNIT, AREAUNIT, VOLUMEUNIT, MASSUNIT..."}, "SuffixTitles": {"fr": "Titre post-nominal", "def": "Titre suivant le nom (ex : \"DPLG\", \"ing.\", \"MBA\")."}, "RelativePlacement": {"fr": "Placement relatif", "def": "Position et orientation dans le repère parent — point, axe Z, axe X."}, "ObjectPlacement": {"fr": "Placement", "def": "Position et orientation de l'objet dans l'espace 3D, définis par un repère local."}, "Axis": {"fr": "Axe Z", "def": "Direction de l'axe Z du repère (direction verticale par défaut)."}, "Location": {"fr": "Emplacement", "def": "URL ou chemin d'accès au fichier (ex : \"https://ged.projet.fr/doc-001.pdf\")."}, "RepresentationContexts": {"fr": "Contextes de représentation", "def": "Contextes géométriques du projet — définit les systèmes de coordonnées et la précision numérique."}, "Id": {"fr": "Identifiant", "def": "Identifiant court unique de la personne ou organisation dans le système."}, "RelatedObjects": {"fr": "Objets liés", "def": "Ensemble des objets affectés par la relation."}, "LastModifyingApplication": {"fr": "Dernière application modificatrice", "def": "Logiciel ayant effectué la dernière modification enregistrée."}, "TheOrganization": {"fr": "L'organisation", "def": "Référence à l'organisation (IfcOrganization) dans cette association."}, "RelatingOpeningElement": {"fr": "Ouverture liante", "def": "Ouverture (trémie) remplie par l'élément."}, "RelatingMaterial": {"fr": "Matériau liant", "def": "Matériau (ou ensemble de matériaux) associé aux objets."}, "Units": {"fr": "Unités", "def": "Liste des unités de mesure définies pour ce projet (longueur, surface, angle...)."}, "Phase": {"fr": "Phase", "def": "Phase actuelle du projet (ex : \"Esquisse\", \"APD\", \"Exécution\", \"Réception\")."}, "NominalValue": {"fr": "Valeur nominale", "def": "Valeur principale de la propriété avec son unité (ex : 20cm, EI60, 0.038 W/m·K)."}, "UserDefinedOperationType": {"fr": "Type de fonctionnement personnalisé", "def": "Type de fonctionnement de la porte défini par l'utilisateur lorsque le type est personnalisé."}, "HasProperties": {"fr": "Propriétés", "def": "Liste des propriétés individuelles (IfcProperty) contenues dans ce jeu."}, "WorldCoordinateSystem": {"fr": "Système de coordonnées mondial", "def": "Repère de référence mondial (WCS) du projet — point d'origine et axes."}, "RelatingPropertyDefinition": {"fr": "Définition de propriétés liante", "def": "Jeu de propriétés ou quantités attribué aux objets."}, "ObjectType": {"fr": "Type d'objet", "def": "Sous-type personnalisé de l'objet quand le PredefinedType normalisé ne couvre pas le cas."}, "TrueNorth": {"fr": "Nord vrai", "def": "Direction du nord géographique dans le repère du projet (vecteur 2D normalisé)."}, "RefLongitude": {"fr": "Longitude de référence", "def": "Longitude géographique GPS du point d'origine du site."}, "RepresentationType": {"fr": "Type de représentation", "def": "Méthode de modélisation : \"SweptSolid\", \"CSG\", \"Brep\", \"Curve2D\"..."}, "LongName": {"fr": "Nom complet", "def": "Nom complet et officiel du projet (ex : \"Construction du nouveau lycée Jean Jaurès\")."}, "CoordinateSpaceDimension": {"fr": "Dimension de l'espace", "def": "Nombre de dimensions du contexte géométrique : 2 ou 3."}, "Dimensions": {"fr": "Dimensions", "def": "Dimensions de l'unité dérivée : liste de paires [unité SI, exposant]."}, "RelatingStructure": {"fr": "Structure liante", "def": "Élément de structure spatiale (bâtiment, niveau, espace...) qui contient les éléments."}, "OwningApplication": {"fr": "Application propriétaire", "def": "Logiciel ayant créé ou modifié l'objet."}, "UnitsInContext": {"fr": "Unités du projet", "def": "Unités de mesure utilisées dans tout le fichier IFC (longueur, surface, angle, masse…)."}, "SweptArea": {"fr": "Profil de base", "def": "Section transversale 2D extrudée pour former le solide."}, "Prefix": {"fr": "Préfixe", "def": "Préfixe multiplicateur SI : MILLI, CENTI, KILO, MEGA..."}, "RepresentationMaps": {"fr": "Cartes de représentation", "def": "Géométries de référence du type, réutilisées à chaque placement d'occurrence."}, "Category": {"fr": "Catégorie", "def": "Catégorie du matériau (par exemple bois, béton, acier)."}, "LastModifyingUser": {"fr": "Dernier utilisateur modificateur", "def": "Personne ayant effectué la dernière modification enregistrée."}, "RefLatitude": {"fr": "Latitude de référence", "def": "Latitude géographique GPS du point d'origine du site (degrés, minutes, secondes, millièmes)."}, "Coordinates": {"fr": "Coordonnées", "def": "Valeurs numériques des coordonnées du point : (X, Y) en 2D ou (X, Y, Z) en 3D, en mètres."}, "LastModifiedDate": {"fr": "Date de dernière modification", "def": "Horodatage (Unix timestamp) de la dernière modification de l'objet."}, "ElevationOfRefHeight": {"fr": "Altitude de référence du bâtiment", "def": "Altitude du niveau zéro de référence du bâtiment par rapport au NGF."}, "CompositionType": {"fr": "Type de composition", "def": "Indique si l'élément est un ensemble (COMPLEX), un élément unitaire (ELEMENT) ou une partie (PARTIAL)."}, "Roles": {"fr": "Rôles", "def": "Liste des rôles professionnels de la personne ou organisation dans le projet."}, "ProfileName": {"fr": "Nom normalisé du profil", "def": "Désignation normalisée du profil (ex : \"IPE300\", \"HEA200\", \"CHS219.1x8\")."}, "RelatedBuildingElement": {"fr": "Élément de construction lié", "def": "Élément de construction qui forme la limite de l'espace."}, "Addresses": {"fr": "Adresses", "def": "Liste des adresses (postale, télécom) de la personne ou organisation."}, "CreationDate": {"fr": "Date de création", "def": "Date à laquelle ce plan ou calendrier a été créé."}, "Representations": {"fr": "Représentations", "def": "Liste de toutes les représentations géométriques de cet objet."}, "RepresentationIdentifier": {"fr": "Identifiant de représentation", "def": "Nom identifiant cette représentation : \"Body\" (3D), \"Axis\", \"Box\", \"FootPrint\"..."}, "RelatedOpeningElement": {"fr": "Ouverture liée", "def": "Ouverture (soustraction de forme) pratiquée dans l'élément."}, "Description": {"fr": "Description", "def": "Texte libre décrivant l'élément en détail — notes de conception ou instructions de mise en œuvre."}, "RelatedElements": {"fr": "Éléments liés", "def": "Ensemble des produits contenus dans la structure spatiale."}, "SiteAddress": {"fr": "Adresse du site", "def": "Adresse postale officielle du terrain ou du chantier."}, "OperationType": {"fr": "Type de fonctionnement", "def": "Mode de fonctionnement de la porte (battante, coulissante, pivotante...)."}, "PrefixTitles": {"fr": "Titre de civilité", "def": "Titre précédant le nom (ex : \"M.\", \"Mme\", \"Dr\", \"Pr\")."}, "HasPropertySets": {"fr": "Jeux de propriétés associés", "def": "Liste des jeux de propriétés définissant les caractéristiques techniques de ce type."}, "MiddleNames": {"fr": "Prénoms secondaires", "def": "Autres prénoms éventuels de la personne."}, "ContextIdentifier": {"fr": "Identifiant du contexte", "def": "Nom court identifiant ce contexte de représentation (ex : \"Body\", \"FootPrint\", \"Axis\")."}, "OwningUser": {"fr": "Utilisateur propriétaire", "def": "Personne ayant créé ou dernièrement modifié l'objet."}, "ContextType": {"fr": "Type de contexte", "def": "Dimension du contexte : \"Model\" (3D), \"Plan\" (2D), \"Sketch\"."}, "ElementType": {"fr": "Type d'élément", "def": "Désignation ou référence catalogue du type d'élément (ex : \"IPE300\", \"Porte coupe-feu EI60\")."}, "ProfileType": {"fr": "Type de profil", "def": "Usage du profil : AREA (section fermée pleine) ou CURVE (contour ouvert)."}, "OverallHeight": {"fr": "Hauteur hors-tout", "def": "Dimension verticale totale de l'élément, du bas au haut, en mètres."}, "PlacementRelTo": {"fr": "Placement parent", "def": "Référence au repère parent par rapport auquel ce placement est relatif."}, "YDim": {"fr": "Dimension Y", "def": "Hauteur du profil rectangulaire dans l'axe Y, en mètres."}, "ApplicationIdentifier": {"fr": "Identifiant du logiciel", "def": "Code court unique identifiant le logiciel (ex : \"AC27\", \"RVT2024\")."}, "LandTitleNumber": {"fr": "Référence cadastrale", "def": "Numéro de parcelle cadastrale officielle du terrain."}}, "entfr": {"IfcAxis2Placement2D": "Repère cartésien 2D", "IfcWall": "Mur", "IfcSweptAreaSolid": "Solide par balayage (base)", "IfcMaterialDefinition": "Définition de matériau", "IfcApplication": "Application logicielle", "IfcRelVoidsElement": "Trémie / Vide dans élément", "IfcObject": "Objet (base)", "IfcGeometricRepresentationItem": "Primitive géométrique", "IfcRepresentationContext": "Contexte de représentation", "IfcSimpleProperty": "Propriété simple", "IfcRelContainedInSpatialStructure": "Contenance spatiale", "IfcRelAssociates": "Association", "IfcPropertySetDefinition": "Déf. de jeu de propriétés", "IfcRelDecomposes": "Décomposition", "IfcRelDefines": "Définition par relation", "IfcPropertyAbstraction": "Abstraction de propriété", "IfcOpeningElement": "Ouverture / trémie", "IfcRelationship": "Relation", "IfcPersonAndOrganization": "Personne et Organisation", "IfcPropertyDefinition": "Définition de propriété", "IfcRelAssociatesMaterial": "Association matériau", "IfcExtrudedAreaSolid": "Solide par extrusion", "IfcSite": "Terrain", "IfcPoint": "Point géométrique", "IfcRepresentationItem": "Élément de représentation", "IfcSolidModel": "Modèle solide", "IfcSpatialStructureElement": "Élément de structure spatiale", "IfcProfileDef": "Définition de profil", "IfcCartesianPoint": "Point cartésien", "IfcObjectDefinition": "Définition d'objet", "IfcLocalPlacement": "Placement local", "IfcNamedUnit": "Unité nommée (base)", "IfcPerson": "Personne", "IfcFeatureElementSubtraction": "Retrait de forme", "IfcRoot": "Racine IFC", "IfcSIUnit": "Unité SI", "IfcPropertySet": "Jeu de propriétés", "IfcDoor": "Porte", "IfcContext": "Contexte (projet ou bibliothèque)", "IfcProductRepresentation": "Représentation de produit", "IfcRepresentation": "Représentation", "IfcObjectPlacement": "Placement d'objet", "IfcOrganization": "Organisation", "IfcUnitAssignment": "Affectation des unités", "IfcMaterial": "Matériau", "IfcProperty": "Propriété", "IfcElementType": "Type d'élément (base)", "IfcTypeProduct": "Type de produit (base)", "IfcParameterizedProfileDef": "Profil paramétrique", "IfcBuildingElement": "Élément de bâtiment", "IfcShapeRepresentation": "Représentation de forme", "IfcRelFillsElement": "Remplissage d'ouverture", "IfcBuildingElementType": "Type d'élément de bâtiment (base)", "IfcBuilding": "Bâtiment", "IfcProject": "Projet", "IfcTypeObject": "Type d'objet (base)", "IfcRelDefinesByProperties": "Définition par propriétés", "IfcProductDefinitionShape": "Forme de définition du produit", "IfcRectangleProfileDef": "Profil rectangulaire", "IfcGeometricRepresentationContext": "Contexte géométrique", "IfcElement": "Élément", "IfcPlacement": "Placement", "IfcDirection": "Direction / Vecteur", "IfcProduct": "Produit (base)", "IfcShapeModel": "Modèle de forme", "IfcBuildingStorey": "Niveau / Étage", "IfcFeatureElement": "Élément de modification", "IfcPropertySingleValue": "Valeur simple", "IfcRelConnects": "Connexion", "IfcRelDefinesByType": "Définition par type", "IfcAxis2Placement3D": "Repère cartésien 3D", "IfcWallType": "Type de mur", "IfcRelAggregates": "Agrégation", "IfcOwnerHistory": "Historique propriétaire", "IfcSpatialElement": "Élément spatial"}, "enumfr": {"IfcChangeActionEnum": {"ADDED": "Ajouté", "DELETED": "Supprimé", "MODIFIED": "Modifié", "NOCHANGE": "Aucune modification", "NOTDEFINED": "Non défini", "MODIFIEDADDED": "Ajout avec modification", "MODIFIEDDELETED": "Suppression avec modification"}, "IfcDoorTypeEnum": {"BOOM_BARRIER": "Barrière levante", "DOOR": "Porte", "GATE": "Portail", "TRAPDOOR": "Trappe", "TURNSTILE": "Tourniquet", "USERDEFINED": "Type personnalisé", "NOTDEFINED": "Non défini"}, "IfcDoorTypeOperationEnum": {"DOUBLE_DOOR_DOUBLE_SWING": "Double porte va-et-vient", "DOUBLE_DOOR_FOLDING": "Double porte pliante", "DOUBLE_DOOR_LIFTING_VERTICAL": "Double porte à relevage vertical", "DOUBLE_DOOR_SINGLE_SWING": "Double porte battante", "DOUBLE_DOOR_SINGLE_SWING_OPPOSITE_LEFT": "Double porte battante, sens opposés (gauche)", "DOUBLE_DOOR_SINGLE_SWING_OPPOSITE_RIGHT": "Double porte battante, sens opposés (droite)", "DOUBLE_DOOR_SLIDING": "Double porte coulissante", "DOUBLE_SWING_LEFT": "Porte va-et-vient à gauche", "DOUBLE_SWING_RIGHT": "Porte va-et-vient à droite", "FOLDING_TO_LEFT": "Porte pliante vers la gauche", "FOLDING_TO_RIGHT": "Porte pliante vers la droite", "LIFTING_HORIZONTAL": "Porte à relevage horizontal", "LIFTING_VERTICAL_LEFT": "Porte à relevage vertical à gauche", "LIFTING_VERTICAL_RIGHT": "Porte à relevage vertical à droite", "REVOLVING": "Porte tournante", "REVOLVING_VERTICAL": "Porte tournante verticale", "ROLLINGUP": "Porte enroulable", "SINGLE_SWING_LEFT": "Porte battante à gauche", "SINGLE_SWING_RIGHT": "Porte battante à droite", "SLIDING_TO_LEFT": "Porte coulissante vers la gauche", "SLIDING_TO_RIGHT": "Porte coulissante vers la droite", "SWING_FIXED_LEFT": "Porte battante avec fixe à gauche", "SWING_FIXED_RIGHT": "Porte battante avec fixe à droite", "USERDEFINED": "Type personnalisé", "NOTDEFINED": "Non défini"}, "IfcElementCompositionEnum": {"COMPLEX": "Complexe", "ELEMENT": "Élément unitaire", "PARTIAL": "Partiel"}, "IfcOpeningElementTypeEnum": {"OPENING": "Trémie traversante", "RECESS": "Réservation partielle", "USERDEFINED": "Type personnalisé", "NOTDEFINED": "Non défini"}, "IfcProfileTypeEnum": {"AREA": "Surface", "CURVE": "Courbe"}, "IfcSIPrefix": {"ATTO": "atto (10^-18)", "CENTI": "centi (10^-2)", "DECA": "déca (10^1)", "DECI": "déci (10^-1)", "EXA": "exa (10^18)", "FEMTO": "femto (10^-15)", "GIGA": "giga (10^9)", "HECTO": "hecto (10^2)", "KILO": "kilo (10^3)", "MEGA": "méga (10^6)", "MICRO": "micro (10^-6)", "MILLI": "milli (10^-3)", "NANO": "nano (10^-9)", "PETA": "péta (10^15)", "PICO": "pico (10^-12)", "TERA": "téra (10^12)"}, "IfcSIUnitName": {"AMPERE": "Ampère (A)", "BECQUEREL": "Becquerel (Bq)", "CANDELA": "Candela (cd)", "COULOMB": "Coulomb (C)", "CUBIC_METRE": "Mètre cube (m³)", "DEGREE_CELSIUS": "Degré Celsius (°C)", "FARAD": "Farad (F)", "GRAM": "Gramme (g)", "GRAY": "Gray (Gy)", "HENRY": "Henry (H)", "HERTZ": "Hertz (Hz)", "JOULE": "Joule (J)", "KELVIN": "Kelvin (K)", "LUMEN": "Lumen (lm)", "LUX": "Lux (lx)", "METRE": "Mètre (m)", "MOLE": "Mole (mol)", "NEWTON": "Newton (N)", "OHM": "Ohm (Ω)", "PASCAL": "Pascal (Pa)", "RADIAN": "Radian (rad)", "SECOND": "Seconde (s)", "SIEMENS": "Siemens (S)", "SIEVERT": "Sievert (Sv)", "SQUARE_METRE": "Mètre carré (m²)", "STERADIAN": "Stéradian (sr)", "TESLA": "Tesla (T)", "VOLT": "Volt (V)", "WATT": "Watt (W)", "WEBER": "Weber (Wb)"}, "IfcStateEnum": {"LOCKED": "Verrouillé", "READONLY": "Lecture seule", "READONLYLOCKED": "Lecture seule verrouillée", "READWRITE": "Lecture et écriture", "READWRITELOCKED": "Lecture et écriture verrouillées"}, "IfcUnitEnum": {"ABSORBEDDOSEUNIT": "Dose absorbée", "AMOUNTOFSUBSTANCEUNIT": "Quantité de matière", "AREAUNIT": "Surface", "DOSEEQUIVALENTUNIT": "Dose équivalente", "ELECTRICCAPACITANCEUNIT": "Capacité électrique", "ELECTRICCHARGEUNIT": "Charge électrique", "ELECTRICCONDUCTANCEUNIT": "Conductance électrique", "ELECTRICCURRENTUNIT": "Courant électrique", "ELECTRICRESISTANCEUNIT": "Résistance électrique", "ELECTRICVOLTAGEUNIT": "Tension électrique", "ENERGYUNIT": "Énergie", "FORCEUNIT": "Force", "FREQUENCYUNIT": "Fréquence", "ILLUMINANCEUNIT": "Éclairement lumineux", "INDUCTANCEUNIT": "Inductance", "LENGTHUNIT": "Longueur", "LUMINOUSFLUXUNIT": "Flux lumineux", "LUMINOUSINTENSITYUNIT": "Intensité lumineuse", "MAGNETICFLUXDENSITYUNIT": "Densité de flux magnétique", "MAGNETICFLUXUNIT": "Flux magnétique", "MASSUNIT": "Masse", "PLANEANGLEUNIT": "Angle plan", "POWERUNIT": "Puissance", "PRESSUREUNIT": "Pression", "RADIOACTIVITYUNIT": "Radioactivité", "SOLIDANGLEUNIT": "Angle solide", "THERMODYNAMICTEMPERATUREUNIT": "Température thermodynamique", "TIMEUNIT": "Temps", "VOLUMEUNIT": "Volume", "USERDEFINED": "Type personnalisé"}, "IfcWallTypeEnum": {"ELEMENTEDWALL": "Mur en éléments", "MOVABLE": "Mur mobile", "PARAPET": "Parapet", "PARTITIONING": "Cloison", "PLUMBINGWALL": "Cloison technique", "POLYGONAL": "Mur polygonal", "RETAININGWALL": "Mur de soutènement", "SHEAR": "Voile de cisaillement", "SOLIDWALL": "Mur plein", "STANDARD": "Mur standard", "WAVEWALL": "Mur brise-lames", "USERDEFINED": "Type personnalisé", "NOTDEFINED": "Non défini"}}};
+
+const LAYERS = [
+  {k:'spatial', fr:'Structure spatiale', c:'--sp'},
+  {k:'elem',    fr:'Éléments',           c:'--gr'},
+  {k:'data',    fr:'Propriétés, matériau, type', c:'--pu'},
+  {k:'geo',     fr:'Placement & géométrie', c:'--am'},
+  {k:'ctx',     fr:'Contexte & unités',  c:'--ac'},
+];
+const STEPS = [
+  {t:"Le squelette du fichier", on:[], focus:'FILE_SCHEMA',
+   p:"Un fichier .ifc est un simple fichier texte, lisible dans n'importe quel éditeur. Il suit le format STEP (norme ISO 10303-21) : il s'ouvre par <code>ISO-10303-21;</code> et se ferme par <code>END-ISO-10303-21;</code>. Entre les deux, deux sections : <b>HEADER</b>, qui décrit le fichier (nom, auteur, logiciel, vue d'échange), et <b>DATA</b>, le contenu, avec une entité par ligne. La ligne <code>FILE_SCHEMA</code> est capitale : elle indique la version (IFC2X3 ou IFC4) dans laquelle il faut lire tout le reste."},
+  {t:"La structure spatiale", on:['spatial'], focus:26,
+   p:"Quatre lignes décrivent l'organisation spatiale : le projet (#12), le terrain (#21), le bâtiment (#23) et le niveau (#25). Aucune ne cite directement les autres : ce sont trois lignes <code>IFCRELAGGREGATES</code> (#26 à #28) qui relient chaque niveau de la hiérarchie au suivant. En IFC, une relation est elle-même une entité, avec sa propre ligne et son propre GUID."},
+  {t:"Les éléments et leur rangement", on:['spatial','elem'], focus:38,
+   p:"Le mur (#31), la baie (#33) et la porte (#36) sont des éléments. Trois relations les mettent en place : <code>IFCRELVOIDSELEMENT</code> (#34), la baie évide le mur ; <code>IFCRELFILLSELEMENT</code> (#37), la porte remplit la baie ; <code>IFCRELCONTAINEDINSPATIALSTRUCTURE</code> (#38), le mur et la porte sont contenus dans le RDC. La baie n'est pas rangée dans le niveau : elle n'existe qu'à travers le mur qu'elle perce."},
+  {t:"Les données : propriétés, matériau, type", on:['spatial','elem','data'], focus:53,
+   p:"Les informations non géométriques sont, elles aussi, attachées par des relations. <code>IFCRELDEFINESBYPROPERTIES</code> (#53) relie le mur au jeu de propriétés <code>Pset_WallCommon</code> (#52), qui regroupe deux propriétés (#50, #51) aux valeurs typées : <code>IFCBOOLEAN(.T.)</code>, <code>IFCLABEL('EI60')</code>. <code>IFCRELASSOCIATESMATERIAL</code> (#61) donne le matériau, <code>IFCRELDEFINESBYTYPE</code> (#71) le type. Les caractères accentués sont encodés : <code>B\\X2\\00E9\\X0\\ton</code> se lit « Béton »."},
+  {t:"Placement et géométrie", on:['spatial','elem','data','geo'], focus:42,
+   p:"Chaque produit a un placement (où ?) et une représentation (quelle forme ?). Les placements sont relatifs : le mur (#30) est placé par rapport au niveau (#24), lui-même placé par rapport au bâtiment (#22), puis au terrain (#20). La forme du mur suit une chaîne : <code>IFCPRODUCTDEFINITIONSHAPE</code> (#40) → représentation « Body » (#41) → volume extrudé (#42) : un profil rectangle de 5,00 × 0,20 m (#43) extrudé de 2,70 m vers le haut (#45)."},
+  {t:"Le contexte : qui, avec quoi, dans quelles unités", on:['spatial','elem','data','geo','ctx'], focus:5,
+   p:"Dernière couche : le contexte. <code>IFCOWNERHISTORY</code> (#5) indique qui a créé les objets et avec quel logiciel (#1 à #4). C'est le deuxième argument de presque toutes les lignes, d'où le grand nombre de renvois vers #5 (masqués par défaut dans le schéma). En IFC4, cet historique devient facultatif. <code>IFCUNITASSIGNMENT</code> (#8) fixe les unités : toutes les longueurs du fichier (2.7, 5., 0.2) sont en mètres. Dans <code>IFCSIUNIT(*,…)</code>, l'astérisque signale une valeur dérivée, calculée par le schéma et non écrite."},
+];
+const COLS = [
+  {t:'Contexte', ids:[5,3,1,2,4,8,6,7,11]},
+  {t:'Structure spatiale', ids:[12,21,23,25]},
+  {t:'Relations', ids:[26,27,28,38,34,37]},
+  {t:'Éléments', ids:[31,33,36]},
+  {t:'Données', ids:[53,52,50,51,61,60,71,70]},
+  {t:'Placement & géométrie', ids:[20,22,24,30,32,35,40,41,42,43,44,46,45,10,9]},
+];
+const HEADER = {
+  '2x3':{desc:"'ViewDefinition [CoordinationView_V2.0]'", schema:"'IFC2X3'"},
+  '4':  {desc:"'ViewDefinition [ReferenceView_V1.2]'", schema:"'IFC4'"},
+};
+const FIXED_EXPL = {
+  'ISO-10303-21;':"Début du fichier : annonce le format STEP « texte clair » défini par la norme ISO 10303-21.",
+  'HEADER;':"Début de l'en-tête : trois lignes obligatoires décrivent le fichier lui-même, pas le bâtiment.",
+  'ENDSEC;':"Fin de section (de l'en-tête ou des données).",
+  'DATA;':"Début des données : une entité par ligne, chacune avec son numéro #n.",
+  'END-ISO-10303-21;':"Fin du fichier.",
+};
+const HDR_ATTRS = {
+  FILE_DESCRIPTION:[["description","Description","Ici, la vue d'échange (MVD) utilisée à l'export : elle dit quel sous-ensemble d'IFC le fichier respecte."],["implementation_level","Niveau d'implémentation","Version du format STEP utilisée (2;1 = conforme ISO 10303-21 édition 2)."]],
+  FILE_NAME:[["name","Nom du fichier",""],["time_stamp","Date de création","Format ISO 8601 : année-mois-jour T heure."],["author","Auteur(s)","Liste de textes."],["organization","Organisation(s)","Liste de textes."],["preprocessor_version","Outil d'écriture","Bibliothèque ou exporteur qui a écrit le fichier."],["originating_system","Logiciel d'origine","Logiciel qui a produit la maquette."],["authorization","Autorisation","Souvent vide."]],
+  FILE_SCHEMA:[["schema_identifiers","Version du schéma","Détermine comment lire chaque ligne de DATA : nombre, ordre et sens des arguments."]],
+};
+
+let ver = '2x3', sel = null, stepIdx = 0, showOH = false;
+let on = new Set();
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ── Lecture d'une ligne STEP : découpe les arguments de premier niveau ── */
+function splitArgs(s){
+  const out = []; let depth = 0, inStr = false, cur = '';
+  for(let i = 0; i < s.length; i++){
+    const c = s[i];
+    if(inStr){ cur += c; if(c === "'"){ if(s[i+1] === "'"){ cur += "'"; i++; } else inStr = false; } continue; }
+    if(c === "'"){ inStr = true; cur += c; continue; }
+    if(c === '('){ depth++; cur += c; continue; }
+    if(c === ')'){ depth--; cur += c; continue; }
+    if(c === ',' && depth === 0){ out.push(cur); cur = ''; continue; }
+    cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+function kindOf(a){
+  if(a === '$') return 'null';
+  if(a === '*') return 'derived';
+  if(a[0] === "'") return 'str';
+  if(a[0] === '#') return 'ref';
+  if(a[0] === '(') return 'list';
+  if(/^\.[A-Z0-9_]+\.$/.test(a)) return 'enum';
+  if(/^[A-Z0-9_]+\(/.test(a)) return 'typed';
+  return 'num';
+}
+const KCLS = {null:'t-null',derived:'t-null',str:'t-str',ref:'t-ref',list:'t-ref',enum:'t-enum',typed:'t-typed',num:'t-num'};
+function colorArg(a){
+  const k = kindOf(a);
+  if(k === 'list' || k === 'typed'){
+    return esc(a).replace(/#\d+/g, m => `<span class="t-ref">${m}</span>`)
+                 .replace(/'[^']*'/g, m => `<span class="t-str">${m}</span>`)
+                 .replace(/\.[A-Z_]+\./g, m => `<span class="t-enum">${m}</span>`);
+  }
+  return `<span class="${KCLS[k]}">${esc(a)}</span>`;
+}
+function decodeStr(s){
+  return s.slice(1,-1).replace(/''/g,"'").replace(/\\X2\\([0-9A-F]+)\\X0\\/g, (m,h) => h.match(/.{4}/g).map(x => String.fromCharCode(parseInt(x,16))).join(''));
+}
+
+/* ── Construction des lignes du fichier pour la version courante ── */
+function fileLines(){
+  const H = HEADER[ver];
+  const L = [];
+  const fx = (t, sec) => L.push({fixed:true, text:t, sec});
+  fx('ISO-10303-21;','file'); fx('HEADER;','hdr');
+  L.push({hdr:'FILE_DESCRIPTION', args:[`(${H.desc})`,"'2;1'"], sec:'hdr'});
+  L.push({hdr:'FILE_NAME', args:["'maison.ifc'","'2026-10-10T09:00:00'","('Nico Valette')","('Agence')","'IFC Explorateur'","'Archicad 28'","''"], sec:'hdr'});
+  L.push({hdr:'FILE_SCHEMA', args:[`(${H.schema})`], sec:'hdr'});
+  fx('ENDSEC;','hdr'); fx('DATA;','data');
+  DATA.lines[ver].forEach(d => L.push(Object.assign({sec:'data'}, d)));
+  fx('ENDSEC;','data'); fx('END-ISO-10303-21;','end');
+  L.forEach((l,i) => {
+    l.key = l.id != null ? l.id : (l.hdr || ('fx'+i));
+    if(l.id != null) l.text = `#${l.id}=${l.ent.toUpperCase()}(${l.args.join(',')});`;
+    else if(l.hdr) l.text = `${l.hdr}(${l.args.join(',')});`;
+  });
+  return L;
+}
+function otherVer(){ return ver === '2x3' ? '4' : '2x3'; }
+function lineById(id, v){ return DATA.lines[v || ver].find(d => d.id === id); }
+function refsOf(d){ const r = []; d.args.forEach((a,i) => (a.match(/#\d+/g)||[]).forEach(m => r.push({to:+m.slice(1), i}))); return r; }
+function attrsOf(ent, v){ return DATA.meta[ent][v || ver]; }
+function attrFr(n){ return (DATA.attrfr[n] && DATA.attrfr[n].fr) || n; }
+function entFr(n){ return DATA.entfr[n] || ''; }
+function isVisible(l){ return l.id == null || on.has(l.layer); }
+function layerColor(k){ const L = LAYERS.find(x => x.k === k); return L ? `var(${L.c})` : 'var(--muted)'; }
+
+/* ── Rendu du code ── */
+function renderCode(){
+  const L = fileLines();
+  let html = '', hiddenRun = 0, lastSec = null, shown = 0;
+  const flushHidden = () => { if(hiddenRun){ html += `<div class="hidden-note">⋯ ${hiddenRun} ligne${hiddenRun>1?'s':''} masquée${hiddenRun>1?'s':''} (calque désactivé)</div>`; hiddenRun = 0; } };
+  L.forEach(l => {
+    if(l.sec !== lastSec && (l.text === 'HEADER;' || l.text === 'DATA;')){ flushHidden(); html += `<div class="sec-lab">${l.text === 'HEADER;' ? 'En-tête — décrit le fichier' : 'Données — une entité par ligne'}</div>`; }
+    lastSec = l.sec;
+    if(!isVisible(l)){ hiddenRun++; return; }
+    flushHidden(); shown++;
+    let tx;
+    if(l.id != null) tx = `<span class="t-id">#${l.id}</span>=<span class="t-kw">${l.ent.toUpperCase()}</span>(${l.args.map(colorArg).join(',')});`;
+    else if(l.hdr) tx = `<span class="t-kw">${l.hdr}</span>(${l.args.map(colorArg).join(',')});`;
+    else tx = esc(l.text);
+    const other = l.id != null ? lineById(l.id, otherVer()) : null;
+    const diff = (other && other.args.join(',') !== l.args.join(',')) || l.hdr === 'FILE_DESCRIPTION' || l.hdr === 'FILE_SCHEMA';
+    const bar = l.id != null ? `<span class="bar" style="background:${layerColor(l.layer)}"></span>` : '<span class="bar"></span>';
+    html += `<div class="ln${l.fixed?' fixed':''}" data-k="${esc(l.key)}">${bar}<span class="tx">${tx}</span>${diff?`<span class="df" title="Cette ligne s'écrit différemment en ${ver==='2x3'?'IFC4':'IFC2x3'}">≠ ${ver==='2x3'?'IFC4':'2x3'}</span>`:''}</div>`;
+  });
+  flushHidden();
+  $('code').innerHTML = html;
+  $('lineCount').textContent = `${shown} lignes affichées sur ${L.length}`;
+  $('code').querySelectorAll('.ln').forEach(el => el.onclick = () => select(/^\d+$/.test(el.dataset.k) ? +el.dataset.k : el.dataset.k));
+  markCode();
+}
+function markCode(){
+  const d = typeof sel === 'number' ? lineById(sel) : null;
+  const outs = d ? new Set(refsOf(d).map(r => r.to)) : new Set();
+  const ins = new Set(d ? DATA.lines[ver].filter(x => refsOf(x).some(r => r.to === sel)).map(x => x.id) : []);
+  $('code').querySelectorAll('.ln').forEach(el => {
+    const k = /^\d+$/.test(el.dataset.k) ? +el.dataset.k : el.dataset.k;
+    el.classList.toggle('sel', k === sel);
+    el.classList.toggle('rel-out', outs.has(k));
+    el.classList.toggle('rel-in', ins.has(k));
+  });
+}
+
+/* ── Schéma SVG ── */
+const NW = 148, NH = 34, CW = 172, TOP = 34, H = 640;
+function nodePos(){
+  const P = {};
+  COLS.forEach((c, ci) => {
+    const n = c.ids.length, gap = H / n;
+    c.ids.forEach((id, i) => P[id] = {x: 14 + ci * CW, y: TOP + i * gap + (gap - NH) / 2});
+  });
+  return P;
+}
+function renderDiag(){
+  const P = nodePos();
+  const W = 14 + COLS.length * CW + 60, HH = TOP + H + 8;
+  const svg = $('diag');
+  svg.setAttribute('viewBox', `0 0 ${W} ${HH}`);
+  let s = `<defs>
+    <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="${cssv('--edge')}"/></marker>
+    <marker id="ar-out" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="${cssv('--sp')}"/></marker>
+    <marker id="ar-in" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="${cssv('--am')}"/></marker></defs>`;
+  COLS.forEach((c, ci) => s += `<text class="colt" x="${14 + ci*CW + NW/2}" y="16" text-anchor="middle">${c.t}</text>`);
+  const lines = DATA.lines[ver];
+  const vis = id => { const d = lineById(id); return d && on.has(d.layer); };
+  // flèches
+  let edges = '', labels = '';
+  const inCount = typeof sel === 'number' ? lines.filter(d => refsOf(d).some(r => r.to === sel)).length : 0;
+  lines.forEach(d => {
+    if(!vis(d.id)) return;
+    const atts = attrsOf(d.ent);
+    refsOf(d).forEach(r => {
+      if(!vis(r.to)) return;
+      if(r.to === 5 && !showOH && sel !== 5 && sel !== d.id) return;
+      const a = P[d.id], b = P[r.to];
+      let path, lx, ly;
+      if(Math.abs(a.x - b.x) < 2){
+        const x = a.x + NW, y1 = a.y + NH/2, y2 = b.y + NH/2, bend = 26 + Math.min(40, Math.abs(y2-y1)/6);
+        path = `M${x},${y1} C${x+bend},${y1} ${x+bend},${y2} ${x+2},${y2}`; lx = x + bend - 4; ly = (y1+y2)/2;
+      } else {
+        const right = b.x > a.x;
+        const x1 = right ? a.x + NW : a.x, x2 = right ? b.x - 2 : b.x + NW + 2;
+        const y1 = a.y + NH/2, y2 = b.y + NH/2, mx = (x1 + x2) / 2;
+        path = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`; lx = mx; ly = (y1+y2)/2;
+      }
+      let cls = 'edge', mk = 'ar';
+      if(sel != null && typeof sel === 'number'){
+        if(d.id === sel){ cls += ' out'; mk = 'ar-out'; }
+        else if(r.to === sel){ cls += ' in'; mk = 'ar-in'; }
+        else cls += ' dim';
+      }
+      edges += `<path class="${cls}" d="${path}" marker-end="url(#${mk})"/>`;
+      if(cls.includes('out') || (cls.includes(' in') && inCount <= 6)){
+        const an = atts[r.i] ? atts[r.i][0] : '';
+        labels += `<text class="elab ${cls.includes('out')?'out':'in'}" x="${lx}" y="${ly-3}" text-anchor="middle">${esc(attrFr(an))}</text>`;
+      }
+    });
+  });
+  s += edges;
+  // boîtes
+  lines.forEach(d => {
+    const p = P[d.id]; if(!p) return;
+    const visible = on.has(d.layer);
+    if(!visible) return;
+    const isRel = /^IfcRel/.test(d.ent);
+    const col = layerColor(d.layer);
+    let cls = 'node';
+    if(typeof sel === 'number'){
+      const related = d.id === sel || refsOf(d).some(r => r.to === sel) || refsOf(lineById(sel) || {args:[]}).some(r => r.to === d.id);
+      if(d.id === sel) cls += ' sel'; else if(!related) cls += ' dim';
+    }
+    const label = d.fr.length > 22 ? d.fr.slice(0, 21) + '…' : d.fr;
+    s += `<g class="${cls}" data-id="${d.id}"><title>#${d.id} ${d.fr} — ${d.ent.toUpperCase()}</title>
+      <rect x="${p.x}" y="${p.y}" width="${NW}" height="${NH}" fill="var(--card2)" stroke="${col}" ${isRel?'stroke-dasharray="4 3"':''}/>
+      <rect x="${p.x}" y="${p.y}" width="4" height="${NH}" fill="${col}" rx="2"/>
+      <text class="n1" x="${p.x+9}" y="${p.y+14}">#${d.id} ${esc(label)}</text>
+      <text class="n2" x="${p.x+9}" y="${p.y+27}">${d.ent.toUpperCase().slice(0, 30)}</text></g>`;
+  });
+  s += labels;
+  svg.innerHTML = s;
+  svg.querySelectorAll('.node').forEach(g => g.onclick = () => select(+g.dataset.id));
+  renderLegend();
+}
+function renderLegend(){
+  $('legend').innerHTML = LAYERS.map(L => `<span><i style="background:var(${L.c})"></i>${L.fr}</span>`).join('')
+    + `<span><i style="border:1.5px dashed var(--muted);background:none"></i>cadre pointillé = relation (une ligne IfcRel…)</span>`
+    + `<span><i style="background:var(--sp)"></i>renvois écrits dans la ligne choisie</span><span><i style="background:var(--am)"></i>lignes qui renvoient vers elle</span>`
+    + `<label class="chk"><input type="checkbox" id="ohChk" ${showOH?'checked':''}> afficher les renvois vers l'historique #5</label>`;
+  $('ohChk').onchange = e => { showOH = e.target.checked; renderDiag(); };
+}
+
+/* ── Décodeur ── */
+function interp(a, att){
+  const k = kindOf(a), n = att ? att[0] : '', t = att ? att[3] : '';
+  if(k === 'null') return att && att[1] ? 'Non renseigné — autorisé car l’attribut est facultatif.' : '⚠ Non renseigné alors que l’attribut est obligatoire.';
+  if(k === 'derived') return 'Valeur dérivée : le schéma la calcule, elle n’est donc pas écrite (astérisque).';
+  if(k === 'ref'){ const id = +a.slice(1), d = lineById(id); return `Renvoi vers la ligne <span class="go" data-go="${id}">#${id}</span>${d ? ` — ${esc(d.fr)} <span class="mono" style="color:var(--muted)">(${d.ent.toUpperCase()})</span>` : ''}.`; }
+  if(k === 'list'){
+    const refs = a.match(/#\d+/g);
+    if(refs) return `Liste de ${refs.length} renvoi${refs.length>1?'s':''} : ` + refs.map(r => { const d = lineById(+r.slice(1)); return `<span class="go" data-go="${r.slice(1)}">${r}</span>${d?` (${esc(d.fr)})`:''}`; }).join(', ') + '.';
+    const inner = a.slice(1,-1);
+    if(/^'/.test(inner)) return `Liste de textes : ${splitArgs(inner).map(x => '« ' + esc(decodeStr(x)) + ' »').join(', ')}.`;
+    const nums = inner.split(',').map(x => x.replace(/\.$/, '').replace('.', ',') || '0');
+    if(n === 'Coordinates') return `Coordonnées (${nums.join(' ; ')}) en mètres, dans le repère local.`;
+    if(n === 'DirectionRatios') return `Vecteur direction (${nums.join(' ; ')}) : ici l’axe Z, vers le haut.`;
+    return 'Liste de valeurs.';
+  }
+  if(k === 'enum'){
+    const v = a.slice(1,-1);
+    if(v === 'T') return 'Booléen : vrai (.T. = TRUE).';
+    if(v === 'F') return 'Booléen : faux (.F. = FALSE).';
+    const en = (t.match(/Ifc\w+Enum|IfcSIUnitName|IfcSIPrefix/) || [])[0];
+    const fr = en && DATA.enumfr[en] && DATA.enumfr[en][v];
+    return `Valeur d’énumération <b>${v}</b>${fr ? ` — « ${esc(fr)} »` : ''}${en ? ` <span class="mono" style="color:var(--muted)">(${en})</span>` : ''}. Les points encadrent les valeurs de liste fermée.`;
+  }
+  if(k === 'typed'){
+    const m = a.match(/^([A-Z0-9_]+)\((.*)\)$/);
+    const tn = m[1], inner = m[2];
+    const val = inner[0] === "'" ? `« ${esc(decodeStr(inner))} »` : inner === '.T.' ? 'vrai' : inner === '.F.' ? 'faux' : esc(inner);
+    return `Valeur typée : le type est écrit devant la valeur (${tn} = ${val}), car l’attribut accepte plusieurs types possibles.`;
+  }
+  if(k === 'str'){
+    if(n === 'GlobalId') return 'GUID : identifiant unique de 22 caractères, généré par le logiciel. Il reste le même d’un export à l’autre.';
+    const raw = a.slice(1,-1), dec = decodeStr(a);
+    if(raw === '') return 'Texte vide.';
+    return `Texte « ${esc(dec)} »${raw !== dec ? ` — les caractères accentués sont encodés (<span class="mono">\\X2\\…\\X0\\</span> = code Unicode).` : '.'}`;
+  }
+  // nombre
+  if(n === 'CreationDate'){ const dt = new Date(+a * 1000); return `Horodatage : nombre de secondes depuis le 01/01/1970, soit le ${dt.toLocaleDateString('fr-FR',{timeZone:'UTC'})} à ${dt.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})} (heure UTC).`; }
+  if(n === 'Precision') return 'Précision géométrique : 0,00001 (notation scientifique 1.E-05).';
+  if(n === 'CoordinateSpaceDimension') return 'Nombre de dimensions de l’espace : 3.';
+  if(/Length|PositiveLength/.test(t) || ['Depth','XDim','YDim','OverallHeight','OverallWidth','Elevation'].includes(n)) return `Nombre réel : ${a.replace(/\.$/, '').replace('.', ',')} m (unité de longueur du projet). Le point est le séparateur décimal, « 5. » = 5,0.`;
+  return `Nombre : ${a}.`;
+}
+function renderDecoder(){
+  const el = $('dec');
+  if(sel == null){ el.innerHTML = '<div class="dec-empty">Cliquez une ligne du fichier ou une boîte du schéma pour la décoder argument par argument.</div>' + symTable(); bindSym(); return; }
+  const L = fileLines();
+  const l = L.find(x => x.key === sel);
+  if(!l){ el.innerHTML = '<div class="dec-empty">Cette ligne est masquée (calque désactivé).</div>' + symTable(); return; }
+  let html = '';
+  if(l.fixed){
+    html = `<div class="dec-title"><span class="fr mono">${esc(l.text)}</span></div><div class="dec-sub">${FIXED_EXPL[l.text]}</div>`;
+  } else if(l.hdr){
+    const A = HDR_ATTRS[l.hdr];
+    html = `<div class="dec-title"><span class="fr">Ligne d’en-tête</span><span class="ifc">${l.hdr}</span></div>
+      <div class="dec-sub">Les lignes d’en-tête n’ont pas de numéro #n : elles décrivent le fichier, pas le bâtiment.</div>
+      <div class="strip">${l.hdr}(${l.args.map((a,i) => `<span class="arg" data-i="${i}">${colorArg(a)}<sup>${i+1}</sup></span>`).join(',')});</div>
+      <table class="at" style="margin-top:.7rem"><tr><th>#</th><th>Valeur</th><th>Champ</th><th>Lecture</th></tr>
+      ${l.args.map((a,i) => `<tr data-i="${i}"><td class="num">${i+1}</td><td class="val">${colorArg(a)}</td><td><div class="afr">${A[i][1]}</div><div class="aifc">${A[i][0]}</div></td><td>${a[0]==="'"?`« ${esc(decodeStr(a))} »`:a[0]==='('?esc(a.slice(1,-1).replace(/'/g,'')):''} ${A[i][2]}</td></tr>`).join('')}</table>`;
+    if(l.hdr === 'FILE_SCHEMA' || l.hdr === 'FILE_DESCRIPTION'){
+      const o = HEADER[otherVer()];
+      html += `<div class="box diff"><h4>Et en ${ver==='2x3'?'IFC4':'IFC2x3'} ?</h4>${l.hdr==='FILE_SCHEMA'?`On écrit <span class="mono">FILE_SCHEMA((${esc(o.schema)}));</span> — et toutes les lignes de DATA se lisent alors avec les règles de cette version.`:`La vue d’échange devient <span class="mono">${esc(o.desc)}</span>.`}</div>`;
+    }
+  } else {
+    const atts = attrsOf(l.ent);
+    const chainTxt = atts.length ? [...new Set(atts.map(a => a[2]))].join(' → ') : '';
+    html = `<div class="dec-title"><span class="fr">${esc(l.fr)}</span><span class="ifc">#${l.id} · ${l.ent}${entFr(l.ent)?` — ${esc(entFr(l.ent))}`:''}</span></div>
+      <div class="dec-sub">${atts.length} argument${atts.length>1?'s':''} attendu${atts.length>1?'s':''} en ${ver==='2x3'?'IFC2x3':'IFC4'}, dans l’ordre fixé par le schéma. Les attributs sont hérités le long de la chaîne : <span class="mono">${esc(chainTxt)}</span>.</div>
+      <div class="strip"><span class="t-id">#${l.id}</span>=<span class="t-kw">${l.ent.toUpperCase()}</span>(${l.args.map((a,i) => `<span class="arg" data-i="${i}">${colorArg(a)}<sup>${i+1}</sup></span>`).join(',')});</div>
+      <div class="parts"><span><b class="t-id">#${l.id}</b> numéro de la ligne (son adresse)</span><span><b class="t-kw">${l.ent.toUpperCase()}</b> nom de l’entité</span><span><b>( … )</b> arguments séparés par des virgules</span><span><b>;</b> fin de ligne</span></div>
+      <table class="at"><tr><th>#</th><th>Valeur écrite</th><th>Attribut</th><th>Défini par</th><th>Lecture</th></tr>
+      ${l.args.map((a,i) => { const at = atts[i] || ['?',1,'?','']; return `<tr data-i="${i}"><td class="num">${i+1}</td><td class="val">${colorArg(a)}</td>
+        <td><div class="afr">${esc(attrFr(at[0]))}</div><div class="aifc">${at[0]}</div><span class="badge ${at[1]?'b-opt':'b-req'}">${at[1]?'facultatif':'obligatoire'}</span></td>
+        <td class="from">${at[2]}</td><td>${interp(a, at)}</td></tr>`; }).join('')}</table>`;
+    // renvoyée par
+    const ins = [];
+    DATA.lines[ver].forEach(x => refsOf(x).forEach(r => { if(r.to === l.id) ins.push({x, at: attrsOf(x.ent)[r.i]}); }));
+    if(ins.length){
+      html += `<div class="box"><h4>Lignes qui renvoient vers #${l.id} (${ins.length})</h4>${ins.map(o => `<div><span class="go" data-go="${o.x.id}">#${o.x.id}</span> ${esc(o.x.fr)} <span style="color:var(--muted)">— par l’attribut ${esc(attrFr(o.at[0]))} <span class="mono">(${o.at[0]})</span></span></div>`).join('')}${l.id===5?'<div style="color:var(--muted);margin-top:.3rem">Presque toutes les entités « racines » (IfcRoot) pointent vers l’historique : c’est leur 2e attribut, OwnerHistory.</div>':''}</div>`;
+    } else html += `<div class="box"><h4>Lignes qui renvoient vers #${l.id}</h4><span style="color:var(--muted)">Aucune : cette ligne n’est citée par aucune autre. C’est souvent le cas des relations (IfcRel…), qui pointent vers les objets sans être pointées.</span></div>`;
+    // différences de version
+    const o = lineById(l.id, otherVer());
+    if(o && o.args.join(',') !== l.args.join(',')){
+      const A2 = attrsOf(l.ent, '2x3').map(a => a[0]), A4 = attrsOf(l.ent, '4').map(a => a[0]);
+      const added = A4.filter(x => !A2.includes(x));
+      html += `<div class="box diff"><h4>Différence IFC2x3 / IFC4</h4>En IFC2x3 : <b>${A2.length}</b> arguments ; en IFC4 : <b>${A4.length}</b>.${added.length?` IFC4 ajoute en fin de ligne : ${added.map(x => `<b>${esc(attrFr(x))}</b> <span class="mono">(${x})</span>`).join(', ')}.`:''}<div class="mono" style="margin-top:.35rem;font-size:.64rem;word-break:break-all">${ver==='2x3'?'IFC4':'IFC2x3'} : #${o.id}=${o.ent.toUpperCase()}(${o.args.map(colorArg).join(',')});</div></div>`;
+    }
+    const opt2 = attrsOf(l.ent,'2x3').find(a => a[0]==='OwnerHistory'), opt4 = attrsOf(l.ent,'4').find(a => a[0]==='OwnerHistory');
+    if(opt2 && opt4 && opt2[1] !== opt4[1]) html += `<div class="box"><h4>À noter</h4>OwnerHistory est <b>obligatoire en IFC2x3</b> mais <b>facultatif en IFC4</b> : un fichier IFC4 peut écrire <span class="mono">$</span> à cette place.</div>`;
+  }
+  el.innerHTML = html + symTable();
+  el.querySelectorAll('.go').forEach(g => g.onclick = () => select(+g.dataset.go, true));
+  el.querySelectorAll('[data-i]').forEach(x => {
+    x.onmouseenter = () => el.querySelectorAll(`[data-i="${x.dataset.i}"]`).forEach(y => y.classList.add('hl'));
+    x.onmouseleave = () => el.querySelectorAll('.hl').forEach(y => y.classList.remove('hl'));
+  });
+  bindSym();
+}
+let symOpen = true;
+function symTable(){
+  const R = [
+    ['#42','Numéro d’instance : l’adresse de la ligne. Les autres lignes la désignent par ce numéro.'],
+    ['#42=IFCWALL(…);','Une ligne = une entité : numéro, signe =, nom de l’entité en majuscules, arguments entre parenthèses, point-virgule final.'],
+    ['$','Valeur non renseignée (autorisé seulement pour un attribut facultatif).'],
+    ['*','Valeur dérivée : calculée par le schéma, non écrite.'],
+    ["'Mur 01'",'Texte, entre apostrophes. Une apostrophe dans le texte s’écrit doublée : \'\'.'],
+    ['\\X2\\00E9\\X0\\','Caractère encodé (ici « é », code Unicode 00E9) : un fichier STEP n’écrit que des caractères ASCII.'],
+    ['.ELEMENT.','Valeur d’énumération (liste fermée de mots), entre points.'],
+    ['.T.  .F.','Booléen : vrai / faux.'],
+    ['2.7   5.   1.E-05','Nombres réels : point décimal obligatoire, notation scientifique possible.'],
+    ['(#31,#36)','Liste (ici de deux renvois). Les listes peuvent contenir des nombres, des textes ou des renvois.'],
+    ["IFCLABEL('EI60')",'Valeur typée : le type est précisé quand l’attribut accepte plusieurs types (valeurs de propriétés).'],
+  ];
+  return `<details class="sym" ${symOpen?'open':''}><summary>Tableau des symboles STEP</summary><table>${R.map(r => `<tr><td>${esc(r[0])}</td><td>${r[1]}</td></tr>`).join('')}</table></details>`;
+}
+function bindSym(){ const d = document.querySelector('details.sym'); if(d) d.ontoggle = () => symOpen = d.open; }
+
+/* ── Sélection, calques, étapes ── */
+function select(k, scroll){
+  sel = k;
+  if(typeof k === 'number'){
+    const d = lineById(k);
+    if(d && !on.has(d.layer)){ on.add(d.layer); renderLayers(); renderCode(); }
+  }
+  markCode(); renderDiag(); renderDecoder();
+  const el = $('code').querySelector(`.ln[data-k="${k}"]`);
+  if(el) el.scrollIntoView({block:'nearest'});
+}
+function renderLayers(){
+  $('layers').innerHTML = `<span style="font-size:.62rem;color:var(--muted);align-self:center">Calques :</span>` + LAYERS.map(L => `<span class="layer-tg${on.has(L.k)?' on':''}" data-k="${L.k}"><i style="background:var(${L.c})"></i>${L.fr}</span>`).join('');
+  $('layers').querySelectorAll('.layer-tg').forEach(t => t.onclick = () => {
+    on.has(t.dataset.k) ? on.delete(t.dataset.k) : on.add(t.dataset.k);
+    renderLayers(); renderCode(); renderDiag(); renderDecoder();
+  });
+}
+function goStep(i){
+  stepIdx = Math.max(0, Math.min(STEPS.length - 1, i));
+  const S = STEPS[stepIdx];
+  on = new Set(S.on);
+  $('stepTitle').textContent = `Étape ${stepIdx+1} / ${STEPS.length} — ${S.t}`;
+  $('stepText').innerHTML = S.p;
+  $('pills').innerHTML = STEPS.map((s,j) => `<span class="step-pill${j===stepIdx?' on':''}${j<stepIdx?' done':''}" data-i="${j}"><b>${j+1}</b>${s.t}</span>`).join('');
+  $('pills').querySelectorAll('.step-pill').forEach(p => p.onclick = () => goStep(+p.dataset.i));
+  $('prevBtn').disabled = stepIdx === 0; $('nextBtn').disabled = stepIdx === STEPS.length - 1;
+  sel = S.focus;
+  renderLayers(); renderCode(); renderDiag(); renderDecoder();
+}
+$('prevBtn').onclick = () => goStep(stepIdx - 1);
+$('nextBtn').onclick = () => goStep(stepIdx + 1);
+document.querySelectorAll('#verSeg button').forEach(b => b.onclick = () => {
+  ver = b.dataset.v;
+  document.querySelectorAll('#verSeg button').forEach(x => x.classList.toggle('on', x === b));
+  renderCode(); renderDiag(); renderDecoder();
+});
+
+/* Thème (partagé avec l'explorateur) */
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); $('themeBtn').textContent = t === 'dark' ? '☀' : '🌙'; }
+let theme = 'dark';
+try{ theme = localStorage.getItem('ifc-theme') || 'dark'; }catch(e){}
+applyTheme(theme);
+$('themeBtn').onclick = () => { theme = theme === 'dark' ? 'light' : 'dark'; applyTheme(theme); try{ localStorage.setItem('ifc-theme', theme); }catch(e){} renderDiag(); };
+
+goStep(0);
+</script>
+</body>
+</html>
