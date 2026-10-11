@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cours IFC — prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F3EF;--card:#fff;--card2:#FAF9F6;--text:#1A1A1A;--muted:#8A8880;--border:#E2DED8;
+  --sp:#1D5FA5;--sp-bg:#EBF3FB;--sp-bd:#C2D9F2;--gr:#0F6E56;--gr-bg:#E1F5EE;--pu:#534AB7;--pu-bg:#EEEDFE;
+  --am:#BA7517;--am-bg:#FEF3E2;--am-bd:#F5C87A;--re:#993556;--ac:#5F5E5A;--view:#E9E6E0;--sel:#1D5FA5;
+}
+[data-theme="dark"]{
+  --bg:#121212;--card:#1E1E1E;--card2:#252525;--text:rgba(255,255,255,.87);--muted:rgba(255,255,255,.50);--border:rgba(255,255,255,.12);
+  --sp:#90CAF9;--sp-bg:rgba(144,202,249,.12);--sp-bd:rgba(144,202,249,.30);--gr:#80CBC4;--gr-bg:rgba(128,203,196,.12);--pu:#CE93D8;--pu-bg:rgba(206,147,216,.12);
+  --am:#FFCC80;--am-bg:rgba(255,204,128,.12);--am-bd:rgba(255,204,128,.30);--re:#F48FB1;--ac:#B0BEC5;--view:#1A1D21;--sel:#90CAF9;
+}
+html,body{background:var(--bg);color:var(--text)}
+body{font-family:'DM Sans',sans-serif;line-height:1.5}
+.mono,code{font-family:'DM Mono',monospace}
+button{font-family:inherit}
+
+/* En-tête */
+.top{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.6rem 1rem;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50}
+.top h1{font-size:.95rem;font-weight:700}
+.top h1 em{font-style:normal;color:var(--muted);font-weight:500}
+.top .spacer{flex:1}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--muted);font-weight:600;font-size:.7rem;padding:.38rem .7rem;cursor:pointer}
+.seg button.on{background:var(--sp);color:var(--bg)}
+.seg button b{font-size:.8rem;margin-right:.25rem}
+.btn{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:.7rem;font-weight:500;padding:.36rem .65rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem}
+.btn.on{border-color:var(--sp);color:var(--sp);background:var(--sp-bg)}
+.lay-hint{font-size:.66rem;color:var(--muted);padding:.45rem 1rem;border-bottom:1px solid var(--border);background:var(--card2)}
+.lay-hint b{color:var(--text)}
+
+/* Cadres communs */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.phd{display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;border-bottom:1px solid var(--border);flex-shrink:0}
+.phd h3{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.phd .meta{margin-left:auto;font-size:.6rem;color:var(--muted)}
+
+/* Cours */
+.cours-body{overflow:auto;padding:1rem 1.1rem 1.4rem}
+.chap-pills{display:flex;gap:.3rem;flex-wrap:wrap;padding:.5rem .75rem;border-bottom:1px solid var(--border)}
+.chap-pill{font-size:.64rem;border:1px solid var(--border);border-radius:99px;padding:.2rem .6rem;cursor:pointer;color:var(--muted);background:none}
+.chap-pill.on{border-color:var(--sp);color:var(--text);background:var(--sp-bg)}
+.chap-pill.todo{opacity:.45;cursor:default}
+section.chap{margin-bottom:2.2rem}
+section.chap .ck{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--sp);font-weight:700}
+section.chap h2{font-size:1.05rem;margin:.15rem 0 .6rem}
+section.chap p{font-size:.78rem;line-height:1.72;margin-bottom:.65rem;max-width:68ch}
+section.chap .step-state{font-size:.62rem;color:var(--muted);border:1px dashed var(--border);border-radius:6px;padding:.35rem .5rem;margin-bottom:.7rem}
+a.p,a.l,a.x{cursor:pointer;text-decoration:none;border-radius:3px;padding:0 .12rem}
+a.p{color:var(--gr);border-bottom:1px dotted var(--gr)}
+a.l{color:var(--sp);font-family:'DM Mono',monospace;font-size:.92em;border-bottom:1px dotted var(--sp)}
+a.x{color:var(--pu);border-bottom:1px dotted var(--pu)}
+a.p:hover,a.l:hover,a.x:hover{background:var(--sp-bg)}
+.legend-links{font-size:.62rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.6rem;margin-top:.4rem}
+.legend-links span{margin-right:.8rem}
+
+/* Maquette 3D */
+.view-wrap{position:relative;flex:1;min-height:0;background:var(--view);overflow:hidden;touch-action:none}
+canvas#scene{width:100%;height:100%;display:block;cursor:grab}
+canvas#scene.drag{cursor:grabbing}
+.tools{display:flex;flex-wrap:wrap;gap:.25rem;padding:.4rem .5rem;border-bottom:1px solid var(--border);align-items:center}
+.tools .btn{font-size:.62rem;padding:.25rem .45rem}
+.tools select{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:.62rem;padding:.22rem .3rem}
+.view-hint{position:absolute;left:.6rem;bottom:.45rem;font-size:.58rem;color:var(--muted);pointer-events:none}
+.tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--border);border-radius:6px;font-size:.62rem;padding:.2rem .45rem;white-space:nowrap;display:none;z-index:5}
+
+/* Fiche objet */
+.fiche{font-size:.7rem;overflow:auto}
+.fiche .fb{padding:.7rem .8rem}
+.fiche .empty{color:var(--muted);font-size:.7rem;padding:.8rem}
+.f-title{font-size:.95rem;font-weight:700}
+.f-sub{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);margin-bottom:.5rem}
+.f-row{display:grid;grid-template-columns:6.2rem 1fr;gap:.5rem;padding:.35rem 0;border-top:1px solid var(--border)}
+.f-row > .k{font-size:.56rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;padding-top:.1rem}
+.layer-bar{display:flex;height:.55rem;border-radius:3px;overflow:hidden;margin:.25rem 0 .2rem;border:1px solid var(--border)}
+.sw{display:inline-block;width:.75rem;height:.75rem;border-radius:3px;vertical-align:middle;border:1px solid var(--border);margin-right:.3rem}
+.chip{display:inline-block;font-size:.6rem;border:1px solid var(--border);border-radius:5px;padding:.05rem .35rem;margin:.1rem .2rem .1rem 0;cursor:pointer;background:var(--card2)}
+.chip.ch{color:var(--sp);border-color:var(--sp-bd)}
+.chip.ch.todo{color:var(--muted);border-color:var(--border);cursor:default}
+.chip.ex{color:var(--pu)}
+.chip.ln{font-family:'DM Mono',monospace;color:var(--sp)}
+.f-close{float:right;background:none;border:0;color:var(--muted);cursor:pointer;font-size:.8rem}
+
+/* Code */
+.code{font-family:'DM Mono',monospace;font-size:.62rem;line-height:1.6;overflow:auto;flex:1;min-height:0;padding:.3rem 0}
+.cl{display:flex;gap:.4rem;padding:.02rem .6rem .02rem .5rem;border-left:3px solid transparent;cursor:pointer;white-space:pre-wrap;word-break:break-all}
+.cl:hover{background:var(--card2)}
+.cl.sel{background:var(--sp-bg);border-left-color:var(--sp)}
+.cl.rel{background:rgba(255,204,128,.09);border-left-color:var(--am)}
+.cl.fx{color:var(--muted)}
+.cs{font-family:'DM Sans',sans-serif;font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:.55rem .7rem .15rem;border-top:1px solid var(--border);margin-top:.2rem}
+.cg{font-family:'DM Sans',sans-serif;font-size:.6rem;color:var(--muted);padding:.12rem .7rem .12rem 1rem;cursor:pointer}
+.cg:hover{color:var(--text)}
+.cg.open{color:var(--am)}
+.t-id{color:var(--sp)} .t-kw{color:var(--am);font-weight:600} .t-str{color:var(--gr)} .t-ref{color:var(--sp)} .t-enum{color:var(--pu)} .t-null{color:var(--muted)}
+
+/* ── Mise en page A : trois volets ── */
+#app{padding:.8rem;display:grid;gap:.8rem}
+#app.lay-A{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr);height:calc(100vh - 6.2rem)}
+#app.lay-A #colCours,#app.lay-A #colView,#app.lay-A #colCode{min-height:0}
+#app.lay-A #colView{display:flex;flex-direction:column;gap:.8rem;min-height:0}
+#app.lay-A #pView{flex:1.3}
+#app.lay-A #pFiche{flex:1}
+#app.lay-A #colCode .panel,#app.lay-A #colCours .panel{height:100%}
+/* ── Mise en page B : maquette au centre ── */
+#app.lay-B{grid-template-columns:15rem minmax(0,1fr);height:calc(100vh - 6.2rem);position:relative}
+#app.lay-B #colCours .panel{height:100%}
+#app.lay-B #colView{position:relative;min-height:0}
+#app.lay-B #pView{height:100%}
+#app.lay-B #pFiche{position:absolute;left:.7rem;bottom:.7rem;width:min(25rem,46%);max-height:58%;box-shadow:0 8px 30px rgba(0,0,0,.35);z-index:4}
+#app.lay-B #colCode{position:absolute;top:.8rem;right:.8rem;bottom:.8rem;width:min(30rem,42%);z-index:6;transform:translateX(calc(100% + 1rem));transition:transform .25s}
+#app.lay-B #colCode.open{transform:none}
+#app.lay-B #colCode .panel{height:100%;box-shadow:-8px 0 30px rgba(0,0,0,.35)}
+#app.lay-B .cours-body p{font-size:.72rem}
+.drawer-btn{display:none}
+#app.lay-B .drawer-btn{display:inline-flex}
+/* ── Mise en page C : cours déroulant ── */
+#app.lay-C{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:start}
+#app.lay-C #colCours .panel{overflow:visible}
+#app.lay-C #colCours .cours-body{overflow:visible;padding:1.2rem 1.4rem 40vh}
+#app.lay-C .chap-pills{position:sticky;top:3.05rem;background:var(--card);z-index:3}
+#app.lay-C #side{position:sticky;top:3.6rem;height:calc(100vh - 4.3rem);display:flex;flex-direction:column;gap:.8rem}
+#app.lay-C #colView{flex:1.35;display:flex;flex-direction:column;min-height:0}
+#app.lay-C #pView{flex:1;position:relative}
+#app.lay-C #colCode{flex:1;min-height:0;display:flex}
+#app.lay-C #colCode .panel{flex:1}
+#app.lay-C #pFiche{position:absolute;right:.6rem;top:5.6rem;width:min(17rem,48%);max-height:calc(100% - 6.4rem);box-shadow:0 8px 30px rgba(0,0,0,.35);z-index:4}
+#side{display:contents}
+#app.lay-C #side{display:flex}
+
+/* Plan du cours (fenêtre) */
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:2rem 1rem}
+.ovl.on{display:flex}
+.ovl-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;max-width:1150px;width:100%;padding:1.2rem 1.3rem}
+.ovl-card h2{font-size:1rem;margin-bottom:.3rem}
+.ovl-card > p{font-size:.74rem;color:var(--muted);margin-bottom:1rem;max-width:90ch}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}
+.plan{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.85rem}
+.plan.rec{border-color:var(--sp)}
+.plan h3{font-size:.86rem}
+.plan .dur{font-size:.64rem;color:var(--muted);margin-bottom:.5rem}
+.plan .tag{font-size:.56rem;font-weight:700;color:var(--sp);border:1px solid var(--sp-bd);border-radius:4px;padding:.05rem .3rem;margin-left:.3rem;vertical-align:middle}
+.plan ol{font-size:.7rem;padding-left:1.1rem;margin:.3rem 0 .6rem}
+.plan ol li{margin-bottom:.22rem}
+.plan ol li small{color:var(--muted)}
+.plan .can{font-size:.66rem;border-top:1px solid var(--border);padding-top:.45rem;color:var(--text)}
+.plan .can b{font-size:.56rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:.15rem}
+.links-tbl{width:100%;border-collapse:collapse;font-size:.68rem;margin-top:1rem}
+.links-tbl th{text-align:left;font-size:.56rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:.35rem .5rem;border-bottom:1px solid var(--border)}
+.links-tbl td{padding:.35rem .5rem;border-bottom:1px solid var(--border);vertical-align:top}
+
+@media(max-width:1000px){
+  #app.lay-A,#app.lay-B{grid-template-columns:minmax(0,1fr);height:auto}
+  #app.lay-A #colView,#app.lay-B #colView{min-height:70vh}
+  #app.lay-A #colCode .panel,#app.lay-A #colCours .panel{height:60vh}
+  #app.lay-B #colCours .panel{height:auto;max-height:50vh}
+  #app.lay-B #colCode{position:fixed;top:4rem;bottom:1rem;right:.5rem;width:calc(100% - 1rem)}
+  #app.lay-B #pFiche{width:calc(100% - 1.4rem)}
+  #app.lay-C{grid-template-columns:minmax(0,1fr)}
+  #app.lay-C #side{position:static;height:auto;order:-1}
+  #app.lay-C #pView{min-height:62vh}
+  #app.lay-C #colCode{display:flex;height:45vh}
+  #app.lay-C .chap-pills{position:static}
+  #app.lay-B #pFiche,#app.lay-C #pFiche{position:static;width:auto;max-height:none;box-shadow:none}
+  .top{position:static}
+  .top h1{font-size:.85rem}
+  .plans{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>Cours IFC — la maison du cours <em>· prototype</em></h1>
+  <div class="spacer"></div>
+  <div class="seg" id="laySeg">
+    <button data-l="A"><b>A</b>Trois volets</button>
+    <button data-l="B"><b>B</b>Maquette au centre</button>
+    <button data-l="C"><b>C</b>Cours déroulant</button>
+  </div>
+  <button class="btn" id="planBtn">☰ Plan du cours (3 formules)</button>
+  <button class="btn" id="themeBtn" title="Thème clair / sombre">☀</button>
+  <a class="btn" href="ifc_spatial.html">← Explorateur</a>
+</div>
+<div class="lay-hint" id="layHint"></div>
+
+<div id="app" class="lay-A">
+  <div id="colCours">
+    <div class="panel">
+      <div class="phd"><h3>Le cours</h3><span class="meta">3 chapitres d'exemple</span></div>
+      <div class="chap-pills" id="chapPills"></div>
+      <div class="cours-body" id="coursBody"></div>
+    </div>
+  </div>
+  <div id="side">
+    <div id="colView">
+      <div class="panel" id="pView">
+        <div class="phd"><h3>La maison</h3><span class="meta mono">maison-du-cours.ifc · IFC2x3</span><button class="btn drawer-btn" id="drawerBtn">Code du fichier ⟩</button></div>
+        <div class="tools" id="tools"></div>
+        <div class="view-wrap" id="viewWrap">
+          <canvas id="scene"></canvas>
+          <div class="tip" id="tip"></div>
+          <div class="view-hint">Glisser : tourner · Maj+glisser : déplacer · molette / pincer : zoomer · clic : sélectionner</div>
+        </div>
+      </div>
+      <div class="panel fiche" id="pFiche"><div class="phd"><h3>L'objet dans le fichier</h3><button class="f-close" id="ficheClose" title="Désélectionner">✕</button></div><div id="ficheBody" class="fb"></div></div>
+    </div>
+    <div id="colCode">
+      <div class="panel">
+        <div class="phd"><h3>Le fichier IFC</h3><span class="meta" id="codeMeta"></span></div>
+        <div class="code" id="code"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ovl" id="planOvl">
+  <div class="ovl-card">
+    <button class="btn" style="float:right" onclick="document.getElementById('planOvl').classList.remove('on')">✕ Fermer</button>
+    <h2>Plan du cours — trois formules pour choisir</h2>
+    <p>Les trois formules suivent le même fil conducteur (la maison) et le même ordre : STEP → le fichier → la colonne vertébrale → ce qui habille les objets. Elles diffèrent par le niveau de détail. Les 3 chapitres d'exemple du prototype font chacun environ 5 minutes de lecture : c'est l'unité de mesure des durées ci-dessous.</p>
+    <div class="plans" id="plans"></div>
+    <table class="links-tbl" id="linksTbl"></table>
+  </div>
+</div>
+
+<script>
+const HOUSE = {"header": ["ISO-10303-21;", "HEADER;", "FILE_DESCRIPTION(('ViewDefinition [CoordinationView_V2.0]'),'2;1');", "FILE_NAME('maison-du-cours.ifc','2026-10-11T09:00:00',('Nico Valette'),('IFC Explorateur'),'IFC Explorateur','IFC Explorateur',$);", "FILE_SCHEMA(('IFC2X3'));", "ENDSEC;", "DATA;"], "lines": [{"id": 1, "ent": "IfcPerson", "args": ["$", "'Valette'", "'Nico'", "$", "$", "$", "$", "$"], "sec": "ctx", "own": null}, {"id": 2, "ent": "IfcOrganization", "args": ["$", "'IFC Explorateur'", "$", "$", "$"], "sec": "ctx", "own": null}, {"id": 3, "ent": "IfcPersonAndOrganization", "args": ["#1", "#2", "$"], "sec": "ctx", "own": null}, {"id": 4, "ent": "IfcApplication", "args": ["#2", "'1.0'", "'IFC Explorateur'", "'IFCEXPL'"], "sec": "ctx", "own": null}, {"id": 5, "ent": "IfcOwnerHistory", "args": ["#3", "#4", "$", ".ADDED.", "$", "$", "$", "1791709200"], "sec": "ctx", "own": null}, {"id": 10, "ent": "IfcSIUnit", "args": ["*", ".LENGTHUNIT.", "$", ".METRE."], "sec": "ctx", "own": null}, {"id": 11, "ent": "IfcSIUnit", "args": ["*", ".AREAUNIT.", "$", ".SQUARE_METRE."], "sec": "ctx", "own": null}, {"id": 12, "ent": "IfcSIUnit", "args": ["*", ".VOLUMEUNIT.", "$", ".CUBIC_METRE."], "sec": "ctx", "own": null}, {"id": 13, "ent": "IfcSIUnit", "args": ["*", ".PLANEANGLEUNIT.", "$", ".RADIAN."], "sec": "ctx", "own": null}, {"id": 14, "ent": "IfcUnitAssignment", "args": ["(#10,#11,#12,#13)"], "sec": "ctx", "own": null}, {"id": 30, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "ctx", "own": null}, {"id": 31, "ent": "IfcDirection", "args": ["(0.,0.,1.)"], "sec": "ctx", "own": null}, {"id": 32, "ent": "IfcDirection", "args": ["(1.,0.,0.)"], "sec": "ctx", "own": null}, {"id": 33, "ent": "IfcAxis2Placement3D", "args": ["#30", "$", "$"], "sec": "ctx", "own": null}, {"id": 40, "ent": "IfcGeometricRepresentationContext", "args": ["$", "'Model'", "3", "1.E-05", "#33", "$"], "sec": "ctx", "own": null}, {"id": 100, "ent": "IfcProject", "args": ["'3xvONyNCvcIB5ovK1874OU'", "#5", "'Maison du cours'", "'Maison p\\X2\\00E9\\X0\\dagogique de l''IFC Explorateur'", "$", "$", "$", "(#40)", "#14"], "sec": "spatial", "own": null}, {"id": 101, "ent": "IfcRelAggregates", "args": ["'0MalGBkHvgH42yjd429z8d'", "#5", "'Projet \\X2\\2192\\X0\\ terrain'", "$", "#100", "(#110)"], "sec": "spatial", "own": null}, {"id": 110, "ent": "IfcSite", "args": ["'0xfuPTb$0AwZqAWeTa38Dp'", "#5", "'Terrain'", "$", "$", "#111", "#11005", "$", ".ELEMENT.", "$", "$", "$", "$", "$"], "sec": "spatial", "own": null}, {"id": 111, "ent": "IfcLocalPlacement", "args": ["$", "#33"], "sec": "spatial", "own": null}, {"id": 112, "ent": "IfcRelAggregates", "args": ["'2H99vl5GhjAy9r3$1mm19A'", "#5", "'Terrain \\X2\\2192\\X0\\ b\\X2\\00E2\\X0\\timent'", "$", "#110", "(#120)"], "sec": "spatial", "own": null}, {"id": 120, "ent": "IfcBuilding", "args": ["'0bn820RQ6ymor9PYhBdg1q'", "#5", "'Maison'", "$", "$", "#121", "$", "$", ".ELEMENT.", "$", "$", "$"], "sec": "spatial", "own": null}, {"id": 121, "ent": "IfcLocalPlacement", "args": ["#111", "#33"], "sec": "spatial", "own": null}, {"id": 122, "ent": "IfcRelAggregates", "args": ["'0EWrgnwuxA3dBz2TE$_W1l'", "#5", "'B\\X2\\00E2\\X0\\timent \\X2\\2192\\X0\\ niveaux'", "$", "#120", "(#130,#150)"], "sec": "spatial", "own": null}, {"id": 130, "ent": "IfcBuildingStorey", "args": ["'0HVC17x_MOvOGrnEorR0Yc'", "#5", "'RDC'", "'Rez-de-chauss\\X2\\00E9\\X0\\e'", "$", "#131", "$", "$", ".ELEMENT.", "0."], "sec": "spatial", "own": null}, {"id": 131, "ent": "IfcLocalPlacement", "args": ["#121", "#33"], "sec": "spatial", "own": null}, {"id": 132, "ent": "IfcRelAggregates", "args": ["'2IPLhu$UfpWPtPRnSeQHH$'", "#5", "'RDC \\X2\\2192\\X0\\ espaces'", "$", "#130", "(#140)"], "sec": "spatial", "own": null}, {"id": 140, "ent": "IfcSpace", "args": ["'3GzHnNJdTVOKPnzAr6DD4W'", "#5", "'01'", "$", "$", "#14000", "#14005", "'S\\X2\\00E9\\X0\\jour'", ".ELEMENT.", ".INTERNAL.", "$"], "sec": "spatial", "own": null}, {"id": 150, "ent": "IfcBuildingStorey", "args": ["'0QNoC5IRuX1gbn99BQV1ll'", "#5", "'\\X2\\00C9\\X0\\tage'", "'\\X2\\00C9\\X0\\tage 1'", "$", "#151", "$", "$", ".ELEMENT.", "2.9"], "sec": "spatial", "own": null}, {"id": 151, "ent": "IfcLocalPlacement", "args": ["#121", "#152"], "sec": "spatial", "own": null}, {"id": 152, "ent": "IfcAxis2Placement3D", "args": ["#153", "$", "$"], "sec": "spatial", "own": null}, {"id": 153, "ent": "IfcCartesianPoint", "args": ["(0.,0.,2.9)"], "sec": "spatial", "own": null}, {"id": 154, "ent": "IfcRelAggregates", "args": ["'258ZLEvyZRqm$evf94Z5Zj'", "#5", "'\\X2\\00C9\\X0\\tage \\X2\\2192\\X0\\ espaces'", "$", "#150", "(#160)"], "sec": "spatial", "own": null}, {"id": 160, "ent": "IfcSpace", "args": ["'1oWr_bM8GTz9ZRQ28YqvV7'", "#5", "'02'", "$", "$", "#16000", "#16005", "'Chambre'", ".ELEMENT.", ".INTERNAL.", "$"], "sec": "spatial", "own": null}, {"id": 200, "ent": "IfcSlab", "args": ["'22HpwO3YUI6EvDl9PPyWM1'", "#5", "'Dalle basse'", "$", "$", "#20000", "#20005", "'D01'", ".BASESLAB."], "sec": "rdc", "own": null}, {"id": 210, "ent": "IfcWall", "args": ["'34MSYiKoSBqnGvwP0mhxfQ'", "#5", "'Mur sud'", "$", "$", "#21000", "#21005", "'M210'"], "sec": "rdc", "own": null}, {"id": 211, "ent": "IfcWall", "args": ["'0FRVnBdfX2iA4uhrZ_3R8s'", "#5", "'Mur nord'", "$", "$", "#21100", "#21105", "'M211'"], "sec": "rdc", "own": null}, {"id": 212, "ent": "IfcWall", "args": ["'0MgHyJu$BSubLWdmQcIY$P'", "#5", "'Mur ouest'", "$", "$", "#21200", "#21205", "'M212'"], "sec": "rdc", "own": null}, {"id": 213, "ent": "IfcWall", "args": ["'3E0m35pF_BL8wqpYVy$Ght'", "#5", "'Mur est'", "$", "$", "#21300", "#21305", "'M213'"], "sec": "rdc", "own": null}, {"id": 220, "ent": "IfcOpeningElement", "args": ["'3eDOr3XG24OJT1afjV$D$F'", "#5", "'Baie de porte'", "$", "'Opening'", "#22000", "#22005", "$"], "sec": "rdc", "own": null}, {"id": 221, "ent": "IfcRelVoidsElement", "args": ["'2Pt2mqKQRRHTiNeeOROCHU'", "#5", "$", "$", "#210", "#220"], "sec": "rdc", "own": null}, {"id": 222, "ent": "IfcDoor", "args": ["'1BXnCtrGPp2CPjkEhO9zD3'", "#5", "'Porte d''entr\\X2\\00E9\\X0\\e'", "$", "$", "#22200", "#22205", "'P01'", "2.15", "0.9"], "sec": "rdc", "own": null}, {"id": 223, "ent": "IfcRelFillsElement", "args": ["'0zIONEQMKaC7Hx9Cfoxsjt'", "#5", "$", "$", "#220", "#222"], "sec": "rdc", "own": null}, {"id": 225, "ent": "IfcOpeningElement", "args": ["'1l15PNqwklpOLC1fApOhXZ'", "#5", "'Baie de fen\\X2\\00EA\\X0\\tre'", "$", "'Opening'", "#22500", "#22505", "$"], "sec": "rdc", "own": null}, {"id": 226, "ent": "IfcRelVoidsElement", "args": ["'0KpHgltNpQN9hcyC1j6TYc'", "#5", "$", "$", "#210", "#225"], "sec": "rdc", "own": null}, {"id": 227, "ent": "IfcWindow", "args": ["'2RpN9n$RFo2EDUWup6Pm1C'", "#5", "'Fen\\X2\\00EA\\X0\\tre s\\X2\\00E9\\X0\\jour'", "$", "$", "#22700", "#22705", "'F01'", "1.25", "1.2"], "sec": "rdc", "own": null}, {"id": 228, "ent": "IfcRelFillsElement", "args": ["'2WZhrCu95nKnyL$7s$rapd'", "#5", "$", "$", "#225", "#227"], "sec": "rdc", "own": null}, {"id": 240, "ent": "IfcStair", "args": ["'2azYab31V5Kqn6eo6e9Ssz'", "#5", "'Escalier droit'", "$", "$", "#24000", "#24005", "'E01'", ".STRAIGHT_RUN_STAIR."], "sec": "rdc", "own": null}, {"id": 250, "ent": "IfcFurnishingElement", "args": ["'2V5CxIVE6rwFQ6jJFkuHrw'", "#5", "'Table'", "$", "$", "#25000", "#25005", "'T01'"], "sec": "rdc", "own": null}, {"id": 290, "ent": "IfcRelContainedInSpatialStructure", "args": ["'2rkHbGUzEdjZYOZUOVP571'", "#5", "'Contenu du RDC'", "$", "(#200,#210,#211,#212,#213,#222,#227,#240,#250)", "#130"], "sec": "rdc", "own": null}, {"id": 300, "ent": "IfcSlab", "args": ["'2Xs34DSZ9BKUlzzjQhh$H9'", "#5", "'Plancher haut'", "$", "$", "#30000", "#30005", "'D02'", ".FLOOR."], "sec": "etage", "own": null}, {"id": 310, "ent": "IfcWall", "args": ["'0vRusXnJlJfbNslCxfAAt_'", "#5", "'Mur sud \\X2\\00E9\\X0\\tage'", "$", "$", "#31000", "#31005", "'M310'"], "sec": "etage", "own": null}, {"id": 311, "ent": "IfcWall", "args": ["'3c19dRAc$faISjfkFfuZud'", "#5", "'Mur nord \\X2\\00E9\\X0\\tage'", "$", "$", "#31100", "#31105", "'M311'"], "sec": "etage", "own": null}, {"id": 312, "ent": "IfcWall", "args": ["'3eSpVAkk3konOlnJMMBwa2'", "#5", "'Mur ouest \\X2\\00E9\\X0\\tage'", "$", "$", "#31200", "#31205", "'M312'"], "sec": "etage", "own": null}, {"id": 313, "ent": "IfcWall", "args": ["'17Kb2s8dAgAZDeA3ICsVS_'", "#5", "'Mur est \\X2\\00E9\\X0\\tage'", "$", "$", "#31300", "#31305", "'M313'"], "sec": "etage", "own": null}, {"id": 314, "ent": "IfcWall", "args": ["'2woihgH$_95qi0mBx3k1Er'", "#5", "'Pignon ouest'", "$", "$", "#31400", "#31405", "'M314'"], "sec": "etage", "own": null}, {"id": 315, "ent": "IfcWall", "args": ["'3IVKmLfQnsbZ7ydEcJM7w2'", "#5", "'Pignon est'", "$", "$", "#31500", "#31505", "'M315'"], "sec": "etage", "own": null}, {"id": 325, "ent": "IfcOpeningElement", "args": ["'34eDPNjRUySuNZpMdzX_ph'", "#5", "'Baie de fen\\X2\\00EA\\X0\\tre'", "$", "'Opening'", "#32500", "#32505", "$"], "sec": "etage", "own": null}, {"id": 326, "ent": "IfcRelVoidsElement", "args": ["'0zSp6RHnZ7U1ylvVrKrKfI'", "#5", "$", "$", "#310", "#325"], "sec": "etage", "own": null}, {"id": 327, "ent": "IfcWindow", "args": ["'2GY6JM0QJGAjYCzxAc2OrO'", "#5", "'Fen\\X2\\00EA\\X0\\tre chambre'", "$", "$", "#32700", "#32705", "'F02'", "1.15", "1.2"], "sec": "etage", "own": null}, {"id": 328, "ent": "IfcRelFillsElement", "args": ["'0uQ4q$Kdedp9dx8k9HDoxF'", "#5", "$", "$", "#325", "#327"], "sec": "etage", "own": null}, {"id": 350, "ent": "IfcFurnishingElement", "args": ["'31myUbEw1QJbmchoBWOPmE'", "#5", "'Lit'", "$", "$", "#35000", "#35005", "'L01'"], "sec": "etage", "own": null}, {"id": 390, "ent": "IfcRelContainedInSpatialStructure", "args": ["'3U8lrLSrF9CGFw0bVc3fM8'", "#5", "'Contenu de l''\\X2\\00E9\\X0\\tage'", "$", "(#300,#310,#311,#312,#313,#314,#315,#327,#350,#400,#430,#431,#432)", "#150"], "sec": "etage", "own": null}, {"id": 400, "ent": "IfcRoof", "args": ["'2dZygvmBDICGMNOp4xBCT4'", "#5", "'Toiture'", "$", "$", "#151", "$", "'TO1'", ".GABLE_ROOF."], "sec": "toit", "own": null}, {"id": 401, "ent": "IfcRelAggregates", "args": ["'3rggBkYxFvHU8XLgIF0akU'", "#5", "'Toiture \\X2\\2192\\X0\\ pans'", "$", "#400", "(#410,#420)"], "sec": "toit", "own": null}, {"id": 410, "ent": "IfcSlab", "args": ["'1Ftq9hsHQInzgq1peV2XgO'", "#5", "'Pan sud'", "$", "$", "#41000", "#41005", "'TS'", ".ROOF."], "sec": "toit", "own": null}, {"id": 420, "ent": "IfcSlab", "args": ["'2duDmQgbDKWcTjIPP3PAHV'", "#5", "'Pan nord'", "$", "$", "#42000", "#42005", "'TN'", ".ROOF."], "sec": "toit", "own": null}, {"id": 430, "ent": "IfcBeam", "args": ["'2LN9w4pNHdm2KPqx4InFpM'", "#5", "'Fa\\X2\\00EE\\X0\\tage'", "$", "$", "#43000", "#43005", "'C01'"], "sec": "toit", "own": null}, {"id": 431, "ent": "IfcBeam", "args": ["'2GXVg64Ip$Dyiqqa_xqtFE'", "#5", "'Panne sud'", "$", "$", "#43100", "#43105", "'C02'"], "sec": "toit", "own": null}, {"id": 432, "ent": "IfcBeam", "args": ["'2tr3f6btmfd8VFvVo6yDUd'", "#5", "'Panne nord'", "$", "$", "#43200", "#43205", "'C03'"], "sec": "toit", "own": null}, {"id": 500, "ent": "IfcMaterial", "args": ["'Enduit'"], "sec": "data", "own": null}, {"id": 501, "ent": "IfcMaterial", "args": ["'Brique'"], "sec": "data", "own": null}, {"id": 502, "ent": "IfcMaterial", "args": ["'Laine de roche'"], "sec": "data", "own": null}, {"id": 503, "ent": "IfcMaterial", "args": ["'Plaque de pl\\X2\\00E2\\X0\\tre'"], "sec": "data", "own": null}, {"id": 504, "ent": "IfcMaterial", "args": ["'B\\X2\\00E9\\X0\\ton arm\\X2\\00E9\\X0\\'"], "sec": "data", "own": null}, {"id": 505, "ent": "IfcMaterial", "args": ["'Tuile terre cuite'"], "sec": "data", "own": null}, {"id": 506, "ent": "IfcMaterial", "args": ["'Sapin (charpente)'"], "sec": "data", "own": null}, {"id": 507, "ent": "IfcMaterial", "args": ["'Ch\\X2\\00EA\\X0\\ne'"], "sec": "data", "own": null}, {"id": 508, "ent": "IfcMaterial", "args": ["'Aluminium'"], "sec": "data", "own": null}, {"id": 509, "ent": "IfcMaterial", "args": ["'Verre'"], "sec": "data", "own": null}, {"id": 510, "ent": "IfcMaterial", "args": ["'H\\X2\\00EA\\X0\\tre'"], "sec": "data", "own": null}, {"id": 511, "ent": "IfcMaterialLayer", "args": ["#500", "0.015", "$"], "sec": "data", "own": null}, {"id": 512, "ent": "IfcMaterialLayer", "args": ["#501", "0.2", "$"], "sec": "data", "own": null}, {"id": 513, "ent": "IfcMaterialLayer", "args": ["#502", "0.07", "$"], "sec": "data", "own": null}, {"id": 514, "ent": "IfcMaterialLayer", "args": ["#503", "0.015", "$"], "sec": "data", "own": null}, {"id": 515, "ent": "IfcMaterialLayerSet", "args": ["(#511,#512,#513,#514)", "'Mur ext\\X2\\00E9\\X0\\rieur 30'"], "sec": "data", "own": null}, {"id": 516, "ent": "IfcMaterialLayerSetUsage", "args": ["#515", ".AXIS2.", ".POSITIVE.", "0."], "sec": "data", "own": null}, {"id": 517, "ent": "IfcMaterialList", "args": ["(#508,#509)"], "sec": "data", "own": null}, {"id": 520, "ent": "IfcRelAssociatesMaterial", "args": ["'3voIjT5d3wedf$IyQPb7Pe'", "#5", "$", "$", "(#210,#211,#212,#213,#310,#311,#312,#313,#314,#315)", "#516"], "sec": "data", "own": null}, {"id": 521, "ent": "IfcRelAssociatesMaterial", "args": ["'2y2MPUO6DdeZrHgurALSdF'", "#5", "$", "$", "(#200,#300,#240)", "#504"], "sec": "data", "own": null}, {"id": 522, "ent": "IfcRelAssociatesMaterial", "args": ["'1YNUbYlETcNSZGBx9u950a'", "#5", "$", "$", "(#410,#420)", "#505"], "sec": "data", "own": null}, {"id": 523, "ent": "IfcRelAssociatesMaterial", "args": ["'2sBLaOVMZ3NJ4xn0$7N8kf'", "#5", "$", "$", "(#430,#431,#432)", "#506"], "sec": "data", "own": null}, {"id": 524, "ent": "IfcRelAssociatesMaterial", "args": ["'34bMLEtUuWUX_S$X4P6vNf'", "#5", "$", "$", "(#222)", "#507"], "sec": "data", "own": null}, {"id": 525, "ent": "IfcRelAssociatesMaterial", "args": ["'12$tuX39EMUI6ds5eX$BLm'", "#5", "$", "$", "(#227,#327)", "#517"], "sec": "data", "own": null}, {"id": 526, "ent": "IfcRelAssociatesMaterial", "args": ["'2VK$w7eqxkR5G_HIw50UqI'", "#5", "$", "$", "(#250,#350)", "#510"], "sec": "data", "own": null}, {"id": 530, "ent": "IfcPropertySet", "args": ["'0ocys94TbWFUrxBTkdhR5K'", "#5", "'Pset_WallCommon'", "$", "(#531,#532,#533,#534)"], "sec": "data", "own": null}, {"id": 531, "ent": "IfcPropertySingleValue", "args": ["'IsExternal'", "$", "IFCBOOLEAN(.T.)", "$"], "sec": "data", "own": null}, {"id": 532, "ent": "IfcPropertySingleValue", "args": ["'LoadBearing'", "$", "IFCBOOLEAN(.T.)", "$"], "sec": "data", "own": null}, {"id": 533, "ent": "IfcPropertySingleValue", "args": ["'ThermalTransmittance'", "$", "IFCTHERMALTRANSMITTANCEMEASURE(0.28)", "$"], "sec": "data", "own": null}, {"id": 534, "ent": "IfcPropertySingleValue", "args": ["'FireRating'", "$", "IFCLABEL('REI60')", "$"], "sec": "data", "own": null}, {"id": 535, "ent": "IfcRelDefinesByProperties", "args": ["'37hMxoRmm6RriVNKzQpRxd'", "#5", "$", "$", "(#210,#211,#212,#213,#310,#311,#312,#313,#314,#315)", "#530"], "sec": "data", "own": null}, {"id": 540, "ent": "IfcPropertySet", "args": ["'3v_N_Qnr96ZkZ2NXoRYDk7'", "#5", "'Pset_SlabCommon'", "$", "(#541,#542)"], "sec": "data", "own": null}, {"id": 541, "ent": "IfcPropertySingleValue", "args": ["'IsExternal'", "$", "IFCBOOLEAN(.F.)", "$"], "sec": "data", "own": null}, {"id": 542, "ent": "IfcPropertySingleValue", "args": ["'LoadBearing'", "$", "IFCBOOLEAN(.T.)", "$"], "sec": "data", "own": null}, {"id": 543, "ent": "IfcRelDefinesByProperties", "args": ["'1kHUF2fnvAmfW7coU_5OJG'", "#5", "$", "$", "(#200,#300)", "#540"], "sec": "data", "own": null}, {"id": 545, "ent": "IfcPropertySet", "args": ["'0QdqszHXevmIQZvpHnjSDb'", "#5", "'Pset_RoofCommon'", "$", "(#546)"], "sec": "data", "own": null}, {"id": 546, "ent": "IfcPropertySingleValue", "args": ["'IsExternal'", "$", "IFCBOOLEAN(.T.)", "$"], "sec": "data", "own": null}, {"id": 547, "ent": "IfcRelDefinesByProperties", "args": ["'2iRH53z1c8RjFlUXBsFo$7'", "#5", "$", "$", "(#400)", "#545"], "sec": "data", "own": null}, {"id": 550, "ent": "IfcPropertySet", "args": ["'3nga$ZSKpPyLiUBhsJzWd2'", "#5", "'Pset_DoorCommon'", "$", "(#551,#552)"], "sec": "data", "own": null}, {"id": 551, "ent": "IfcPropertySingleValue", "args": ["'IsExternal'", "$", "IFCBOOLEAN(.T.)", "$"], "sec": "data", "own": null}, {"id": 552, "ent": "IfcPropertySingleValue", "args": ["'HandicapAccessible'", "$", "IFCBOOLEAN(.T.)", "$"], "sec": "data", "own": null}, {"id": 553, "ent": "IfcRelDefinesByProperties", "args": ["'3Fk8pY6m$cyfW934iflcXN'", "#5", "$", "$", "(#222)", "#550"], "sec": "data", "own": null}, {"id": 555, "ent": "IfcPropertySet", "args": ["'3nhk3R96qr8Z8xvmn4HYd$'", "#5", "'Pset_WindowCommon'", "$", "(#556,#557)"], "sec": "data", "own": null}, {"id": 556, "ent": "IfcPropertySingleValue", "args": ["'IsExternal'", "$", "IFCBOOLEAN(.T.)", "$"], "sec": "data", "own": null}, {"id": 557, "ent": "IfcPropertySingleValue", "args": ["'ThermalTransmittance'", "$", "IFCTHERMALTRANSMITTANCEMEASURE(1.3)", "$"], "sec": "data", "own": null}, {"id": 558, "ent": "IfcRelDefinesByProperties", "args": ["'2y2JOYTXSU0o0U$AgXiD2e'", "#5", "$", "$", "(#227,#327)", "#555"], "sec": "data", "own": null}, {"id": 560, "ent": "IfcPropertySet", "args": ["'1oKOKKg_blrak$UVkfMG88'", "#5", "'Pset_StairCommon'", "$", "(#561,#562,#563,#564)"], "sec": "data", "own": null}, {"id": 561, "ent": "IfcPropertySingleValue", "args": ["'NumberOfRiser'", "$", "IFCCOUNTMEASURE(13.)", "$"], "sec": "data", "own": null}, {"id": 562, "ent": "IfcPropertySingleValue", "args": ["'NumberOfTreads'", "$", "IFCCOUNTMEASURE(12.)", "$"], "sec": "data", "own": null}, {"id": 563, "ent": "IfcPropertySingleValue", "args": ["'RiserHeight'", "$", "IFCPOSITIVELENGTHMEASURE(0.223)", "$"], "sec": "data", "own": null}, {"id": 564, "ent": "IfcPropertySingleValue", "args": ["'TreadLength'", "$", "IFCPOSITIVELENGTHMEASURE(0.25)", "$"], "sec": "data", "own": null}, {"id": 565, "ent": "IfcRelDefinesByProperties", "args": ["'0dEvz5Kqz6iWooWWlfNgQG'", "#5", "$", "$", "(#240)", "#560"], "sec": "data", "own": null}, {"id": 566, "ent": "IfcPropertySet", "args": ["'3GYKGPmbTN1yHYYrWonH6K'", "#5", "'Pset_BeamCommon'", "$", "(#567,#568)"], "sec": "data", "own": null}, {"id": 567, "ent": "IfcPropertySingleValue", "args": ["'LoadBearing'", "$", "IFCBOOLEAN(.T.)", "$"], "sec": "data", "own": null}, {"id": 568, "ent": "IfcPropertySingleValue", "args": ["'Span'", "$", "IFCPOSITIVELENGTHMEASURE(8.)", "$"], "sec": "data", "own": null}, {"id": 569, "ent": "IfcRelDefinesByProperties", "args": ["'05OajFpg3zLl8duaSoqInR'", "#5", "$", "$", "(#430,#431,#432)", "#566"], "sec": "data", "own": null}, {"id": 570, "ent": "IfcPropertySet", "args": ["'2IuMDW_tFJf2YIZpZfTAzP'", "#5", "'Pset_SpaceCommon'", "$", "(#571,#572)"], "sec": "data", "own": null}, {"id": 571, "ent": "IfcPropertySingleValue", "args": ["'Category'", "$", "IFCLABEL('Pi\\X2\\00E8\\X0\\ce de vie')", "$"], "sec": "data", "own": null}, {"id": 572, "ent": "IfcPropertySingleValue", "args": ["'NetPlannedArea'", "$", "IFCAREAMEASURE(39.96)", "$"], "sec": "data", "own": null}, {"id": 573, "ent": "IfcRelDefinesByProperties", "args": ["'2X6J80dA0NhzHPqz4rio7R'", "#5", "$", "$", "(#140)", "#570"], "sec": "data", "own": null}, {"id": 575, "ent": "IfcPropertySet", "args": ["'2ZObVu6M3LF9Yj3d8x1Q8k'", "#5", "'Pset_SpaceCommon'", "$", "(#576,#577)"], "sec": "data", "own": null}, {"id": 576, "ent": "IfcPropertySingleValue", "args": ["'Category'", "$", "IFCLABEL('Chambre')", "$"], "sec": "data", "own": null}, {"id": 577, "ent": "IfcPropertySingleValue", "args": ["'NetPlannedArea'", "$", "IFCAREAMEASURE(39.96)", "$"], "sec": "data", "own": null}, {"id": 578, "ent": "IfcRelDefinesByProperties", "args": ["'0XV$pdCzpqW31ITfnlZkvj'", "#5", "$", "$", "(#160)", "#575"], "sec": "data", "own": null}, {"id": 580, "ent": "IfcWallType", "args": ["'2Z8fCXgRNR6GcQMiDJIliN'", "#5", "'Mur ext\\X2\\00E9\\X0\\rieur 30'", "$", "$", "$", "$", "$", "$", ".STANDARD."], "sec": "data", "own": null}, {"id": 581, "ent": "IfcRelDefinesByType", "args": ["'321p6pCfQ2Mf8DftyS$qMY'", "#5", "$", "$", "(#210,#211,#212,#213,#310,#311,#312,#313,#314,#315)", "#580"], "sec": "data", "own": null}, {"id": 600, "ent": "IfcColourRgb", "args": ["'Enduit blanc cass\\X2\\00E9\\X0\\'", "0.91", "0.88", "0.82"], "sec": "col", "own": null}, {"id": 601, "ent": "IfcColourRgb", "args": ["'B\\X2\\00E9\\X0\\ton gris'", "0.7", "0.7", "0.68"], "sec": "col", "own": null}, {"id": 602, "ent": "IfcColourRgb", "args": ["'Tuile terre cuite'", "0.71", "0.32", "0.23"], "sec": "col", "own": null}, {"id": 603, "ent": "IfcColourRgb", "args": ["'Bois de charpente'", "0.6", "0.42", "0.25"], "sec": "col", "own": null}, {"id": 604, "ent": "IfcColourRgb", "args": ["'Bois de porte'", "0.47", "0.32", "0.19"], "sec": "col", "own": null}, {"id": 605, "ent": "IfcColourRgb", "args": ["'Verre'", "0.56", "0.77", "0.91"], "sec": "col", "own": null}, {"id": 606, "ent": "IfcColourRgb", "args": ["'Gazon'", "0.5", "0.65", "0.35"], "sec": "col", "own": null}, {"id": 607, "ent": "IfcColourRgb", "args": ["'Bois clair'", "0.79", "0.64", "0.48"], "sec": "col", "own": null}, {"id": 608, "ent": "IfcColourRgb", "args": ["'Espace'", "0.55", "0.75", "0.95"], "sec": "col", "own": null}, {"id": 610, "ent": "IfcSurfaceStyleRendering", "args": ["#600", "0.", "$", "$", "$", "$", "$", "$", ".MATT."], "sec": "col", "own": null}, {"id": 611, "ent": "IfcSurfaceStyleRendering", "args": ["#601", "0.", "$", "$", "$", "$", "$", "$", ".MATT."], "sec": "col", "own": null}, {"id": 612, "ent": "IfcSurfaceStyleRendering", "args": ["#602", "0.", "$", "$", "$", "$", "$", "$", ".MATT."], "sec": "col", "own": null}, {"id": 613, "ent": "IfcSurfaceStyleRendering", "args": ["#603", "0.", "$", "$", "$", "$", "$", "$", ".MATT."], "sec": "col", "own": null}, {"id": 614, "ent": "IfcSurfaceStyleRendering", "args": ["#604", "0.", "$", "$", "$", "$", "$", "$", ".MATT."], "sec": "col", "own": null}, {"id": 615, "ent": "IfcSurfaceStyleRendering", "args": ["#605", "0.6", "$", "$", "$", "$", "$", "$", ".GLASS."], "sec": "col", "own": null}, {"id": 616, "ent": "IfcSurfaceStyleRendering", "args": ["#606", "0.", "$", "$", "$", "$", "$", "$", ".MATT."], "sec": "col", "own": null}, {"id": 617, "ent": "IfcSurfaceStyleRendering", "args": ["#607", "0.", "$", "$", "$", "$", "$", "$", ".MATT."], "sec": "col", "own": null}, {"id": 618, "ent": "IfcSurfaceStyleRendering", "args": ["#608", "0.75", "$", "$", "$", "$", "$", "$", ".MATT."], "sec": "col", "own": null}, {"id": 620, "ent": "IfcSurfaceStyle", "args": ["'Enduit blanc cass\\X2\\00E9\\X0\\'", ".BOTH.", "(#610)"], "sec": "col", "own": null}, {"id": 621, "ent": "IfcSurfaceStyle", "args": ["'B\\X2\\00E9\\X0\\ton gris'", ".BOTH.", "(#611)"], "sec": "col", "own": null}, {"id": 622, "ent": "IfcSurfaceStyle", "args": ["'Tuile terre cuite'", ".BOTH.", "(#612)"], "sec": "col", "own": null}, {"id": 623, "ent": "IfcSurfaceStyle", "args": ["'Bois de charpente'", ".BOTH.", "(#613)"], "sec": "col", "own": null}, {"id": 624, "ent": "IfcSurfaceStyle", "args": ["'Bois de porte'", ".BOTH.", "(#614)"], "sec": "col", "own": null}, {"id": 625, "ent": "IfcSurfaceStyle", "args": ["'Verre'", ".BOTH.", "(#615)"], "sec": "col", "own": null}, {"id": 626, "ent": "IfcSurfaceStyle", "args": ["'Gazon'", ".BOTH.", "(#616)"], "sec": "col", "own": null}, {"id": 627, "ent": "IfcSurfaceStyle", "args": ["'Bois clair'", ".BOTH.", "(#617)"], "sec": "col", "own": null}, {"id": 628, "ent": "IfcSurfaceStyle", "args": ["'Espace'", ".BOTH.", "(#618)"], "sec": "col", "own": null}, {"id": 630, "ent": "IfcPresentationStyleAssignment", "args": ["(#620)"], "sec": "col", "own": null}, {"id": 631, "ent": "IfcPresentationStyleAssignment", "args": ["(#621)"], "sec": "col", "own": null}, {"id": 632, "ent": "IfcPresentationStyleAssignment", "args": ["(#622)"], "sec": "col", "own": null}, {"id": 633, "ent": "IfcPresentationStyleAssignment", "args": ["(#623)"], "sec": "col", "own": null}, {"id": 634, "ent": "IfcPresentationStyleAssignment", "args": ["(#624)"], "sec": "col", "own": null}, {"id": 635, "ent": "IfcPresentationStyleAssignment", "args": ["(#625)"], "sec": "col", "own": null}, {"id": 636, "ent": "IfcPresentationStyleAssignment", "args": ["(#626)"], "sec": "col", "own": null}, {"id": 637, "ent": "IfcPresentationStyleAssignment", "args": ["(#627)"], "sec": "col", "own": null}, {"id": 638, "ent": "IfcPresentationStyleAssignment", "args": ["(#628)"], "sec": "col", "own": null}, {"id": 11000, "ent": "IfcLocalPlacement", "args": ["#111", "#11001"], "sec": "geo", "own": 110}, {"id": 11001, "ent": "IfcAxis2Placement3D", "args": ["#11002", "$", "$"], "sec": "geo", "own": 110}, {"id": 11002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 110}, {"id": 11005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#11006)"], "sec": "geo", "own": 110}, {"id": 11006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#11010)"], "sec": "geo", "own": 110}, {"id": 11010, "ent": "IfcExtrudedAreaSolid", "args": ["#11011", "#11024", "#31", "0.2"], "sec": "geo", "own": 110}, {"id": 11011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#11012", "20.", "16."], "sec": "geo", "own": 110}, {"id": 11012, "ent": "IfcAxis2Placement2D", "args": ["#11013", "$"], "sec": "geo", "own": 110}, {"id": 11013, "ent": "IfcCartesianPoint", "args": ["(4.,3.)"], "sec": "geo", "own": 110}, {"id": 11024, "ent": "IfcAxis2Placement3D", "args": ["#11025", "$", "$"], "sec": "geo", "own": 110}, {"id": 11025, "ent": "IfcCartesianPoint", "args": ["(0.,0.,-0.25)"], "sec": "geo", "own": 110}, {"id": 11080, "ent": "IfcStyledItem", "args": ["#11010", "(#636)", "$"], "sec": "geo", "own": 110}, {"id": 14000, "ent": "IfcLocalPlacement", "args": ["#131", "#14001"], "sec": "geo", "own": 140}, {"id": 14001, "ent": "IfcAxis2Placement3D", "args": ["#14002", "$", "$"], "sec": "geo", "own": 140}, {"id": 14002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 140}, {"id": 14005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#14006)"], "sec": "geo", "own": 140}, {"id": 14006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#14010)"], "sec": "geo", "own": 140}, {"id": 14010, "ent": "IfcExtrudedAreaSolid", "args": ["#14011", "#33", "#31", "2.7"], "sec": "geo", "own": 140}, {"id": 14011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#14012", "7.4", "5.4"], "sec": "geo", "own": 140}, {"id": 14012, "ent": "IfcAxis2Placement2D", "args": ["#14013", "$"], "sec": "geo", "own": 140}, {"id": 14013, "ent": "IfcCartesianPoint", "args": ["(4.,3.)"], "sec": "geo", "own": 140}, {"id": 14080, "ent": "IfcStyledItem", "args": ["#14010", "(#638)", "$"], "sec": "geo", "own": 140}, {"id": 16000, "ent": "IfcLocalPlacement", "args": ["#151", "#16001"], "sec": "geo", "own": 160}, {"id": 16001, "ent": "IfcAxis2Placement3D", "args": ["#16002", "$", "$"], "sec": "geo", "own": 160}, {"id": 16002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 160}, {"id": 16005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#16006)"], "sec": "geo", "own": 160}, {"id": 16006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#16010)"], "sec": "geo", "own": 160}, {"id": 16010, "ent": "IfcExtrudedAreaSolid", "args": ["#16011", "#33", "#31", "2.5"], "sec": "geo", "own": 160}, {"id": 16011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#16012", "7.4", "5.4"], "sec": "geo", "own": 160}, {"id": 16012, "ent": "IfcAxis2Placement2D", "args": ["#16013", "$"], "sec": "geo", "own": 160}, {"id": 16013, "ent": "IfcCartesianPoint", "args": ["(4.,3.)"], "sec": "geo", "own": 160}, {"id": 16080, "ent": "IfcStyledItem", "args": ["#16010", "(#638)", "$"], "sec": "geo", "own": 160}, {"id": 20000, "ent": "IfcLocalPlacement", "args": ["#131", "#20001"], "sec": "geo", "own": 200}, {"id": 20001, "ent": "IfcAxis2Placement3D", "args": ["#20002", "$", "$"], "sec": "geo", "own": 200}, {"id": 20002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,-0.2)"], "sec": "geo", "own": 200}, {"id": 20005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#20006)"], "sec": "geo", "own": 200}, {"id": 20006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#20010)"], "sec": "geo", "own": 200}, {"id": 20010, "ent": "IfcExtrudedAreaSolid", "args": ["#20011", "#33", "#31", "0.2"], "sec": "geo", "own": 200}, {"id": 20011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#20012", "8.", "6."], "sec": "geo", "own": 200}, {"id": 20012, "ent": "IfcAxis2Placement2D", "args": ["#20013", "$"], "sec": "geo", "own": 200}, {"id": 20013, "ent": "IfcCartesianPoint", "args": ["(4.,3.)"], "sec": "geo", "own": 200}, {"id": 20080, "ent": "IfcStyledItem", "args": ["#20010", "(#631)", "$"], "sec": "geo", "own": 200}, {"id": 21000, "ent": "IfcLocalPlacement", "args": ["#131", "#21001"], "sec": "geo", "own": 210}, {"id": 21001, "ent": "IfcAxis2Placement3D", "args": ["#21002", "$", "$"], "sec": "geo", "own": 210}, {"id": 21002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 210}, {"id": 21005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#21006)"], "sec": "geo", "own": 210}, {"id": 21006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#21010)"], "sec": "geo", "own": 210}, {"id": 21010, "ent": "IfcExtrudedAreaSolid", "args": ["#21011", "#33", "#31", "2.7"], "sec": "geo", "own": 210}, {"id": 21011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#21012", "8.", "0.3"], "sec": "geo", "own": 210}, {"id": 21012, "ent": "IfcAxis2Placement2D", "args": ["#21013", "$"], "sec": "geo", "own": 210}, {"id": 21013, "ent": "IfcCartesianPoint", "args": ["(4.,0.15)"], "sec": "geo", "own": 210}, {"id": 21080, "ent": "IfcStyledItem", "args": ["#21010", "(#630)", "$"], "sec": "geo", "own": 210}, {"id": 21100, "ent": "IfcLocalPlacement", "args": ["#131", "#21101"], "sec": "geo", "own": 211}, {"id": 21101, "ent": "IfcAxis2Placement3D", "args": ["#21102", "$", "$"], "sec": "geo", "own": 211}, {"id": 21102, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 211}, {"id": 21105, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#21106)"], "sec": "geo", "own": 211}, {"id": 21106, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#21110)"], "sec": "geo", "own": 211}, {"id": 21110, "ent": "IfcExtrudedAreaSolid", "args": ["#21111", "#33", "#31", "2.7"], "sec": "geo", "own": 211}, {"id": 21111, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#21112", "8.", "0.3"], "sec": "geo", "own": 211}, {"id": 21112, "ent": "IfcAxis2Placement2D", "args": ["#21113", "$"], "sec": "geo", "own": 211}, {"id": 21113, "ent": "IfcCartesianPoint", "args": ["(4.,5.85)"], "sec": "geo", "own": 211}, {"id": 21180, "ent": "IfcStyledItem", "args": ["#21110", "(#630)", "$"], "sec": "geo", "own": 211}, {"id": 21200, "ent": "IfcLocalPlacement", "args": ["#131", "#21201"], "sec": "geo", "own": 212}, {"id": 21201, "ent": "IfcAxis2Placement3D", "args": ["#21202", "$", "$"], "sec": "geo", "own": 212}, {"id": 21202, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 212}, {"id": 21205, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#21206)"], "sec": "geo", "own": 212}, {"id": 21206, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#21210)"], "sec": "geo", "own": 212}, {"id": 21210, "ent": "IfcExtrudedAreaSolid", "args": ["#21211", "#33", "#31", "2.7"], "sec": "geo", "own": 212}, {"id": 21211, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#21212", "0.3", "5.4"], "sec": "geo", "own": 212}, {"id": 21212, "ent": "IfcAxis2Placement2D", "args": ["#21213", "$"], "sec": "geo", "own": 212}, {"id": 21213, "ent": "IfcCartesianPoint", "args": ["(0.15,3.)"], "sec": "geo", "own": 212}, {"id": 21280, "ent": "IfcStyledItem", "args": ["#21210", "(#630)", "$"], "sec": "geo", "own": 212}, {"id": 21300, "ent": "IfcLocalPlacement", "args": ["#131", "#21301"], "sec": "geo", "own": 213}, {"id": 21301, "ent": "IfcAxis2Placement3D", "args": ["#21302", "$", "$"], "sec": "geo", "own": 213}, {"id": 21302, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 213}, {"id": 21305, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#21306)"], "sec": "geo", "own": 213}, {"id": 21306, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#21310)"], "sec": "geo", "own": 213}, {"id": 21310, "ent": "IfcExtrudedAreaSolid", "args": ["#21311", "#33", "#31", "2.7"], "sec": "geo", "own": 213}, {"id": 21311, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#21312", "0.3", "5.4"], "sec": "geo", "own": 213}, {"id": 21312, "ent": "IfcAxis2Placement2D", "args": ["#21313", "$"], "sec": "geo", "own": 213}, {"id": 21313, "ent": "IfcCartesianPoint", "args": ["(7.85,3.)"], "sec": "geo", "own": 213}, {"id": 21380, "ent": "IfcStyledItem", "args": ["#21310", "(#630)", "$"], "sec": "geo", "own": 213}, {"id": 22000, "ent": "IfcLocalPlacement", "args": ["#131", "#22001"], "sec": "geo", "own": 220}, {"id": 22001, "ent": "IfcAxis2Placement3D", "args": ["#22002", "$", "$"], "sec": "geo", "own": 220}, {"id": 22002, "ent": "IfcCartesianPoint", "args": ["(1.,-0.01,0.)"], "sec": "geo", "own": 220}, {"id": 22005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#22006)"], "sec": "geo", "own": 220}, {"id": 22006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#22010)"], "sec": "geo", "own": 220}, {"id": 22010, "ent": "IfcExtrudedAreaSolid", "args": ["#22011", "#33", "#31", "2.15"], "sec": "geo", "own": 220}, {"id": 22011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#22012", "0.9", "0.32"], "sec": "geo", "own": 220}, {"id": 22012, "ent": "IfcAxis2Placement2D", "args": ["#22013", "$"], "sec": "geo", "own": 220}, {"id": 22013, "ent": "IfcCartesianPoint", "args": ["(0.45,0.16)"], "sec": "geo", "own": 220}, {"id": 22080, "ent": "IfcStyledItem", "args": ["#22010", "(#634)", "$"], "sec": "geo", "own": 220}, {"id": 22200, "ent": "IfcLocalPlacement", "args": ["#131", "#22201"], "sec": "geo", "own": 222}, {"id": 22201, "ent": "IfcAxis2Placement3D", "args": ["#22202", "$", "$"], "sec": "geo", "own": 222}, {"id": 22202, "ent": "IfcCartesianPoint", "args": ["(1.,-0.02,0.)"], "sec": "geo", "own": 222}, {"id": 22205, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#22206)"], "sec": "geo", "own": 222}, {"id": 22206, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#22210)"], "sec": "geo", "own": 222}, {"id": 22210, "ent": "IfcExtrudedAreaSolid", "args": ["#22211", "#33", "#31", "2.15"], "sec": "geo", "own": 222}, {"id": 22211, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#22212", "0.9", "0.34"], "sec": "geo", "own": 222}, {"id": 22212, "ent": "IfcAxis2Placement2D", "args": ["#22213", "$"], "sec": "geo", "own": 222}, {"id": 22213, "ent": "IfcCartesianPoint", "args": ["(0.45,0.17)"], "sec": "geo", "own": 222}, {"id": 22280, "ent": "IfcStyledItem", "args": ["#22210", "(#634)", "$"], "sec": "geo", "own": 222}, {"id": 22500, "ent": "IfcLocalPlacement", "args": ["#131", "#22501"], "sec": "geo", "own": 225}, {"id": 22501, "ent": "IfcAxis2Placement3D", "args": ["#22502", "$", "$"], "sec": "geo", "own": 225}, {"id": 22502, "ent": "IfcCartesianPoint", "args": ["(4.6,-0.01,0.95)"], "sec": "geo", "own": 225}, {"id": 22505, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#22506)"], "sec": "geo", "own": 225}, {"id": 22506, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#22510)"], "sec": "geo", "own": 225}, {"id": 22510, "ent": "IfcExtrudedAreaSolid", "args": ["#22511", "#33", "#31", "1.25"], "sec": "geo", "own": 225}, {"id": 22511, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#22512", "1.2", "0.32"], "sec": "geo", "own": 225}, {"id": 22512, "ent": "IfcAxis2Placement2D", "args": ["#22513", "$"], "sec": "geo", "own": 225}, {"id": 22513, "ent": "IfcCartesianPoint", "args": ["(0.6,0.16)"], "sec": "geo", "own": 225}, {"id": 22580, "ent": "IfcStyledItem", "args": ["#22510", "(#635)", "$"], "sec": "geo", "own": 225}, {"id": 22700, "ent": "IfcLocalPlacement", "args": ["#131", "#22701"], "sec": "geo", "own": 227}, {"id": 22701, "ent": "IfcAxis2Placement3D", "args": ["#22702", "$", "$"], "sec": "geo", "own": 227}, {"id": 22702, "ent": "IfcCartesianPoint", "args": ["(4.6,-0.02,0.95)"], "sec": "geo", "own": 227}, {"id": 22705, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#22706)"], "sec": "geo", "own": 227}, {"id": 22706, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#22710)"], "sec": "geo", "own": 227}, {"id": 22710, "ent": "IfcExtrudedAreaSolid", "args": ["#22711", "#33", "#31", "1.25"], "sec": "geo", "own": 227}, {"id": 22711, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#22712", "1.2", "0.34"], "sec": "geo", "own": 227}, {"id": 22712, "ent": "IfcAxis2Placement2D", "args": ["#22713", "$"], "sec": "geo", "own": 227}, {"id": 22713, "ent": "IfcCartesianPoint", "args": ["(0.6,0.17)"], "sec": "geo", "own": 227}, {"id": 22780, "ent": "IfcStyledItem", "args": ["#22710", "(#635)", "$"], "sec": "geo", "own": 227}, {"id": 24000, "ent": "IfcLocalPlacement", "args": ["#131", "#24001"], "sec": "geo", "own": 240}, {"id": 24001, "ent": "IfcAxis2Placement3D", "args": ["#24002", "#24003", "#24004"], "sec": "geo", "own": 240}, {"id": 24002, "ent": "IfcCartesianPoint", "args": ["(3.7,5.7,0.)"], "sec": "geo", "own": 240}, {"id": 24003, "ent": "IfcDirection", "args": ["(0.,-1.,0.)"], "sec": "geo", "own": 240}, {"id": 24004, "ent": "IfcDirection", "args": ["(1.,0.,0.)"], "sec": "geo", "own": 240}, {"id": 24005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#24006)"], "sec": "geo", "own": 240}, {"id": 24006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#24010)"], "sec": "geo", "own": 240}, {"id": 24010, "ent": "IfcExtrudedAreaSolid", "args": ["#24011", "#33", "#31", "0.9"], "sec": "geo", "own": 240}, {"id": 24011, "ent": "IfcArbitraryClosedProfileDef", "args": [".AREA.", "$", "#24012"], "sec": "geo", "own": 240}, {"id": 24012, "ent": "IfcPolyline", "args": ["(#24030,#24031,#24032,#24033,#24034,#24035,#24036,#24037,#24038,#24039,#24040,#24041,#24042,#24043,#24044,#24045,#24046,#24047,#24048,#24049,#24050,#24051,#24052,#24053,#24054,#24055,#24056,#24057,#24030)"], "sec": "geo", "own": 240}, {"id": 24030, "ent": "IfcCartesianPoint", "args": ["(0.,0.)"], "sec": "geo", "own": 240}, {"id": 24031, "ent": "IfcCartesianPoint", "args": ["(0.,0.2231)"], "sec": "geo", "own": 240}, {"id": 24032, "ent": "IfcCartesianPoint", "args": ["(0.25,0.2231)"], "sec": "geo", "own": 240}, {"id": 24033, "ent": "IfcCartesianPoint", "args": ["(0.25,0.4462)"], "sec": "geo", "own": 240}, {"id": 24034, "ent": "IfcCartesianPoint", "args": ["(0.5,0.4462)"], "sec": "geo", "own": 240}, {"id": 24035, "ent": "IfcCartesianPoint", "args": ["(0.5,0.6692)"], "sec": "geo", "own": 240}, {"id": 24036, "ent": "IfcCartesianPoint", "args": ["(0.75,0.6692)"], "sec": "geo", "own": 240}, {"id": 24037, "ent": "IfcCartesianPoint", "args": ["(0.75,0.8923)"], "sec": "geo", "own": 240}, {"id": 24038, "ent": "IfcCartesianPoint", "args": ["(1.,0.8923)"], "sec": "geo", "own": 240}, {"id": 24039, "ent": "IfcCartesianPoint", "args": ["(1.,1.1154)"], "sec": "geo", "own": 240}, {"id": 24040, "ent": "IfcCartesianPoint", "args": ["(1.25,1.1154)"], "sec": "geo", "own": 240}, {"id": 24041, "ent": "IfcCartesianPoint", "args": ["(1.25,1.3385)"], "sec": "geo", "own": 240}, {"id": 24042, "ent": "IfcCartesianPoint", "args": ["(1.5,1.3385)"], "sec": "geo", "own": 240}, {"id": 24043, "ent": "IfcCartesianPoint", "args": ["(1.5,1.5615)"], "sec": "geo", "own": 240}, {"id": 24044, "ent": "IfcCartesianPoint", "args": ["(1.75,1.5615)"], "sec": "geo", "own": 240}, {"id": 24045, "ent": "IfcCartesianPoint", "args": ["(1.75,1.7846)"], "sec": "geo", "own": 240}, {"id": 24046, "ent": "IfcCartesianPoint", "args": ["(2.,1.7846)"], "sec": "geo", "own": 240}, {"id": 24047, "ent": "IfcCartesianPoint", "args": ["(2.,2.0077)"], "sec": "geo", "own": 240}, {"id": 24048, "ent": "IfcCartesianPoint", "args": ["(2.25,2.0077)"], "sec": "geo", "own": 240}, {"id": 24049, "ent": "IfcCartesianPoint", "args": ["(2.25,2.2308)"], "sec": "geo", "own": 240}, {"id": 24050, "ent": "IfcCartesianPoint", "args": ["(2.5,2.2308)"], "sec": "geo", "own": 240}, {"id": 24051, "ent": "IfcCartesianPoint", "args": ["(2.5,2.4538)"], "sec": "geo", "own": 240}, {"id": 24052, "ent": "IfcCartesianPoint", "args": ["(2.75,2.4538)"], "sec": "geo", "own": 240}, {"id": 24053, "ent": "IfcCartesianPoint", "args": ["(2.75,2.6769)"], "sec": "geo", "own": 240}, {"id": 24054, "ent": "IfcCartesianPoint", "args": ["(3.,2.6769)"], "sec": "geo", "own": 240}, {"id": 24055, "ent": "IfcCartesianPoint", "args": ["(3.,2.9)"], "sec": "geo", "own": 240}, {"id": 24056, "ent": "IfcCartesianPoint", "args": ["(3.,2.58)"], "sec": "geo", "own": 240}, {"id": 24057, "ent": "IfcCartesianPoint", "args": ["(0.35,0.)"], "sec": "geo", "own": 240}, {"id": 24080, "ent": "IfcStyledItem", "args": ["#24010", "(#631)", "$"], "sec": "geo", "own": 240}, {"id": 25000, "ent": "IfcLocalPlacement", "args": ["#131", "#25001"], "sec": "geo", "own": 250}, {"id": 25001, "ent": "IfcAxis2Placement3D", "args": ["#25002", "$", "$"], "sec": "geo", "own": 250}, {"id": 25002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 250}, {"id": 25005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#25006)"], "sec": "geo", "own": 250}, {"id": 25006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#25010,#25030,#25050)"], "sec": "geo", "own": 250}, {"id": 25010, "ent": "IfcExtrudedAreaSolid", "args": ["#25011", "#25024", "#31", "0.04"], "sec": "geo", "own": 250}, {"id": 25011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#25012", "1.6", "0.9"], "sec": "geo", "own": 250}, {"id": 25012, "ent": "IfcAxis2Placement2D", "args": ["#25013", "$"], "sec": "geo", "own": 250}, {"id": 25013, "ent": "IfcCartesianPoint", "args": ["(2.3,2.65)"], "sec": "geo", "own": 250}, {"id": 25024, "ent": "IfcAxis2Placement3D", "args": ["#25025", "$", "$"], "sec": "geo", "own": 250}, {"id": 25025, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.72)"], "sec": "geo", "own": 250}, {"id": 25030, "ent": "IfcExtrudedAreaSolid", "args": ["#25031", "#33", "#31", "0.72"], "sec": "geo", "own": 250}, {"id": 25031, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#25032", "0.04", "0.74"], "sec": "geo", "own": 250}, {"id": 25032, "ent": "IfcAxis2Placement2D", "args": ["#25033", "$"], "sec": "geo", "own": 250}, {"id": 25033, "ent": "IfcCartesianPoint", "args": ["(1.6,2.65)"], "sec": "geo", "own": 250}, {"id": 25050, "ent": "IfcExtrudedAreaSolid", "args": ["#25051", "#33", "#31", "0.72"], "sec": "geo", "own": 250}, {"id": 25051, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#25052", "0.04", "0.74"], "sec": "geo", "own": 250}, {"id": 25052, "ent": "IfcAxis2Placement2D", "args": ["#25053", "$"], "sec": "geo", "own": 250}, {"id": 25053, "ent": "IfcCartesianPoint", "args": ["(3.,2.65)"], "sec": "geo", "own": 250}, {"id": 25080, "ent": "IfcStyledItem", "args": ["#25010", "(#637)", "$"], "sec": "geo", "own": 250}, {"id": 25081, "ent": "IfcStyledItem", "args": ["#25030", "(#637)", "$"], "sec": "geo", "own": 250}, {"id": 25082, "ent": "IfcStyledItem", "args": ["#25050", "(#637)", "$"], "sec": "geo", "own": 250}, {"id": 30000, "ent": "IfcLocalPlacement", "args": ["#151", "#30001"], "sec": "geo", "own": 300}, {"id": 30001, "ent": "IfcAxis2Placement3D", "args": ["#30002", "$", "$"], "sec": "geo", "own": 300}, {"id": 30002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,-0.2)"], "sec": "geo", "own": 300}, {"id": 30005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#30006)"], "sec": "geo", "own": 300}, {"id": 30006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#30010)"], "sec": "geo", "own": 300}, {"id": 30010, "ent": "IfcExtrudedAreaSolid", "args": ["#30011", "#33", "#31", "0.2"], "sec": "geo", "own": 300}, {"id": 30011, "ent": "IfcArbitraryProfileDefWithVoids", "args": [".AREA.", "$", "#30012", "(#30038)"], "sec": "geo", "own": 300}, {"id": 30012, "ent": "IfcPolyline", "args": ["(#30030,#30031,#30032,#30033,#30030)"], "sec": "geo", "own": 300}, {"id": 30030, "ent": "IfcCartesianPoint", "args": ["(0.,0.)"], "sec": "geo", "own": 300}, {"id": 30031, "ent": "IfcCartesianPoint", "args": ["(8.,0.)"], "sec": "geo", "own": 300}, {"id": 30032, "ent": "IfcCartesianPoint", "args": ["(8.,6.)"], "sec": "geo", "own": 300}, {"id": 30033, "ent": "IfcCartesianPoint", "args": ["(0.,6.)"], "sec": "geo", "own": 300}, {"id": 30034, "ent": "IfcCartesianPoint", "args": ["(4.2,4.8)"], "sec": "geo", "own": 300}, {"id": 30035, "ent": "IfcCartesianPoint", "args": ["(6.7,4.8)"], "sec": "geo", "own": 300}, {"id": 30036, "ent": "IfcCartesianPoint", "args": ["(6.7,5.7)"], "sec": "geo", "own": 300}, {"id": 30037, "ent": "IfcCartesianPoint", "args": ["(4.2,5.7)"], "sec": "geo", "own": 300}, {"id": 30038, "ent": "IfcPolyline", "args": ["(#30034,#30035,#30036,#30037,#30034)"], "sec": "geo", "own": 300}, {"id": 30080, "ent": "IfcStyledItem", "args": ["#30010", "(#631)", "$"], "sec": "geo", "own": 300}, {"id": 31000, "ent": "IfcLocalPlacement", "args": ["#151", "#31001"], "sec": "geo", "own": 310}, {"id": 31001, "ent": "IfcAxis2Placement3D", "args": ["#31002", "$", "$"], "sec": "geo", "own": 310}, {"id": 31002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 310}, {"id": 31005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#31006)"], "sec": "geo", "own": 310}, {"id": 31006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#31010)"], "sec": "geo", "own": 310}, {"id": 31010, "ent": "IfcExtrudedAreaSolid", "args": ["#31011", "#33", "#31", "2.5"], "sec": "geo", "own": 310}, {"id": 31011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#31012", "8.", "0.3"], "sec": "geo", "own": 310}, {"id": 31012, "ent": "IfcAxis2Placement2D", "args": ["#31013", "$"], "sec": "geo", "own": 310}, {"id": 31013, "ent": "IfcCartesianPoint", "args": ["(4.,0.15)"], "sec": "geo", "own": 310}, {"id": 31080, "ent": "IfcStyledItem", "args": ["#31010", "(#630)", "$"], "sec": "geo", "own": 310}, {"id": 31100, "ent": "IfcLocalPlacement", "args": ["#151", "#31101"], "sec": "geo", "own": 311}, {"id": 31101, "ent": "IfcAxis2Placement3D", "args": ["#31102", "$", "$"], "sec": "geo", "own": 311}, {"id": 31102, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 311}, {"id": 31105, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#31106)"], "sec": "geo", "own": 311}, {"id": 31106, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#31110)"], "sec": "geo", "own": 311}, {"id": 31110, "ent": "IfcExtrudedAreaSolid", "args": ["#31111", "#33", "#31", "2.5"], "sec": "geo", "own": 311}, {"id": 31111, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#31112", "8.", "0.3"], "sec": "geo", "own": 311}, {"id": 31112, "ent": "IfcAxis2Placement2D", "args": ["#31113", "$"], "sec": "geo", "own": 311}, {"id": 31113, "ent": "IfcCartesianPoint", "args": ["(4.,5.85)"], "sec": "geo", "own": 311}, {"id": 31180, "ent": "IfcStyledItem", "args": ["#31110", "(#630)", "$"], "sec": "geo", "own": 311}, {"id": 31200, "ent": "IfcLocalPlacement", "args": ["#151", "#31201"], "sec": "geo", "own": 312}, {"id": 31201, "ent": "IfcAxis2Placement3D", "args": ["#31202", "$", "$"], "sec": "geo", "own": 312}, {"id": 31202, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 312}, {"id": 31205, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#31206)"], "sec": "geo", "own": 312}, {"id": 31206, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#31210)"], "sec": "geo", "own": 312}, {"id": 31210, "ent": "IfcExtrudedAreaSolid", "args": ["#31211", "#33", "#31", "2.5"], "sec": "geo", "own": 312}, {"id": 31211, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#31212", "0.3", "5.4"], "sec": "geo", "own": 312}, {"id": 31212, "ent": "IfcAxis2Placement2D", "args": ["#31213", "$"], "sec": "geo", "own": 312}, {"id": 31213, "ent": "IfcCartesianPoint", "args": ["(0.15,3.)"], "sec": "geo", "own": 312}, {"id": 31280, "ent": "IfcStyledItem", "args": ["#31210", "(#630)", "$"], "sec": "geo", "own": 312}, {"id": 31300, "ent": "IfcLocalPlacement", "args": ["#151", "#31301"], "sec": "geo", "own": 313}, {"id": 31301, "ent": "IfcAxis2Placement3D", "args": ["#31302", "$", "$"], "sec": "geo", "own": 313}, {"id": 31302, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 313}, {"id": 31305, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#31306)"], "sec": "geo", "own": 313}, {"id": 31306, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#31310)"], "sec": "geo", "own": 313}, {"id": 31310, "ent": "IfcExtrudedAreaSolid", "args": ["#31311", "#33", "#31", "2.5"], "sec": "geo", "own": 313}, {"id": 31311, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#31312", "0.3", "5.4"], "sec": "geo", "own": 313}, {"id": 31312, "ent": "IfcAxis2Placement2D", "args": ["#31313", "$"], "sec": "geo", "own": 313}, {"id": 31313, "ent": "IfcCartesianPoint", "args": ["(7.85,3.)"], "sec": "geo", "own": 313}, {"id": 31380, "ent": "IfcStyledItem", "args": ["#31310", "(#630)", "$"], "sec": "geo", "own": 313}, {"id": 31400, "ent": "IfcLocalPlacement", "args": ["#151", "#31401"], "sec": "geo", "own": 314}, {"id": 31401, "ent": "IfcAxis2Placement3D", "args": ["#31402", "#31403", "#31404"], "sec": "geo", "own": 314}, {"id": 31402, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 314}, {"id": 31403, "ent": "IfcDirection", "args": ["(1.,0.,0.)"], "sec": "geo", "own": 314}, {"id": 31404, "ent": "IfcDirection", "args": ["(0.,1.,0.)"], "sec": "geo", "own": 314}, {"id": 31405, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#31406)"], "sec": "geo", "own": 314}, {"id": 31406, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#31410)"], "sec": "geo", "own": 314}, {"id": 31410, "ent": "IfcExtrudedAreaSolid", "args": ["#31411", "#33", "#31", "0.3"], "sec": "geo", "own": 314}, {"id": 31411, "ent": "IfcArbitraryClosedProfileDef", "args": [".AREA.", "$", "#31412"], "sec": "geo", "own": 314}, {"id": 31412, "ent": "IfcPolyline", "args": ["(#31430,#31431,#31432,#31430)"], "sec": "geo", "own": 314}, {"id": 31430, "ent": "IfcCartesianPoint", "args": ["(0.,2.5)"], "sec": "geo", "own": 314}, {"id": 31431, "ent": "IfcCartesianPoint", "args": ["(6.,2.5)"], "sec": "geo", "own": 314}, {"id": 31432, "ent": "IfcCartesianPoint", "args": ["(3.,4.)"], "sec": "geo", "own": 314}, {"id": 31480, "ent": "IfcStyledItem", "args": ["#31410", "(#630)", "$"], "sec": "geo", "own": 314}, {"id": 31500, "ent": "IfcLocalPlacement", "args": ["#151", "#31501"], "sec": "geo", "own": 315}, {"id": 31501, "ent": "IfcAxis2Placement3D", "args": ["#31502", "#31503", "#31504"], "sec": "geo", "own": 315}, {"id": 31502, "ent": "IfcCartesianPoint", "args": ["(7.7,0.,0.)"], "sec": "geo", "own": 315}, {"id": 31503, "ent": "IfcDirection", "args": ["(1.,0.,0.)"], "sec": "geo", "own": 315}, {"id": 31504, "ent": "IfcDirection", "args": ["(0.,1.,0.)"], "sec": "geo", "own": 315}, {"id": 31505, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#31506)"], "sec": "geo", "own": 315}, {"id": 31506, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#31510)"], "sec": "geo", "own": 315}, {"id": 31510, "ent": "IfcExtrudedAreaSolid", "args": ["#31511", "#33", "#31", "0.3"], "sec": "geo", "own": 315}, {"id": 31511, "ent": "IfcArbitraryClosedProfileDef", "args": [".AREA.", "$", "#31512"], "sec": "geo", "own": 315}, {"id": 31512, "ent": "IfcPolyline", "args": ["(#31530,#31531,#31532,#31530)"], "sec": "geo", "own": 315}, {"id": 31530, "ent": "IfcCartesianPoint", "args": ["(0.,2.5)"], "sec": "geo", "own": 315}, {"id": 31531, "ent": "IfcCartesianPoint", "args": ["(6.,2.5)"], "sec": "geo", "own": 315}, {"id": 31532, "ent": "IfcCartesianPoint", "args": ["(3.,4.)"], "sec": "geo", "own": 315}, {"id": 31580, "ent": "IfcStyledItem", "args": ["#31510", "(#630)", "$"], "sec": "geo", "own": 315}, {"id": 32500, "ent": "IfcLocalPlacement", "args": ["#151", "#32501"], "sec": "geo", "own": 325}, {"id": 32501, "ent": "IfcAxis2Placement3D", "args": ["#32502", "$", "$"], "sec": "geo", "own": 325}, {"id": 32502, "ent": "IfcCartesianPoint", "args": ["(3.4,-0.01,0.9)"], "sec": "geo", "own": 325}, {"id": 32505, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#32506)"], "sec": "geo", "own": 325}, {"id": 32506, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#32510)"], "sec": "geo", "own": 325}, {"id": 32510, "ent": "IfcExtrudedAreaSolid", "args": ["#32511", "#33", "#31", "1.15"], "sec": "geo", "own": 325}, {"id": 32511, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#32512", "1.2", "0.32"], "sec": "geo", "own": 325}, {"id": 32512, "ent": "IfcAxis2Placement2D", "args": ["#32513", "$"], "sec": "geo", "own": 325}, {"id": 32513, "ent": "IfcCartesianPoint", "args": ["(0.6,0.16)"], "sec": "geo", "own": 325}, {"id": 32580, "ent": "IfcStyledItem", "args": ["#32510", "(#635)", "$"], "sec": "geo", "own": 325}, {"id": 32700, "ent": "IfcLocalPlacement", "args": ["#151", "#32701"], "sec": "geo", "own": 327}, {"id": 32701, "ent": "IfcAxis2Placement3D", "args": ["#32702", "$", "$"], "sec": "geo", "own": 327}, {"id": 32702, "ent": "IfcCartesianPoint", "args": ["(3.4,-0.02,0.9)"], "sec": "geo", "own": 327}, {"id": 32705, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#32706)"], "sec": "geo", "own": 327}, {"id": 32706, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#32710)"], "sec": "geo", "own": 327}, {"id": 32710, "ent": "IfcExtrudedAreaSolid", "args": ["#32711", "#33", "#31", "1.15"], "sec": "geo", "own": 327}, {"id": 32711, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#32712", "1.2", "0.34"], "sec": "geo", "own": 327}, {"id": 32712, "ent": "IfcAxis2Placement2D", "args": ["#32713", "$"], "sec": "geo", "own": 327}, {"id": 32713, "ent": "IfcCartesianPoint", "args": ["(0.6,0.17)"], "sec": "geo", "own": 327}, {"id": 32780, "ent": "IfcStyledItem", "args": ["#32710", "(#635)", "$"], "sec": "geo", "own": 327}, {"id": 35000, "ent": "IfcLocalPlacement", "args": ["#151", "#35001"], "sec": "geo", "own": 350}, {"id": 35001, "ent": "IfcAxis2Placement3D", "args": ["#35002", "$", "$"], "sec": "geo", "own": 350}, {"id": 35002, "ent": "IfcCartesianPoint", "args": ["(0.,0.,0.)"], "sec": "geo", "own": 350}, {"id": 35005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#35006)"], "sec": "geo", "own": 350}, {"id": 35006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#35010,#35030)"], "sec": "geo", "own": 350}, {"id": 35010, "ent": "IfcExtrudedAreaSolid", "args": ["#35011", "#33", "#31", "0.5"], "sec": "geo", "own": 350}, {"id": 35011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#35012", "2.", "1.6"], "sec": "geo", "own": 350}, {"id": 35012, "ent": "IfcAxis2Placement2D", "args": ["#35013", "$"], "sec": "geo", "own": 350}, {"id": 35013, "ent": "IfcCartesianPoint", "args": ["(2.,4.4)"], "sec": "geo", "own": 350}, {"id": 35030, "ent": "IfcExtrudedAreaSolid", "args": ["#35031", "#33", "#31", "0.9"], "sec": "geo", "own": 350}, {"id": 35031, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#35032", "0.08", "1.6"], "sec": "geo", "own": 350}, {"id": 35032, "ent": "IfcAxis2Placement2D", "args": ["#35033", "$"], "sec": "geo", "own": 350}, {"id": 35033, "ent": "IfcCartesianPoint", "args": ["(0.96,4.4)"], "sec": "geo", "own": 350}, {"id": 35080, "ent": "IfcStyledItem", "args": ["#35010", "(#637)", "$"], "sec": "geo", "own": 350}, {"id": 35081, "ent": "IfcStyledItem", "args": ["#35030", "(#637)", "$"], "sec": "geo", "own": 350}, {"id": 41000, "ent": "IfcLocalPlacement", "args": ["#151", "#41001"], "sec": "geo", "own": 410}, {"id": 41001, "ent": "IfcAxis2Placement3D", "args": ["#41002", "#41003", "#41004"], "sec": "geo", "own": 410}, {"id": 41002, "ent": "IfcCartesianPoint", "args": ["(-0.3,-0.4,2.3)"], "sec": "geo", "own": 410}, {"id": 41003, "ent": "IfcDirection", "args": ["(0.,-0.447214,0.894427)"], "sec": "geo", "own": 410}, {"id": 41004, "ent": "IfcDirection", "args": ["(1.,0.,0.)"], "sec": "geo", "own": 410}, {"id": 41005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#41006)"], "sec": "geo", "own": 410}, {"id": 41006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#41010)"], "sec": "geo", "own": 410}, {"id": 41010, "ent": "IfcExtrudedAreaSolid", "args": ["#41011", "#33", "#31", "0.2"], "sec": "geo", "own": 410}, {"id": 41011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#41012", "8.6", "3.801316"], "sec": "geo", "own": 410}, {"id": 41012, "ent": "IfcAxis2Placement2D", "args": ["#41013", "$"], "sec": "geo", "own": 410}, {"id": 41013, "ent": "IfcCartesianPoint", "args": ["(4.3,1.900658)"], "sec": "geo", "own": 410}, {"id": 41080, "ent": "IfcStyledItem", "args": ["#41010", "(#632)", "$"], "sec": "geo", "own": 410}, {"id": 42000, "ent": "IfcLocalPlacement", "args": ["#151", "#42001"], "sec": "geo", "own": 420}, {"id": 42001, "ent": "IfcAxis2Placement3D", "args": ["#42002", "#42003", "#42004"], "sec": "geo", "own": 420}, {"id": 42002, "ent": "IfcCartesianPoint", "args": ["(8.3,6.4,2.3)"], "sec": "geo", "own": 420}, {"id": 42003, "ent": "IfcDirection", "args": ["(0.,0.447214,0.894427)"], "sec": "geo", "own": 420}, {"id": 42004, "ent": "IfcDirection", "args": ["(-1.,0.,0.)"], "sec": "geo", "own": 420}, {"id": 42005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#42006)"], "sec": "geo", "own": 420}, {"id": 42006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#42010)"], "sec": "geo", "own": 420}, {"id": 42010, "ent": "IfcExtrudedAreaSolid", "args": ["#42011", "#33", "#31", "0.2"], "sec": "geo", "own": 420}, {"id": 42011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#42012", "8.6", "3.801316"], "sec": "geo", "own": 420}, {"id": 42012, "ent": "IfcAxis2Placement2D", "args": ["#42013", "$"], "sec": "geo", "own": 420}, {"id": 42013, "ent": "IfcCartesianPoint", "args": ["(4.3,1.900658)"], "sec": "geo", "own": 420}, {"id": 42080, "ent": "IfcStyledItem", "args": ["#42010", "(#632)", "$"], "sec": "geo", "own": 420}, {"id": 43000, "ent": "IfcLocalPlacement", "args": ["#151", "#43001"], "sec": "geo", "own": 430}, {"id": 43001, "ent": "IfcAxis2Placement3D", "args": ["#43002", "#43003", "#43004"], "sec": "geo", "own": 430}, {"id": 43002, "ent": "IfcCartesianPoint", "args": ["(0.,3.,3.76)"], "sec": "geo", "own": 430}, {"id": 43003, "ent": "IfcDirection", "args": ["(1.,0.,0.)"], "sec": "geo", "own": 430}, {"id": 43004, "ent": "IfcDirection", "args": ["(0.,1.,0.)"], "sec": "geo", "own": 430}, {"id": 43005, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#43006)"], "sec": "geo", "own": 430}, {"id": 43006, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#43010)"], "sec": "geo", "own": 430}, {"id": 43010, "ent": "IfcExtrudedAreaSolid", "args": ["#43011", "#33", "#31", "8."], "sec": "geo", "own": 430}, {"id": 43011, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#43012", "0.12", "0.24"], "sec": "geo", "own": 430}, {"id": 43012, "ent": "IfcAxis2Placement2D", "args": ["#43013", "$"], "sec": "geo", "own": 430}, {"id": 43013, "ent": "IfcCartesianPoint", "args": ["(0.,0.12)"], "sec": "geo", "own": 430}, {"id": 43080, "ent": "IfcStyledItem", "args": ["#43010", "(#633)", "$"], "sec": "geo", "own": 430}, {"id": 43100, "ent": "IfcLocalPlacement", "args": ["#151", "#43101"], "sec": "geo", "own": 431}, {"id": 43101, "ent": "IfcAxis2Placement3D", "args": ["#43102", "#43103", "#43104"], "sec": "geo", "own": 431}, {"id": 43102, "ent": "IfcCartesianPoint", "args": ["(0.,1.5,3.01)"], "sec": "geo", "own": 431}, {"id": 43103, "ent": "IfcDirection", "args": ["(1.,0.,0.)"], "sec": "geo", "own": 431}, {"id": 43104, "ent": "IfcDirection", "args": ["(0.,1.,0.)"], "sec": "geo", "own": 431}, {"id": 43105, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#43106)"], "sec": "geo", "own": 431}, {"id": 43106, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#43110)"], "sec": "geo", "own": 431}, {"id": 43110, "ent": "IfcExtrudedAreaSolid", "args": ["#43111", "#33", "#31", "8."], "sec": "geo", "own": 431}, {"id": 43111, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#43112", "0.12", "0.24"], "sec": "geo", "own": 431}, {"id": 43112, "ent": "IfcAxis2Placement2D", "args": ["#43113", "$"], "sec": "geo", "own": 431}, {"id": 43113, "ent": "IfcCartesianPoint", "args": ["(0.,0.12)"], "sec": "geo", "own": 431}, {"id": 43180, "ent": "IfcStyledItem", "args": ["#43110", "(#633)", "$"], "sec": "geo", "own": 431}, {"id": 43200, "ent": "IfcLocalPlacement", "args": ["#151", "#43201"], "sec": "geo", "own": 432}, {"id": 43201, "ent": "IfcAxis2Placement3D", "args": ["#43202", "#43203", "#43204"], "sec": "geo", "own": 432}, {"id": 43202, "ent": "IfcCartesianPoint", "args": ["(0.,4.5,3.01)"], "sec": "geo", "own": 432}, {"id": 43203, "ent": "IfcDirection", "args": ["(1.,0.,0.)"], "sec": "geo", "own": 432}, {"id": 43204, "ent": "IfcDirection", "args": ["(0.,1.,0.)"], "sec": "geo", "own": 432}, {"id": 43205, "ent": "IfcProductDefinitionShape", "args": ["$", "$", "(#43206)"], "sec": "geo", "own": 432}, {"id": 43206, "ent": "IfcShapeRepresentation", "args": ["#40", "'Body'", "'SweptSolid'", "(#43210)"], "sec": "geo", "own": 432}, {"id": 43210, "ent": "IfcExtrudedAreaSolid", "args": ["#43211", "#33", "#31", "8."], "sec": "geo", "own": 432}, {"id": 43211, "ent": "IfcRectangleProfileDef", "args": [".AREA.", "$", "#43212", "0.12", "0.24"], "sec": "geo", "own": 432}, {"id": 43212, "ent": "IfcAxis2Placement2D", "args": ["#43213", "$"], "sec": "geo", "own": 432}, {"id": 43213, "ent": "IfcCartesianPoint", "args": ["(0.,0.12)"], "sec": "geo", "own": 432}, {"id": 43280, "ent": "IfcStyledItem", "args": ["#43210", "(#633)", "$"], "sec": "geo", "own": 432}]};
+
+/* ═════════ 1. Lecture du fichier STEP ═════════ */
+function splitArgs(s){
+  const out=[]; let d=0, q=false, cur='';
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(q){ cur+=c; if(c==="'"){ if(s[i+1]==="'"){cur+="'";i++;} else q=false; } continue; }
+    if(c==="'"){q=true;cur+=c;continue;}
+    if(c==='('){d++;cur+=c;continue;}
+    if(c===')'){d--;cur+=c;continue;}
+    if(c===','&&d===0){out.push(cur);cur='';continue;}
+    cur+=c;
+  }
+  if(cur!=='') out.push(cur);
+  return out;
+}
+function decodeStr(s){
+  return s.replace(/''/g,"'").replace(/\\X2\\([0-9A-F]+)\\X0\\/g,(m,h)=>h.match(/.{4}/g).map(x=>String.fromCharCode(parseInt(x,16))).join(''));
+}
+function parseVal(a){
+  a=a.trim();
+  if(a==='$') return null;
+  if(a==='*') return {derived:true};
+  if(a[0]==='#') return {ref:+a.slice(1)};
+  if(a[0]==="'") return decodeStr(a.slice(1,-1));
+  if(a[0]==='(') return splitArgs(a.slice(1,-1)).map(parseVal);
+  if(/^\.[A-Z0-9_]+\.$/.test(a)) return {enum:a.slice(1,-1)};
+  const m=a.match(/^([A-Z0-9_]+)\((.*)\)$/);
+  if(m) return {typed:m[1], v:parseVal(m[2])};
+  return parseFloat(a);
+}
+const L = {};   // id → {ent, args (texte), v (valeurs), sec, own}
+HOUSE.lines.forEach(d => L[d.id] = Object.assign({}, d, {v: d.args.map(parseVal)}));
+const refsIn = a => (a.join(',').match(/#\d+/g)||[]).map(x=>+x.slice(1));
+const BY = {};  // id → lignes qui le citent
+Object.values(L).forEach(d => refsIn(d.args).forEach(r => (BY[r]=BY[r]||[]).push(d.id)));
+
+/* ═════════ 2. Géométrie calculée depuis le fichier ═════════ */
+const V = {
+  add:(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]], sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],
+  mul:(a,k)=>[a[0]*k,a[1]*k,a[2]*k], dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],
+  cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],
+  norm:a=>{const l=Math.hypot(...a)||1;return [a[0]/l,a[1]/l,a[2]/l];}
+};
+const ID = {o:[0,0,0],x:[1,0,0],y:[0,1,0],z:[0,0,1]};
+const pt3 = id => { const c=L[id].v[0]; return [c[0]||0,c[1]||0,c[2]||0]; };
+function a2p3(id){
+  const v=L[id].v, o=pt3(v[0].ref);
+  let z=v[1]?V.norm(L[v[1].ref].v[0].concat([0,0,0]).slice(0,3)):[0,0,1];
+  let x=v[2]?L[v[2].ref].v[0].concat([0,0,0]).slice(0,3):[1,0,0];
+  x=V.norm(V.sub(x,V.mul(z,V.dot(x,z))));
+  return {o, x, y:V.cross(z,x), z};
+}
+const app = (F,p) => V.add(F.o, V.add(V.mul(F.x,p[0]), V.add(V.mul(F.y,p[1]), V.mul(F.z,p[2]))));
+const appD = (F,p) => V.add(V.mul(F.x,p[0]), V.add(V.mul(F.y,p[1]), V.mul(F.z,p[2])));
+const compose = (P,C) => ({o:app(P,C.o), x:appD(P,C.x), y:appD(P,C.y), z:appD(P,C.z)});
+function placement(id){
+  const d=L[id];
+  if(d.ent==='IfcLocalPlacement'){ const rel=d.v[0]; const F=a2p3(d.v[1].ref); return rel?compose(placement(rel.ref),F):F; }
+  return ID;
+}
+function profileRings(id){
+  const d=L[id];
+  const poly = pid => { const p=L[pid].v[0].map(r=>{const c=L[r.ref].v[0];return [c[0],c[1]];}); if(p.length>1&&p[0][0]===p[p.length-1][0]&&p[0][1]===p[p.length-1][1]) p.pop(); return p; };
+  const area = r => r.reduce((s,p,i)=>{const q=r[(i+1)%r.length];return s+p[0]*q[1]-q[0]*p[1];},0)/2;
+  let outer, holes=[];
+  if(d.ent==='IfcRectangleProfileDef'){
+    const c=L[L[d.v[2].ref].v[0].ref].v[0], X=d.v[3]/2, Y=d.v[4]/2;
+    outer=[[c[0]-X,c[1]-Y],[c[0]+X,c[1]-Y],[c[0]+X,c[1]+Y],[c[0]-X,c[1]+Y]];
+  } else {
+    outer=poly(d.v[2].ref);
+    if(d.ent==='IfcArbitraryProfileDefWithVoids') holes=d.v[3].map(r=>poly(r.ref));
+  }
+  if(area(outer)<0) outer.reverse();
+  holes=holes.map(h=>area(h)>0?h.reverse():h);
+  return {outer, holes};
+}
+const STYLE_OF = {};  // item → {rgb, tr, name, ids}
+Object.values(L).filter(d=>d.ent==='IfcStyledItem').forEach(d=>{
+  const psa=d.v[1][0].ref, ss=L[psa].v[0][0].ref, rend=L[ss].v[2][0].ref, col=L[rend].v[0].ref;
+  const c=L[col].v; STYLE_OF[d.v[0].ref]={rgb:[c[1],c[2],c[3]], tr:L[rend].v[1]||0, name:L[ss].v[0], styled:d.id, psa, ss, rend, col};
+});
+const PRODUCTS = {};  // id → {faces:[{pts:[[3]], holes, n, rgb, tr}], ent, name}
+const PRODUCT_ENTS = ['IfcSite','IfcSpace','IfcSlab','IfcWall','IfcDoor','IfcWindow','IfcStair','IfcFurnishingElement','IfcBeam','IfcOpeningElement'];
+Object.values(L).filter(d=>PRODUCT_ENTS.includes(d.ent) && d.v[6]).forEach(d=>{
+  const P=placement(d.v[5].ref);
+  const faces=[];
+  const reps=L[d.v[6].ref].v[2];
+  reps.forEach(r=>L[r.ref].v[3].forEach(it=>{
+    const ex=L[it.ref];
+    const pos=compose(P,a2p3(ex.v[1].ref));
+    const dir=V.mul(V.norm(L[ex.v[2].ref].v[0]), ex.v[3]);
+    const {outer,holes}=profileRings(ex.v[0].ref);
+    const st=STYLE_OF[it.ref]||{rgb:[.7,.7,.7],tr:0};
+    const W=p=>app(pos,[p[0],p[1],0]);
+    const top=p=>V.add(W(p),appD(pos,dir));
+    const nTop=V.norm(appD(pos,dir)), nBot=V.mul(nTop,-1);
+    const base={rgb:st.rgb,tr:st.tr,item:it.ref};
+    faces.push(Object.assign({pts:outer.map(top),holes:holes.map(h=>h.map(top)),n:nTop},base));
+    faces.push(Object.assign({pts:outer.slice().reverse().map(W),holes:holes.map(h=>h.slice().reverse().map(W)),n:nBot},base));
+    [outer,...holes].forEach(ring=>ring.forEach((p,i)=>{
+      const q=ring[(i+1)%ring.length], a=W(p), b=W(q);
+      const n=V.norm(V.cross(V.sub(b,a),appD(pos,dir)));
+      faces.push(Object.assign({pts:[a,b,top(q),top(p)],holes:[],n},base));
+    }));
+  }));
+  PRODUCTS[d.id]={id:d.id,ent:d.ent,name:d.v[2],faces};
+});
+
+/* ═════════ 3. Relations lues dans le fichier ═════════ */
+const REL = {container:{}, aggParent:{}, voids:{}, fills:{}, filledBy:{}, type:{}, mat:{}, psets:{}};
+Object.values(L).forEach(d=>{
+  const v=d.v;
+  if(d.ent==='IfcRelContainedInSpatialStructure') v[4].forEach(r=>REL.container[r.ref]={st:v[5].ref,rel:d.id});
+  if(d.ent==='IfcRelAggregates') v[5].forEach(r=>REL.aggParent[r.ref]={p:v[4].ref,rel:d.id});
+  if(d.ent==='IfcRelVoidsElement') (REL.voids[v[4].ref]=REL.voids[v[4].ref]||[]).push({o:v[5].ref,rel:d.id});
+  if(d.ent==='IfcRelFillsElement'){ REL.filledBy[v[4].ref]={e:v[5].ref,rel:d.id}; REL.fills[v[5].ref]={o:v[4].ref,rel:d.id}; }
+  if(d.ent==='IfcRelDefinesByType') v[4].forEach(r=>REL.type[r.ref]={t:v[5].ref,rel:d.id});
+  if(d.ent==='IfcRelAssociatesMaterial') v[4].forEach(r=>REL.mat[r.ref]={m:v[5].ref,rel:d.id});
+  if(d.ent==='IfcRelDefinesByProperties') v[4].forEach(r=>(REL.psets[r.ref]=REL.psets[r.ref]||[]).push({p:v[5].ref,rel:d.id}));
+});
+function storeyOf(id){
+  if(REL.container[id]) return REL.container[id].st;
+  const a=REL.aggParent[id]; if(a){ const p=L[a.p]; return p.ent==='IfcBuildingStorey'?a.p:storeyOf(a.p); }
+  if(REL.fills[id]) return storeyOf(REL.fills[id].o);
+  if(REL.voids) for(const w in REL.voids) if(REL.voids[w].some(x=>x.o===id)) return storeyOf(+w);
+  return null;
+}
+
+/* ═════════ 4. Vocabulaire ═════════ */
+const ENT_FR = {IfcWall:'Mur',IfcSlab:'Dalle',IfcDoor:'Porte',IfcWindow:'Fenêtre',IfcStair:'Escalier',IfcRoof:'Toiture',IfcBeam:'Poutre',IfcFurnishingElement:'Mobilier',IfcSpace:'Espace',IfcSite:'Terrain',IfcOpeningElement:'Réservation (ouverture)',IfcBuildingStorey:'Niveau',IfcBuilding:'Bâtiment',IfcProject:'Projet'};
+const PROP_FR = {IsExternal:'Extérieur',LoadBearing:'Porteur',ThermalTransmittance:'Coefficient U (W/m²·K)',FireRating:'Résistance au feu',HandicapAccessible:'Accessible PMR',NumberOfRiser:'Nombre de contremarches',NumberOfTreads:'Nombre de marches',RiserHeight:'Hauteur de marche (m)',TreadLength:'Giron (m)',Span:'Portée (m)',Category:'Catégorie',NetPlannedArea:'Surface nette prévue (m²)'};
+const CHAPS = [
+  {n:1,t:"Le format STEP et le fichier .ifc"},{n:2,t:"Lire une ligne"},{n:3,t:"L'IFC, un schéma pour le bâtiment"},
+  {n:4,t:"La racine : projet, unités, auteur"},{n:5,t:"La structure spatiale",ok:true},{n:6,t:"Les éléments et leur rangement",ok:true},
+  {n:7,t:"Ouvertures : évider et remplir"},{n:8,t:"Placement et géométrie"},{n:9,t:"Propriétés et quantités"},
+  {n:10,t:"Matériaux et couleurs",ok:true},{n:11,t:"Synthèse : lire un fichier inconnu"}];
+function chapsFor(id){
+  const e=PRODUCTS[id]?PRODUCTS[id].ent:L[id].ent, s=new Set();
+  if(['IfcSite','IfcSpace'].includes(e)) s.add(5);
+  if(['IfcWall','IfcSlab','IfcStair','IfcFurnishingElement','IfcBeam','IfcRoof'].includes(e)) s.add(6);
+  if(['IfcDoor','IfcWindow','IfcOpeningElement'].includes(e)||REL.voids[id]) s.add(7);
+  s.add(8); if(REL.psets[id]) s.add(9); if(REL.mat[id]||STYLE_OF[(PRODUCTS[id]||{faces:[{}]}).faces[0].item]) s.add(10);
+  return [...s].sort((a,b)=>a-b);
+}
+
+/* ═════════ 5. Rendu 3D (SVG, sans bibliothèque) ═════════ */
+let LAYOUT='A';
+const cam = {yaw:-0.62, pitch:0.42, zoom:1, panX:0, panY:0};
+const CENTER=[4,3,2.6];
+const st = {hide:new Set(['ouvertures','espaces']), explode:false, color:'file', sel:null, hl:new Set(), focus:null};
+const GROUPS = {
+  toiture:[410,420], charpente:[430,431,432], facade:[210,310,222,227,327],
+  etage:Object.keys(PRODUCTS).map(Number).filter(i=>storeyOf(i)===150), espaces:[140,160], ouvertures:[220,225,325], terrain:[110]
+};
+const ENT_COL = {IfcWall:[.45,.72,.55],IfcSlab:[.55,.66,.85],IfcDoor:[.85,.6,.35],IfcWindow:[.55,.8,.95],IfcStair:[.8,.55,.75],IfcFurnishingElement:[.85,.75,.45],IfcBeam:[.75,.55,.4],IfcSite:[.5,.6,.45],IfcSpace:[.55,.75,.95],IfcOpeningElement:[.95,.4,.4]};
+const STOREY_COL = {130:[.45,.65,.9],150:[.45,.8,.6],null:[.6,.6,.6]};
+const LIGHT=V.norm([-0.35,-0.6,0.8]);
+const cv = document.getElementById('scene');
+function visible(id){
+  for(const g of st.hide) if(GROUPS[g].includes(id)) return false;
+  if(st.hide.has('etage') && (GROUPS.etage.includes(id)||GROUPS.toiture.includes(id)||GROUPS.charpente.includes(id))) return false;
+  return true;
+}
+function explodeZ(id){
+  if(!st.explode) return 0;
+  if(GROUPS.toiture.includes(id)||GROUPS.charpente.includes(id)) return 5.2;
+  if(storeyOf(id)===150) return 2.6;
+  return 0;
+}
+/* Triangulation (oreilles) d'un polygone plan, trous inclus */
+function earcut2(pts){
+  const n=pts.length, idx=[...Array(n).keys()], tris=[];
+  const cross=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  const same=(p,q)=>Math.abs(p[0]-q[0])<1e-9&&Math.abs(p[1]-q[1])<1e-9;
+  const inTri=(p,a,b,c)=>{ if(same(p,a)||same(p,b)||same(p,c)) return false; const d1=cross(a,b,p),d2=cross(b,c,p),d3=cross(c,a,p); return d1>=-1e-12&&d2>=-1e-12&&d3>=-1e-12; };
+  let guard=0;
+  while(idx.length>3 && guard++<5000){
+    let found=false;
+    for(let i=0;i<idx.length;i++){
+      const ia=idx[(i+idx.length-1)%idx.length], ib=idx[i], ic=idx[(i+1)%idx.length];
+      const A=pts[ia],B=pts[ib],C=pts[ic];
+      if(cross(A,B,C)<=1e-12) continue;
+      let ok=true;
+      for(const j of idx){ if(j===ia||j===ib||j===ic) continue; if(inTri(pts[j],A,B,C)){ok=false;break;} }
+      if(!ok) continue;
+      tris.push([ia,ib,ic]); idx.splice(i,1); found=true; break;
+    }
+    if(!found) break;
+  }
+  if(idx.length===3) tris.push(idx.slice());
+  return tris;
+}
+function triangulate(ring3, holes3, normal){
+  const ax=[0,1,2].sort((i,j)=>Math.abs(normal[j])-Math.abs(normal[i]))[0];
+  const u=ax===0?1:0, v=ax===2?1:2;
+  const to2=p=>[p[u],p[v]];
+  const area=r=>r.reduce((s,p,i)=>{const q=r[(i+1)%r.length];return s+p[0]*q[1]-q[0]*p[1];},0);
+  let P=ring3.slice();
+  if(area(P.map(to2))<0) P.reverse();
+  holes3.forEach(h=>{
+    let H=h.slice(); if(area(H.map(to2))>0) H.reverse();
+    let hi=0; H.forEach((p,i)=>{ if(to2(p)[0]>to2(H[hi])[0]) hi=i; });
+    const hp=to2(H[hi]); let oi=-1, best=1e9;
+    P.forEach((p,i)=>{ const q=to2(p); if(q[0]>=hp[0]-1e-9){ const d=Math.hypot(q[0]-hp[0],q[1]-hp[1]); if(d<best){best=d;oi=i;} } });
+    const Hs=H.slice(hi).concat(H.slice(0,hi+1));
+    P=P.slice(0,oi+1).concat(Hs,[P[oi]],P.slice(oi+1));
+  });
+  return {pts:P, tris:earcut2(P.map(to2))};
+}
+/* Tampons WebGL par objet */
+const gl = cv.getContext('webgl',{antialias:true,premultipliedAlpha:false}) ;
+const VS=`attribute vec3 p;attribute vec3 n;attribute vec3 c;uniform mat4 M;uniform vec3 off;uniform vec3 L;varying vec3 vc;varying float sh;
+void main(){gl_Position=M*vec4(p+off,1.0);sh=0.6+0.4*max(0.0,dot(n,L));if(length(n)<0.1)sh=1.0;vc=c;}`;
+const FS=`precision mediump float;varying vec3 vc;varying float sh;uniform float alpha;uniform float hl;uniform vec3 hlc;
+void main(){vec3 col=vc*sh;col=mix(col,hlc,hl);gl_FragColor=vec4(col,alpha);}`;
+function mk(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
+const prog=gl.createProgram();gl.attachShader(prog,mk(gl.VERTEX_SHADER,VS));gl.attachShader(prog,mk(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
+const loc={p:gl.getAttribLocation(prog,'p'),n:gl.getAttribLocation(prog,'n'),c:gl.getAttribLocation(prog,'c'),M:gl.getUniformLocation(prog,'M'),off:gl.getUniformLocation(prog,'off'),L:gl.getUniformLocation(prog,'L'),alpha:gl.getUniformLocation(prog,'alpha'),hl:gl.getUniformLocation(prog,'hl'),hlc:gl.getUniformLocation(prog,'hlc')};
+const MESH={};
+for(const id in PRODUCTS){
+  const P=PRODUCTS[id], pos=[], nor=[], tris=[], lines=[];
+  P.faces.forEach(f=>{
+    const {pts,tris:tt}=triangulate(f.pts,f.holes,f.n);
+    tt.forEach(t=>t.forEach(i=>{ pos.push(...pts[i]); nor.push(...f.n); tris.push({rgb:f.rgb}); }));
+    [f.pts,...f.holes].forEach(r=>r.forEach((p,i)=>{ lines.push(...p,...r[(i+1)%r.length]); }));
+  });
+  const tri3=[]; for(let i=0;i<pos.length;i+=9) tri3.push([pos.slice(i,i+3),pos.slice(i+3,i+6),pos.slice(i+6,i+9)]);
+  const mkBuf=a=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(a),gl.STATIC_DRAW);return b;};
+  const cnt=pos.length/3;
+  let cmin=[1e9,1e9,1e9],cmax=[-1e9,-1e9,-1e9]; for(let i=0;i<pos.length;i+=3) for(let k=0;k<3;k++){cmin[k]=Math.min(cmin[k],pos[i+k]);cmax[k]=Math.max(cmax[k],pos[i+k]);}
+  MESH[id]={pos:mkBuf(pos),nor:mkBuf(nor),cnt,lines:mkBuf(lines),lcnt:lines.length/3,tri3,center:cmin.map((v,k)=>(v+cmax[k])/2),
+    baseCol:P.faces.map(f=>f.rgb), tr:P.faces[0].tr, colBuf:gl.createBuffer(), colKey:null, faceCols:tris.map(x=>x.rgb)};
+}
+function colorsFor(id){
+  const P=PRODUCTS[id], m=MESH[id];
+  let fixed=null;
+  if(st.color==='entity') fixed=ENT_COL[P.ent]||[.6,.6,.6];
+  if(st.color==='storey') fixed=STOREY_COL[storeyOf(+id)]||[.6,.6,.6];
+  if(P.ent==='IfcOpeningElement') fixed=[.95,.35,.35];
+  const key=st.color+(fixed?fixed.join():'');
+  if(m.colKey!==key){ const a=[]; m.faceCols.forEach(rgb=>a.push(...(fixed||rgb))); gl.bindBuffer(gl.ARRAY_BUFFER,m.colBuf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(a),gl.STATIC_DRAW); m.colKey=key; }
+}
+function alphaOf(id){
+  const P=PRODUCTS[id], m=MESH[id];
+  let a=1-(m.tr||0);
+  if(P.ent==='IfcSpace') a=0.22;
+  if(P.ent==='IfcOpeningElement') a=0.45;
+  if(st.focus && !st.focus.has(+id) && !st.hl.has(+id)) a*=0.18;
+  return a;
+}
+let VIEW=null;
+function viewParams(){
+  const W=cv.clientWidth||600, H=cv.clientHeight||400;
+  const k=Math.min(W/19, H/(st.explode?17:13))*cam.zoom;
+  const cz=st.explode?4.6:CENTER[2];
+  return {W,H,k,c:Math.cos(cam.yaw),s:Math.sin(cam.yaw),cp:Math.cos(cam.pitch),sp:Math.sin(cam.pitch),cx:CENTER[0],cy:CENTER[1],cz};
+}
+function matrix(v){
+  const {W,H,k,c,s,cp,sp,cx,cy,cz}=v, D=40;
+  const X=[c,-s,0,-c*cx+s*cy], Y1=[s,c,0,-s*cx-c*cy];
+  const Y2=[cp*Y1[0],cp*Y1[1],-sp,cp*Y1[3]+sp*cz], Z2=[sp*Y1[0],sp*Y1[1],cp,sp*Y1[3]-cp*cz];
+  const ax=k/(W/2), ay=k/(H/2);
+  const r0=X.map(q=>q*ax); r0[3]+=cam.panX/(W/2);
+  const r1=Z2.map(q=>q*ay); r1[3]-=cam.panY/(H/2);
+  const r2=Y2.map(q=>q/D);
+  const r3=[0,0,0,1];
+  return new Float32Array([r0[0],r1[0],r2[0],r3[0], r0[1],r1[1],r2[1],r3[1], r0[2],r1[2],r2[2],r3[2], r0[3],r1[3],r2[3],r3[3]]);
+}
+function bindMesh(m){
+  gl.bindBuffer(gl.ARRAY_BUFFER,m.pos);gl.enableVertexAttribArray(loc.p);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,m.nor);gl.enableVertexAttribArray(loc.n);gl.vertexAttribPointer(loc.n,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,m.colBuf);gl.enableVertexAttribArray(loc.c);gl.vertexAttribPointer(loc.c,3,gl.FLOAT,false,0,0);
+}
+let raf=null;
+function render(){ if(raf) return; raf=requestAnimationFrame(()=>{ raf=null; draw(); }); }
+function draw(){
+  const dpr=Math.min(2,window.devicePixelRatio||1), W=cv.clientWidth, H=cv.clientHeight;
+  if(!W||!H) return;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+  gl.viewport(0,0,cv.width,cv.height);
+  const bg=getComputedStyle(document.documentElement).getPropertyValue('--view').trim();
+  const m=bg.match(/#(..)(..)(..)/); const bc=m?[1,2,3].map(i=>parseInt(m[i],16)/255):[.1,.1,.12];
+  gl.clearColor(bc[0],bc[1],bc[2],1); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  VIEW=viewParams();
+  gl.uniformMatrix4fv(loc.M,false,matrix(VIEW));
+  gl.uniform3fv(loc.L,LIGHT);
+  const selc=getComputedStyle(document.documentElement).getPropertyValue('--sel').trim().match(/#(..)(..)(..)/);
+  gl.uniform3fv(loc.hlc,selc?[1,2,3].map(i=>parseInt(selc[i],16)/255):[.56,.79,.98]);
+  gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+  const ids=Object.keys(MESH).filter(id=>visible(+id));
+  const opaque=[], transp=[];
+  ids.forEach(id=>(alphaOf(id)<0.99?transp:opaque).push(id));
+  const depthOf=id=>{ const c=MESH[id].center, v=VIEW; const x=c[0]-v.cx,y=c[1]-v.cy,z=c[2]+explodeZ(+id)-v.cz; const y1=x*v.s+y*v.c; return y1*v.cp-z*v.sp; };
+  transp.sort((a,b)=>depthOf(b)-depthOf(a));
+  const drawOne=(id,pass)=>{
+    const ms=MESH[id]; colorsFor(id); bindMesh(ms);
+    gl.uniform3fv(loc.off,[0,0,explodeZ(+id)]);
+    const a=alphaOf(id), sel=st.hl.has(+id);
+    gl.uniform1f(loc.alpha,a); gl.uniform1f(loc.hl,sel?0.32:0);
+    gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(1,1);
+    gl.drawArrays(gl.TRIANGLES,0,ms.cnt);
+    gl.disable(gl.POLYGON_OFFSET_FILL);
+    // arêtes
+    gl.bindBuffer(gl.ARRAY_BUFFER,ms.lines);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,0,0);
+    gl.disableVertexAttribArray(loc.n);gl.vertexAttrib3f(loc.n,0,0,0);
+    gl.disableVertexAttribArray(loc.c);gl.vertexAttrib3f(loc.c,0,0,0);
+    gl.uniform1f(loc.hl,sel?1:0); gl.uniform1f(loc.alpha,Math.min(1,a+0.05)*(sel?1:0.45));
+    gl.drawArrays(gl.LINES,0,ms.lcnt);
+  };
+  gl.depthMask(true); opaque.forEach(id=>drawOne(id));
+  gl.depthMask(false); transp.forEach(id=>drawOne(id)); gl.depthMask(true);
+}
+/* Sélection à la souris : lancer de rayon sur les triangles */
+function pick(sx,sy){
+  const v=VIEW||viewParams();
+  const x1=(sx-v.W/2-cam.panX)/v.k, z2=(v.H/2+cam.panY-sy)/v.k;
+  const toWorld=y2=>{ const y1=y2*v.cp+z2*v.sp, zc=-y2*v.sp+z2*v.cp; return [x1*v.c+y1*v.s+v.cx, -x1*v.s+y1*v.c+v.cy, zc+v.cz]; };
+  const o=toWorld(-60), d=V.sub(toWorld(60),o);
+  let best=null, bestT=1e9, weak=null, weakT=1e9;
+  for(const id in MESH){
+    if(!visible(+id)) continue;
+    const dz=explodeZ(+id), P=PRODUCTS[id], isWeak=P.ent==='IfcSpace'||P.ent==='IfcSite'||(st.focus&&!st.focus.has(+id));
+    for(const tri of MESH[id].tri3){
+      const a=V.add(tri[0],[0,0,dz]),b=V.add(tri[1],[0,0,dz]),c=V.add(tri[2],[0,0,dz]);
+      const e1=V.sub(b,a),e2=V.sub(c,a),p=V.cross(d,e2),det=V.dot(e1,p); if(Math.abs(det)<1e-12) continue;
+      const inv=1/det,tv=V.sub(o,a),u=V.dot(tv,p)*inv; if(u<0||u>1) continue;
+      const q=V.cross(tv,e1),w=V.dot(d,q)*inv; if(w<0||u+w>1) continue;
+      const tt=V.dot(e2,q)*inv; if(tt<=0) continue;
+      if(isWeak){ if(tt<weakT){weakT=tt;weak=+id;} } else if(tt<bestT){bestT=tt;best=+id;}
+    }
+  }
+  return best!=null?best:weak;
+}
+let drag=null, pinch=null; const pointers=new Map();
+const rel=e=>{ const r=cv.getBoundingClientRect(); return [e.clientX-r.left,e.clientY-r.top]; };
+cv.addEventListener('pointerdown',e=>{ cv.setPointerCapture(e.pointerId); pointers.set(e.pointerId,{x:e.clientX,y:e.clientY}); if(pointers.size===1) drag={x:e.clientX,y:e.clientY,moved:0,pan:e.button===2||e.shiftKey}; else { drag=null; const [a,b]=[...pointers.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:cam.zoom}; } });
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointermove',e=>{
+  if(pointers.has(e.pointerId)) pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pinch&&pointers.size===2){ const [a,b]=[...pointers.values()]; cam.zoom=Math.max(.4,Math.min(5,pinch.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d)); render(); return; }
+  const tip=document.getElementById('tip');
+  if(drag){ const dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.moved+=Math.abs(dx)+Math.abs(dy);
+    if(drag.moved>4){ cv.classList.add('drag'); tip.style.display='none';
+      if(drag.pan){ cam.panX+=dx; cam.panY+=dy; } else { cam.yaw-=dx*0.008; cam.pitch=Math.max(-0.1,Math.min(1.5,cam.pitch+dy*0.006)); }
+      drag.x=e.clientX; drag.y=e.clientY; render(); } return; }
+  const [sx,sy]=rel(e), id=pick(sx,sy);
+  if(id!=null){ const P=PRODUCTS[id]; tip.style.display='block'; tip.textContent=`${P.name} — ${P.ent} #${id}`; tip.style.left=(sx+12)+'px'; tip.style.top=(sy+12)+'px'; cv.style.cursor='pointer'; }
+  else { tip.style.display='none'; cv.style.cursor=''; }
+});
+function endPtr(e){
+  pointers.delete(e.pointerId); if(pointers.size<2) pinch=null;
+  if(drag&&drag.moved<=4){ const [sx,sy]=rel(e), id=pick(sx,sy); id!=null?selectProduct(id):clearSel(); }
+  drag=null; cv.classList.remove('drag');
+}
+cv.addEventListener('pointerup',endPtr); cv.addEventListener('pointercancel',endPtr);
+cv.addEventListener('pointerleave',()=>document.getElementById('tip').style.display='none');
+cv.addEventListener('wheel',e=>{ e.preventDefault(); cam.zoom=Math.max(.4,Math.min(5,cam.zoom*(e.deltaY<0?1.1:0.9))); render(); },{passive:false});
+new ResizeObserver(()=>render()).observe(document.getElementById('viewWrap'));
+
+/* Barre d'outils */
+const TOOLS=[['explode','Vue éclatée'],['toiture','Masquer la toiture'],['charpente','Masquer la charpente'],['facade','Masquer la façade sud'],['etage','Masquer l\'étage'],['espaces','Montrer les espaces'],['ouvertures','Montrer les réservations'],['terrain','Masquer le terrain']];
+function isOn(k){ if(k==='explode') return st.explode; if(k==='espaces'||k==='ouvertures') return !st.hide.has(k); return st.hide.has(k); }
+function renderTools(){
+  document.getElementById('tools').innerHTML = `<button class="btn" data-t="reset" title="Vue initiale">⟲</button>`+TOOLS.map(([k,t])=>`<button class="btn${isOn(k)?' on':''}" data-t="${k}">${t}</button>`).join('')
+   +`<select id="colSel" title="Couleurs"><option value="file">Couleurs du fichier</option><option value="entity">Couleur par entité IFC</option><option value="storey">Couleur par niveau</option></select>`;
+  document.getElementById('colSel').value=st.color;
+  document.getElementById('colSel').onchange=e=>{st.color=e.target.value;render();};
+  document.querySelectorAll('#tools [data-t]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.t;
+    if(k==='reset'){ Object.assign(cam,{yaw:-0.62,pitch:0.42,zoom:1,panX:0,panY:0}); }
+    else if(k==='explode') st.explode=!st.explode;
+    else st.hide.has(k)?st.hide.delete(k):st.hide.add(k);
+    renderTools(); render();
+  });
+}
+
+/* ═════════ 6. Code du fichier ═════════ */
+const SECS=[['ctx','Contexte : auteur, logiciel, unités, repère d\'origine','#1 à #99'],['spatial','Structure spatiale : projet, terrain, bâtiment, niveaux, espaces','#100 à #199'],['rdc','Rez-de-chaussée : éléments et relations','#200 à #299'],['etage','Étage : éléments et relations','#300 à #399'],['toit','Toiture et charpente','#400 à #499'],['data','Données : matériaux, propriétés, type','#500 à #599'],['col','Couleurs : styles de surface','#600 à #699'],['geo','Géométrie, placements et couleurs appliquées','#11000 et plus · un bloc par objet']];
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function colorArgs(args){ return args.map(a=>{ if(a==='$'||a==='*') return `<span class="t-null">${a}</span>`; return esc(a).replace(/'(?:[^']|'')*'/g,m=>`<span class="t-str">${m}</span>`).replace(/#\d+/g,m=>`<span class="t-ref">${m}</span>`).replace(/\.[A-Z_]+\./g,m=>`<span class="t-enum">${m}</span>`); }).join(','); }
+const openGeo=new Set();
+function renderCode(){
+  let h=HOUSE.header.map(t=>`<div class="cl fx">${esc(t)}</div>`).join('');
+  SECS.forEach(([k,t,r])=>{
+    const ls=HOUSE.lines.filter(d=>d.sec===k);
+    h+=`<div class="cs">${t} <span style="font-weight:500">· ${r}</span></div>`;
+    if(k!=='geo'){ ls.forEach(d=>h+=lineHtml(d)); return; }
+    const owners=[...new Set(ls.map(d=>d.own))];
+    owners.forEach(o=>{
+      const g=ls.filter(d=>d.own===o), nm=L[o]?L[o].v[2]:'';
+      h+=`<div class="cg${openGeo.has(o)?' open':''}" data-g="${o}">${openGeo.has(o)?'▾':'▸'} Géométrie de #${o} ${esc(nm)} — ${g.length} lignes (#${g[0].id}…)</div>`;
+      if(openGeo.has(o)) g.forEach(d=>h+=lineHtml(d));
+    });
+  });
+  h+=`<div class="cl fx">ENDSEC;</div><div class="cl fx">END-ISO-10303-21;</div>`;
+  const el=document.getElementById('code'); el.innerHTML=h;
+  el.querySelectorAll('.cl[data-id]').forEach(x=>x.onclick=()=>selectLine(+x.dataset.id));
+  el.querySelectorAll('.cg').forEach(x=>x.onclick=()=>{ const o=+x.dataset.g; openGeo.has(o)?openGeo.delete(o):openGeo.add(o); renderCode(); markCode(); });
+  document.getElementById('codeMeta').textContent=`${HOUSE.lines.length+HOUSE.header.length+2} lignes · géométrie repliée`;
+  markCode();
+}
+function scrollCodeTo(x){ const c=document.getElementById('code'); const top=x.getBoundingClientRect().top-c.getBoundingClientRect().top+c.scrollTop; c.scrollTo({top:Math.max(0,top-c.clientHeight/3),behavior:'smooth'}); }
+function lineHtml(d){ return `<div class="cl" data-id="${d.id}"><span><span class="t-id">#${d.id}</span>=<span class="t-kw">${d.ent.toUpperCase()}</span>(${colorArgs(d.args)});</span></div>`; }
+let selLine=null, relLines=new Set();
+function markCode(scroll){
+  document.querySelectorAll('#code .cl[data-id]').forEach(x=>{ const i=+x.dataset.id; x.classList.toggle('sel',i===selLine); x.classList.toggle('rel',i!==selLine&&relLines.has(i)); });
+  if(scroll && selLine!=null){ const x=document.querySelector(`#code .cl[data-id="${selLine}"]`); if(x) scrollCodeTo(x); }
+}
+
+/* ═════════ 7. Sélection et fiche ═════════ */
+function relatedLines(id){
+  const s=new Set();
+  (BY[id]||[]).forEach(r=>{ const e=L[r].ent; if(/^IfcRel/.test(e)) s.add(r); });
+  const m=REL.mat[id]; if(m){ s.add(m.rel); s.add(m.m); const M=L[m.m]; if(M.ent==='IfcMaterialLayerSetUsage'){ const set=M.v[0].ref; s.add(set); L[set].v[0].forEach(l=>{s.add(l.ref); s.add(L[l.ref].v[0].ref);}); } if(M.ent==='IfcMaterialList') M.v[0].forEach(r=>s.add(r.ref)); }
+  (REL.psets[id]||[]).forEach(p=>{ s.add(p.rel); s.add(p.p); L[p.p].v[4].forEach(r=>s.add(r.ref)); });
+  const t=REL.type[id]; if(t){ s.add(t.rel); s.add(t.t); }
+  HOUSE.lines.filter(d=>d.own===id).forEach(d=>s.add(d.id));
+  return s;
+}
+function selectProduct(id, opts={}){
+  st.sel=id; st.hl=new Set([id]); selLine=id; relLines=relatedLines(id);
+  if(!visible(id)){ for(const g of ['toiture','charpente','facade','etage','espaces','ouvertures','terrain']) if(GROUPS[g].includes(id)) { if(g==='espaces'||g==='ouvertures') st.hide.delete(g); else st.hide.delete(g); } if(storeyOf(id)===150) st.hide.delete('etage'); renderTools(); }
+  if(!opts.keepFocus) st.focus=null;
+  if(opts.openGeo){ openGeo.add(id); renderCode(); }
+  render(); markCode(true); renderFiche(id);
+  if(LAYOUT==='B' && opts.code) document.getElementById('colCode').classList.add('open');
+}
+function selectLine(id, user=true){
+  const d=L[id];
+  if(PRODUCTS[id]) return selectProduct(id,{code:user});
+  if(d.own && PRODUCTS[d.own]){ selectProduct(d.own,{openGeo:true}); selLine=id; markCode(true); return; }
+  // ligne de relation, propriété, matériau… : on allume les objets concernés
+  selLine=id; relLines=new Set(refsIn(d.args));
+  const prods=productsOfLine(id);
+  st.hl=prods; st.sel=null; st.focus=prods.size?prods:null;
+  render(); markCode(true); renderFicheLine(id, prods);
+  if(LAYOUT==='B' && user) document.getElementById('colCode').classList.add('open');
+}
+const RELATING={IfcRelAggregates:[4,5],IfcRelContainedInSpatialStructure:[5,4],IfcRelVoidsElement:[4,5],IfcRelFillsElement:[4,5],IfcRelDefinesByProperties:[5,4],IfcRelAssociatesMaterial:[5,4],IfcRelDefinesByType:[5,4]};
+const refsOfArg=(d,i)=>(d.args[i].match(/#\d+/g)||[]).map(x=>+x.slice(1));
+function productsOfLine(id){
+  const out=new Set(), d=L[id];
+  if(/^IfcRel/.test(d.ent)){ refsIn(d.args).forEach(x=>{ if(PRODUCTS[x]) out.add(x); }); return out; }
+  const seen=new Set([id]); let front=[id];
+  for(let depth=0; depth<5 && front.length; depth++){
+    const next=[];
+    front.forEach(n=>(BY[n]||[]).forEach(r=>{
+      if(seen.has(r)) return; seen.add(r);
+      const R=L[r];
+      if(/^IfcRel/.test(R.ent)){ const ix=RELATING[R.ent]; if(ix && refsOfArg(R,ix[0]).includes(n)) refsOfArg(R,ix[1]).forEach(x=>{ if(PRODUCTS[x]) out.add(x); else if(L[x].ent==='IfcBuildingStorey'||L[x].ent==='IfcRoof') productsOfLine(x).forEach(y=>out.add(y)); }); return; }
+      if(PRODUCTS[r]){ out.add(r); return; }
+      if(R.own && PRODUCTS[R.own] && R.ent!=='IfcLocalPlacement'){ out.add(R.own); return; }
+      next.push(r);
+    }));
+    front=next;
+  }
+  return out;
+}
+function clearSel(){ st.sel=null; st.hl=new Set(); st.focus=null; selLine=null; relLines=new Set(); render(); markCode(); renderFiche(null); }
+const pct=v=>(v*100).toFixed(0);
+const lnk=(id,txt)=>`<span class="chip ln" data-l="${id}">#${id}</span>${txt?' '+txt:''}`;
+const exLink=(ifc)=>`<a class="chip ex" href="ifc_spatial.html#${ifc}" target="_blank" title="Ouvrir la fiche dans l'explorateur">${ifc} ↗</a>`;
+function fmtVal(v){ if(v&&v.typed){ const x=v.v; if(x&&x.enum) return x.enum==='T'?'Vrai':'Faux'; return typeof x==='number'?String(x).replace('.',','):x; } return v; }
+function renderFiche(id){
+  const el=document.getElementById('ficheBody');
+  document.getElementById('pFiche').style.display=(LAYOUT!=='A'&&id==null)?'none':'';
+  if(id==null){ el.innerHTML='<div class="empty">Cliquez un objet dans la maison, une ligne du fichier ou un mot souligné du cours.</div>'; return; }
+  const d=L[id], P=PRODUCTS[id]; let h='';
+  h+=`<div class="f-title">${esc(d.v[2])}</div><div class="f-sub">${d.ent} · ${ENT_FR[d.ent]||''} · ligne ${lnk(id)}${d.v[7]?` · repère « ${esc(d.v[7])} »`:''}</div>`;
+  const rows=[];
+  const c=REL.container[id], ag=REL.aggParent[id];
+  if(c) rows.push(['Rangé dans',`${esc(L[c.st].v[2])} ${lnk(c.st)} par la contenance ${lnk(c.rel)}`]);
+  if(ag) rows.push(['Fait partie de',`${esc(L[ag.p].v[2])} ${lnk(ag.p)} par l'agrégation ${lnk(ag.rel)}`]);
+  if(REL.fills[id]){ const f=REL.fills[id]; const w=Object.keys(REL.voids).find(k=>REL.voids[k].some(x=>x.o===f.o)); rows.push(['Remplit',`la réservation ${lnk(f.o)} ${lnk(f.rel)} percée dans ${esc(L[w].v[2])} ${lnk(+w)}`]); }
+  if(REL.voids[id]) rows.push(['Percé par',REL.voids[id].map(x=>{ const fb=REL.filledBy[x.o]; return `${esc(L[x.o].v[2])} ${lnk(x.o)} ${lnk(x.rel)}${fb?` → remplie par ${esc(L[fb.e].v[2])} ${lnk(fb.e)}`:''}`; }).join('<br>')]);
+  if(REL.type[id]){ const t=REL.type[id]; rows.push(['Type',`${esc(L[t.t].v[2])} ${lnk(t.t)} par ${lnk(t.rel)}`]); }
+  const m=REL.mat[id];
+  if(m){ const M=L[m.m]; let mh='';
+    if(M.ent==='IfcMaterialLayerSetUsage'){ const S=L[M.v[0].ref]; const lay=S.v[0].map(r=>L[r.ref]); const tot=lay.reduce((s,l)=>s+l.v[1],0); const cols=['#E7E0D0','#B4553C','#E9D27A','#D8D8D8'];
+      mh=`Composition « ${esc(S.v[1])} » ${lnk(S.id)} via ${lnk(m.m)}<div class="layer-bar">${lay.map((l,i)=>`<span style="width:${pct(l.v[1]/tot)}%;background:${cols[i%4]}" title="${esc(L[l.v[0].ref].v[0])}"></span>`).join('')}</div>`+lay.map(l=>`${lnk(l.id)} ${esc(L[l.v[0].ref].v[0])} — ${(l.v[1]*100).toFixed(1).replace('.',',')} cm`).join('<br>')+'<div style="color:var(--muted);font-size:.6rem;margin-top:.2rem">Barre indicative : les couleurs des couches ne sont pas écrites dans le fichier.</div>'; }
+    else if(M.ent==='IfcMaterialList') mh='Liste : '+M.v[0].map(r=>`${esc(L[r.ref].v[0])} ${lnk(r.ref)}`).join(', ');
+    else mh=`${esc(M.v[0])} ${lnk(M.id)}`;
+    rows.push(['Matériau',mh+`<div>par ${lnk(m.rel)}</div>`]); }
+  if(P){ const s=STYLE_OF[P.faces[0].item]; if(s){ const rgb=s.rgb.map(v=>Math.round(v*255)); rows.push(['Couleur',`<span class="sw" style="background:rgb(${rgb})"></span>« ${esc(s.name)} » — rouge ${String(s.rgb[0]).replace('.',',')}, vert ${String(s.rgb[1]).replace('.',',')}, bleu ${String(s.rgb[2]).replace('.',',')}${s.tr?`, transparence ${pct(s.tr)} %`:''}<div>${lnk(s.styled)} → ${lnk(s.psa)} → ${lnk(s.ss)} → ${lnk(s.rend)} → ${lnk(s.col)}</div>`]); } }
+  (REL.psets[id]||[]).forEach(p=>{ const PS=L[p.p]; rows.push([esc(PS.v[2]),PS.v[4].map(r=>{ const pv=L[r.ref]; return `${PROP_FR[pv.v[0]]||pv.v[0]} : <b>${esc(fmtVal(pv.v[2]))}</b> <span class="mono" style="color:var(--muted);font-size:.58rem">${pv.v[0]}</span>`; }).join('<br>')+`<div>${lnk(p.p)} par ${lnk(p.rel)}</div>`]); });
+  if(P){ const n=L[L[d.v[6].ref].v[2][0].ref].v[3].length; const g=HOUSE.lines.filter(x=>x.own===id); rows.push(['Géométrie',`${n} volume${n>1?'s':''} extrudé${n>1?'s':''} · ${g.length} lignes · placement ${lnk(d.v[5].ref)} <span class="chip ln" data-geo="${id}">déplier</span>`]); }
+  rows.push(['Dans le cours',chapsFor(id).map(n=>{ const C=CHAPS.find(x=>x.n===n); return `<span class="chip ch${C.ok?'':' todo'}" ${C.ok?`data-ch="${n}"`:''} title="${C.ok?'Ouvrir le chapitre':'Chapitre non rédigé dans le prototype'}">Ch.${n} ${C.t}</span>`; }).join('')]);
+  const ex=[d.ent]; if(c) ex.push('IfcRelContainedInSpatialStructure'); if(ag) ex.push('IfcRelAggregates'); if(REL.voids[id]||REL.fills[id]) ex.push('IfcRelVoidsElement','IfcRelFillsElement'); if(m) ex.push(L[m.m].ent==='IfcMaterialLayerSetUsage'?'IfcMaterialLayerSetUsage':L[m.m].ent); if(REL.psets[id]) ex.push('IfcPropertySet'); if(P) ex.push('IfcStyledItem','IfcExtrudedAreaSolid');
+  rows.push(['Dans l\'explorateur',[...new Set(ex)].map(exLink).join('')]);
+  h+=rows.map(r=>`<div class="f-row"><div class="k">${r[0]}</div><div>${r[1]}</div></div>`).join('');
+  el.innerHTML=h; bindFiche(el);
+}
+function renderFicheLine(id, prods){
+  const d=L[id], el=document.getElementById('ficheBody');
+  document.getElementById('pFiche').style.display='';
+  const fr = /^IfcRel/.test(d.ent)?'Relation':(d.ent==='IfcPropertySet'?'Jeu de propriétés':(/^IfcMaterial/.test(d.ent)?'Matériau':(/Style|Colour/.test(d.ent)?'Couleur / style':(ENT_FR[d.ent]||'Entité'))));
+  el.innerHTML=`<div class="f-title">${fr}${typeof d.v[2]==='string'?' — '+esc(d.v[2]):(typeof d.v[0]==='string'?' — '+esc(d.v[0]):'')}</div><div class="f-sub">${d.ent} · ligne ${lnk(id)}</div>
+   <div class="f-row"><div class="k">Cite</div><div>${refsIn(d.args).filter(r=>r!==5).map(r=>`${lnk(r)} ${esc(typeof L[r].v[2]==='string'?L[r].v[2]:(typeof L[r].v[0]==='string'?L[r].v[0]:L[r].ent))}`).join('<br>')||'—'}</div></div>
+   <div class="f-row"><div class="k">Cité par</div><div>${(BY[id]||[]).map(r=>lnk(r,esc(L[r].ent))).join('<br>')||'aucune ligne'}</div></div>
+   ${prods.size?`<div class="f-row"><div class="k">Objets allumés</div><div>${[...prods].map(p=>`<span class="chip" data-p="${p}">${esc(L[p].v[2])}</span>`).join('')}</div></div>`:''}
+   <div class="f-row"><div class="k">Dans l'explorateur</div><div>${exLink(d.ent)}</div></div>`;
+  bindFiche(el);
+}
+function bindFiche(el){
+  el.querySelectorAll('[data-l]').forEach(x=>x.onclick=()=>selectLine(+x.dataset.l));
+  el.querySelectorAll('[data-p]').forEach(x=>x.onclick=()=>selectProduct(+x.dataset.p));
+  el.querySelectorAll('[data-ch]').forEach(x=>x.onclick=()=>goChap(+x.dataset.ch));
+  el.querySelectorAll('[data-geo]').forEach(x=>x.onclick=()=>{ openGeo.add(+x.dataset.geo); renderCode(); markCode(); const g=document.querySelector(`#code .cg[data-g="${x.dataset.geo}"]`); if(g) scrollCodeTo(g); if(LAYOUT==='B') document.getElementById('colCode').classList.add('open'); });
+}
+document.getElementById('ficheClose').onclick=clearSel;
+
+/* ═════════ 8. Le cours (3 chapitres d'exemple) ═════════ */
+const P_=(id,t)=>`<a class="p" data-p="${id}">${t}</a>`, L_=(id)=>`<a class="l" data-l="${id}">#${id}</a>`, X_=(ifc)=>`<a class="x" href="ifc_spatial.html#${ifc}" target="_blank">${ifc}</a>`;
+const SECTIONS=[
+ {n:5, t:"La structure spatiale", state:{explode:true, show:['espaces'], hide:['ouvertures'], color:'storey', line:122, focus:[110,140,160,200,300]},
+  html:`<p>Avant de décrire le moindre mur, un fichier IFC pose une <b>arborescence de lieux</b> : le ${P_(100,'projet')} (${L_(100)}), qui contient le ${P_(110,'terrain')} (${L_(110)}), qui porte le bâtiment (${L_(120)}), lui-même découpé en <b>niveaux</b> : le RDC (${L_(130)}) et l'étage (${L_(150)}). Chaque niveau contient ses <b>espaces</b> : le ${P_(140,'séjour')} (${L_(140)}) et la ${P_(160,'chambre')} (${L_(160)}).</p>
+  <p>Aucune de ces lignes ne cite sa voisine. Le lien est porté par des <b>lignes de relation</b> ${X_('IfcRelAggregates')} : ${L_(101)} projet → terrain, ${L_(112)} terrain → bâtiment, ${L_(122)} bâtiment → niveaux, ${L_(132)} et ${L_(154)} niveaux → espaces. Une agrégation se lit « le tout se compose de ses parties » : le premier objet cité (<span class="mono">RelatingObject</span>) est le tout, la liste qui suit (<span class="mono">RelatedObjects</span>) donne les parties.</p>
+  <p>Dans la maison, la vue éclatée sépare les deux niveaux et les volumes bleutés sont les espaces. Un espace n'est ni un mur ni une dalle : c'est le volume d'air d'une pièce, avec sa propre géométrie (${L_(14000)}…).</p>`},
+ {n:6, t:"Les éléments et leur rangement", state:{explode:false, show:[], hide:['espaces','ouvertures'], color:'file', line:290},
+  html:`<p>Les murs, dalles, portes, fenêtres, l'escalier, la charpente et le mobilier sont des <b>éléments</b> (${X_('IfcElement')}). Chacun a sa ligne : le ${P_(210,'mur sud')} (${L_(210)}), la ${P_(222,"porte d'entrée")} (${L_(222)}), l'${P_(240,'escalier')} (${L_(240)}), la ${P_(250,'table')} (${L_(250)})…</p>
+  <p>Pour dire où se trouve un élément, IFC n'utilise pas l'agrégation mais la <b>contenance</b> : la relation ${X_('IfcRelContainedInSpatialStructure')} ${L_(290)} liste les éléments du RDC, puis cite le niveau qui les contient (${L_(130)}). La relation ${L_(390)} fait de même pour l'étage. Un élément est contenu dans un seul niveau.</p>
+  <p>La toiture combine les deux mécanismes : la ${P_(400,'toiture')} (${L_(400)}) est contenue dans l'étage, et elle se compose de deux pans, ${P_(410,'sud')} et ${P_(420,'nord')}, par une agrégation (${L_(401)}). Les pans ne sont pas rangés directement dans un niveau : ils appartiennent à la toiture. Masquez la toiture pour voir la ${P_(430,'charpente')}, ou la façade sud pour voir l'intérieur.</p>`},
+ {n:10, t:"Matériaux et couleurs", state:{explode:false, show:[], hide:['espaces','ouvertures','toiture'], color:'file', product:210},
+  html:`<p>Le ${P_(210,'mur sud')} (${L_(210)}) ne contient ni matériau ni couleur dans sa propre ligne. Les deux informations sont rattachées de l'extérieur, par <b>deux chemins différents</b>.</p>
+  <p><b>Le matériau</b> passe par une relation : ${X_('IfcRelAssociatesMaterial')} ${L_(520)} relie les dix murs à un usage de composition (${L_(516)}), qui renvoie à la composition « Mur extérieur 30 » (${L_(515)}), faite de quatre couches (${L_(511)} à ${L_(514)}) : enduit 1,5 cm, brique 20 cm, laine de roche 7 cm, plaque de plâtre 1,5 cm. Chaque couche cite son matériau (${L_(500)} à ${L_(503)}).</p>
+  <p><b>La couleur</b> est attachée à la géométrie, pas à l'objet : ${X_('IfcStyledItem')} ${L_(21080)} relie le volume du mur (${L_(21010)}) à un style (${L_(630)}), qui mène au style de surface « Enduit blanc cassé » (${L_(620)}), à son rendu (${L_(610)}) et enfin à la couleur ${L_(600)} : rouge 0,91, vert 0,88, bleu 0,82 (de 0 à 1). Conséquence : deux objets du même matériau peuvent avoir des couleurs différentes, et un logiciel peut afficher la couleur sans rien savoir du matériau.</p>
+  <p><b>Les propriétés</b> passent par un troisième chemin : ${X_('IfcRelDefinesByProperties')} ${L_(535)} attache le jeu ${X_('Pset_WallCommon')} (${L_(530)}) : porteur, extérieur, coefficient U de 0,28, résistance au feu REI60.</p>`},
+];
+let curChap=5;
+function renderCours(){
+  document.getElementById('chapPills').innerHTML=CHAPS.map(c=>`<button class="chap-pill${c.n===curChap?' on':''}${c.ok?'':' todo'}" ${c.ok?`data-c="${c.n}"`:'disabled'} title="${c.ok?'':'Non rédigé dans le prototype'}">${c.n}. ${c.t}</button>`).join('');
+  document.querySelectorAll('#chapPills [data-c]').forEach(b=>b.onclick=()=>goChap(+b.dataset.c));
+  const list = LAYOUT==='C' ? SECTIONS : SECTIONS.filter(s=>s.n===curChap);
+  document.getElementById('coursBody').innerHTML=list.map(s=>`<section class="chap" data-n="${s.n}"><div class="ck">Chapitre ${s.n}</div><h2>${s.t}</h2>${s.html}${LAYOUT!=='C'?navHtml(s.n):''}</section>`).join('')
+   +`<div class="legend-links"><span><a class="p">vert</a> : objet de la maison</span><span><a class="l">#n</a> : ligne du fichier</span><span><a class="x">violet</a> : fiche de l'explorateur</span></div>`;
+  const b=document.getElementById('coursBody');
+  b.querySelectorAll('a.p[data-p]').forEach(a=>a.onclick=()=>{ const id=+a.dataset.p; PRODUCTS[id]?selectProduct(id):selectLine(id); });
+  b.querySelectorAll('a.l[data-l]').forEach(a=>a.onclick=()=>selectLine(+a.dataset.l));
+  b.querySelectorAll('[data-go]').forEach(a=>a.onclick=()=>goChap(+a.dataset.go));
+  if(LAYOUT==='C') observeSections();
+}
+function navHtml(n){ const i=SECTIONS.findIndex(s=>s.n===n); return `<div style="display:flex;gap:.4rem;margin-top:.8rem">${i>0?`<button class="btn" data-go="${SECTIONS[i-1].n}">◀ Ch.${SECTIONS[i-1].n}</button>`:''}${i<SECTIONS.length-1?`<button class="btn" data-go="${SECTIONS[i+1].n}">Ch.${SECTIONS[i+1].n} ▶</button>`:''}</div>`; }
+function applyState(s){
+  const S=s.state; st.explode=S.explode; st.color=S.color;
+  ['espaces','ouvertures','toiture','charpente','facade','etage','terrain'].forEach(g=>{ if(S.hide.includes(g)) st.hide.add(g); else if(['espaces','ouvertures'].includes(g)) { if(S.show.includes(g)) st.hide.delete(g); else st.hide.add(g);} else st.hide.delete(g); });
+  renderTools();
+  if(S.product) selectProduct(S.product); else if(S.line) selectLine(S.line,false);
+  if(S.focus){ st.focus=new Set(S.focus); render(); }
+}
+function goChap(n){
+  const s=SECTIONS.find(x=>x.n===n); if(!s) return;
+  curChap=n;
+  if(LAYOUT==='C'){ const el=document.querySelector(`#coursBody section[data-n="${n}"]`); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  renderCours(); applyState(s);
+}
+let obs=null;
+function observeSections(){
+  if(obs) obs.disconnect();
+  obs=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ const n=+e.target.dataset.n; if(n!==curChap){ curChap=n; document.querySelectorAll('#chapPills .chap-pill').forEach(p=>p.classList.toggle('on',+p.dataset.c===n)); applyState(SECTIONS.find(s=>s.n===n)); } } });
+  },{rootMargin:'-35% 0px -55% 0px'});
+  document.querySelectorAll('#coursBody section.chap').forEach(s=>obs.observe(s));
+}
+
+/* ═════════ 9. Mises en page A / B / C ═════════ */
+const HINTS={
+ A:"<b>A · Trois volets</b> — cours, maison et code visibles en même temps ; la fiche de l'objet sous la maison. On avance chapitre par chapitre avec les boutons.",
+ B:"<b>B · Maquette au centre</b> — la maison occupe l'écran ; le cours tient dans la colonne de gauche, la fiche flotte sur la maison, le code s'ouvre en tiroir (bouton « Code du fichier » ou clic sur une ligne #n).",
+ C:"<b>C · Cours déroulant</b> — on lit le cours de haut en bas comme un manuel ; la maison et le code restent à droite et changent tout seuls quand on passe d'un chapitre à l'autre."};
+function setLayout(l){
+  LAYOUT=l;
+  const app=document.getElementById('app'); app.className='lay-'+l;
+  document.querySelectorAll('#laySeg button').forEach(b=>b.classList.toggle('on',b.dataset.l===l));
+  document.getElementById('layHint').innerHTML=HINTS[l];
+  const side=document.getElementById('side'), view=document.getElementById('colView'), code=document.getElementById('colCode'), fiche=document.getElementById('pFiche');
+  code.classList.remove('open');
+  if(l==='C'){ document.getElementById('pView').appendChild(fiche); }
+  else if(l==='B'){ view.appendChild(fiche); }
+  else { view.appendChild(fiche); }
+  if(obs){ obs.disconnect(); obs=null; }
+  renderCours();
+  if(l==='C') window.scrollTo(0,0);
+  applyState(SECTIONS.find(s=>s.n===curChap));
+  setTimeout(render,50);
+}
+document.querySelectorAll('#laySeg button').forEach(b=>b.onclick=()=>setLayout(b.dataset.l));
+document.getElementById('drawerBtn').onclick=()=>document.getElementById('colCode').classList.toggle('open');
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ document.getElementById('colCode').classList.remove('open'); document.getElementById('planOvl').classList.remove('on'); } });
+
+/* ═════════ 10. Plan du cours : 3 formules ═════════ */
+const PLANS=[
+ {t:'Essentiel',dur:'6 chapitres · environ 30 min',ch:[['Le fichier .ifc : un fichier texte au format STEP',''],['Lire une ligne : #n, entité, arguments, symboles',''],['La colonne vertébrale : projet, terrain, bâtiment, niveaux, espaces','structure spatiale'],['Les éléments et leur rangement','contenance, ouvertures'],['Propriétés, matériaux et couleurs','trois chemins'],['Méthode : lire un fichier inconnu','synthèse']],
+  can:'Ouvrir un .ifc dans un éditeur de texte, retrouver un objet, son niveau, son matériau et ses propriétés.'},
+ {t:'Standard',rec:true,dur:'11 chapitres · environ 55 min',ch:CHAPS.map(c=>[c.t,c.ok?'rédigé dans ce prototype':'']),
+  can:'Tout ce qui précède, plus : comprendre les placements relatifs et la géométrie extrudée, distinguer propriétés et quantités, réserver et remplir une ouverture.'},
+ {t:'Approfondi',dur:'15 chapitres · environ 1 h 15',ch:CHAPS.map(c=>[c.t,'']).concat([['Types et occurrences','IfcWallType, IfcRelDefinesByType'],['Géométries avancées','B-rep, MappedItem, booléens'],['IFC2x3, IFC4, IFC4.3 : ce qui change dans le fichier','comparaison ligne à ligne'],['Contrôler un fichier','règles, IDS, lien avec Solibri']]),
+  can:'Tout ce qui précède, plus : migrer un fichier d\'une version à l\'autre, écrire des règles de contrôle, lire les géométries complexes.'}];
+const LINKS=[['Chaque objet de la maison (fiche)','Entités IFC','lien vers la fiche de l\'entité (IfcWall…) et, en retour, « Voir dans la maison du cours » sur la fiche'],['Héritage d\'une entité','Hiérarchie · Arbre / Carte','le chapitre 3 renvoie vers la carte ; chaque fiche de la maison affiche sa chaîne d\'héritage'],['Chaque ligne de relation (IfcRel…)','Relations','les chapitres 5, 6, 7 et 11 ouvrent la relation dans l\'onglet Relations'],['Psets et propriétés','Fiches · Psets & quantités','les valeurs de la maison sont confrontées à la définition officielle du Pset'],['Valeurs comme .BASESLAB. ou .GABLE_ROOF.','Énumérations','clic → fiche de l\'énumération avec toutes les valeurs possibles'],['Structure spatiale','Arborescence','le chapitre 5 met en regard l\'arborescence de l\'explorateur et celle de la maison']];
+document.getElementById('plans').innerHTML=PLANS.map(p=>`<div class="plan${p.rec?' rec':''}"><h3>${p.t}${p.rec?'<span class="tag">recommandée</span>':''}</h3><div class="dur">${p.dur}</div><ol>${p.ch.map(c=>`<li>${c[0]}${c[1]?` <small>— ${c[1]}</small>`:''}</li>`).join('')}</ol><div class="can"><b>À la fin, on sait</b>${p.can}</div></div>`).join('');
+document.getElementById('linksTbl').innerHTML=`<tr><th>Dans le cours</th><th>Onglet de l'explorateur relié</th><th>Comment</th></tr>`+LINKS.map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td></tr>`).join('');
+document.getElementById('planBtn').onclick=()=>document.getElementById('planOvl').classList.add('on');
+document.getElementById('planOvl').onclick=e=>{ if(e.target.id==='planOvl') e.target.classList.remove('on'); };
+
+/* Thème partagé avec l'explorateur */
+function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); document.getElementById('themeBtn').textContent=t==='dark'?'☀':'🌙'; }
+let theme='dark'; try{ theme=localStorage.getItem('ifc-theme')||'dark'; }catch(e){}
+applyTheme(theme);
+document.getElementById('themeBtn').onclick=()=>{ theme=theme==='dark'?'light':'dark'; applyTheme(theme); try{localStorage.setItem('ifc-theme',theme);}catch(e){} render(); };
+
+renderTools(); renderCode(); renderFiche(null);
+const q=new URLSearchParams(location.search).get('l');
+setLayout(['A','B','C'].includes(q)?q:'A');
+</script>
+</body>
+</html>
